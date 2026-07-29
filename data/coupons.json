@@ -1,0 +1,18 @@
+[
+  {
+    "id": "coupon-welcome10",
+    "code": "WELCOME10",
+    "type": "percentage",
+    "value": 10,
+    "minPurchase": 1000,
+    "isActive": true
+  },
+  {
+    "id": "coupon-festive5000",
+    "code": "FESTIVE5000",
+    "type": "fixed",
+    "value": 5000,
+    "minPurchase": 30000,
+    "isActive": true
+  }
+]

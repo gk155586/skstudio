@@ -1,0 +1,117 @@
+[
+  {
+    "id": "ORD1778596321098",
+    "userEmail": "ganeshkalapadgsk@gmail.com",
+    "userName": "Ganesh SK",
+    "items": [
+      {
+        "name": "Boho Flower Vase RV103",
+        "price": 1999,
+        "qty": 1,
+        "image": "/images/SK_00713 copy.jpg.jpeg"
+      }
+    ],
+    "total": 1999,
+    "address": "Will be confirmed from profile",
+    "paymentMethod": "COD",
+    "status": "Pending",
+    "createdAt": "2026-05-12T14:32:01.098Z"
+  },
+  {
+    "id": "ORD1778596864444",
+    "userEmail": "ganeshkalapadgsk@gmail.com",
+    "userName": "Ganesh SK",
+    "items": [
+      {
+        "name": "Adah Gown | Baby Pink",
+        "price": 17999,
+        "qty": 2,
+        "image": "/images/sk_studio_pune_1728640628_3476412021157868315_63216979904.jpg"
+      }
+    ],
+    "total": 35998,
+    "address": "Will be confirmed from profile",
+    "paymentMethod": "COD",
+    "status": "Pending",
+    "createdAt": "2026-05-12T14:41:04.444Z"
+  },
+  {
+    "id": "ORD1778603977957",
+    "userEmail": "ganeshkalapadgsk@gmail.com",
+    "userName": "Ganesh SK",
+    "items": [
+      {
+        "name": "Beatrice Gown | Beetroot",
+        "price": 8999,
+        "qty": 1,
+        "image": "/images/SK_00682 copy.jpg.jpeg"
+      }
+    ],
+    "total": 8999,
+    "address": "Will be confirmed from profile",
+    "paymentMethod": "COD",
+    "status": "Pending",
+    "createdAt": "2026-05-12T16:39:37.957Z"
+  },
+  {
+    "id": "ORD1780248537330",
+    "userEmail": "ganesh@gmail.com",
+    "userName": "Ganesh",
+    "items": [
+      {
+        "name": "JUNGLE THEME",
+        "price": 0,
+        "qty": 1,
+        "image": "http://localhost:3001/images/sk_studio_pune_1728266877_3473276763711290682_63216979904.jpg"
+      }
+    ],
+    "total": 0,
+    "address": "Will be confirmed from profile",
+    "paymentMethod": "COD",
+    "status": "Pending",
+    "createdAt": "2026-05-31T17:28:57.330Z"
+  },
+  {
+    "id": "ORD1780248890630",
+    "userEmail": "ganesh@gmail.com",
+    "userName": "Ganesh",
+    "items": [
+      {
+        "name": "Bamboo U Stroller",
+        "price": 429900,
+        "qty": 1,
+        "image": "http://localhost:3001/images/sk_studio_pune_1728268494_3473290332010477610_63216979904.jpg"
+      },
+      {
+        "name": "Beatrice Gown | Beetroot",
+        "price": 899900,
+        "qty": 1,
+        "image": "http://localhost:3001/images/SK_00682%20copy.jpg.jpeg"
+      }
+    ],
+    "total": 1329800,
+    "address": "Will be confirmed from profile",
+    "paymentMethod": "COD",
+    "status": "Pending",
+    "createdAt": "2026-05-31T17:34:50.630Z"
+  },
+  {
+    "id": "ORD1780251227672",
+    "userEmail": "ganesh@gmail.com",
+    "userName": "Ganesh",
+    "items": [
+      {
+        "name": "CHEF THEME",
+        "price": 0,
+        "qty": 1,
+        "image": "http://localhost:3001/images/SK_00582%20copy.jpg.jpeg"
+      }
+    ],
+    "total": 0,
+    "address": "at",
+    "phone": "9763329442",
+    "paymentMethod": "COD",
+    "status": "Delivered",
+    "createdAt": "2026-05-31T18:13:47.672Z"
+  }
+]

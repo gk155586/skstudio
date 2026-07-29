@@ -1,0 +1,687 @@
+{
+  "navigation": {
+    "logoImage": "",
+    "logoText1": "SK STUDIO PUNE",
+    "logoText2": "",
+    "bannerText": "FREE SHIPPING FOR ORDERS ABOVE RS. 1000!",
+    "bannerBgColor": "#81879c",
+    "menuItems": "Wedding, Pre-wedding, Engagement, Haldi, Reception, Baby, Pre-baby, Birthday, Baby Shower, Maternity, Newborn"
+  },
+  "hero": {
+    "title": "Crafting Iconic\nStories in Every\nFrame.",
+    "subtitle": "Premium Photography Studio & Portfolio",
+    "description": "From luxurious weddings to tender newborn milestones, our Pune studio creates cinematic portraits that feel timeless and deeply personal.",
+    "btn1Text": "Explore Services",
+    "btn2Text": "Book a Session",
+    "backgroundImage": "/images/hero-desktop.jpg",
+    "images": "/images/sk_studio_pune_1728266877_3473276763711290682_63216979904.jpg,/images/sk_studio_pune_1728267502_3473282008428328340_63216979904.jpg,/images/SK_00517 copy.jpg.jpeg,/images/SK_00521.jpg.jpeg,/images/sk_studio_pune_1728268338_3473289022808913241_63216979904.jpg,/images/SK_00582 copy.jpg.jpeg,/images/SK_00604 copy.jpg.jpeg,/images/SK_00633 copy.jpg.jpeg",
+    "backgroundColor": "#c9b8a0",
+    "textAlignment": "right",
+    "subtitleStyle": {
+      "fontFamily": "Syne",
+      "bold": true,
+      "alignment": "center"
+    }
+  },
+  "heroSlideshow": {
+    "intervalMs": 3500,
+    "images": [
+      {
+        "url": "/images/sk_studio_pune_1735912861_3537415932190140930_63216979904.jpg",
+        "label": "sk_studio_pune_1735912861_3537415932190140930_63216979904"
+      },
+      {
+        "url": "/images/SK_00521.jpg - Copy.jpeg",
+        "label": "SK_00521.jpg - Copy"
+      },
+      {
+        "url": "/images/SK_00633 copy.jpg - Copy.jpeg",
+        "label": "SK_00633 copy.jpg - Copy"
+      }
+    ]
+  },
+  "products": [],
+  "sections": {
+    "themesTitle": "SHOP BY THEMES",
+    "readyMadeTitle": "READY-MADE THEMES",
+    "bestSellersTitle": "BEST SELLERS",
+    "newArrivalsTitle": "NEW ARRIVALS",
+    "babyBackdropsTitle": "READY-TO-SHIP BABY BACKDROPS",
+    "maternityBackdropsTitle": "READY-TO-SHIP MATERNITY BACKDROPS",
+    "watchShopTitle": "WATCH AND SHOP",
+    "watchShopSubtitle": "Handcrafted & handpicked props in a premium finish at affordable pricing ❤️"
+  },
+  "colors": {
+    "primary": "#8b9d83",
+    "secondary": "#2c3e50",
+    "accent": "#e74c3c"
+  },
+  "fonts": {
+    "primary": "Cormorant Garamond",
+    "secondary": "Montserrat"
+  },
+  "authPages": {
+    "loginImage": "/images/SK_00604 copy.jpg.jpeg",
+    "registerImage": "/images/sk_studio_pune_1735912861_3537415932190140930_63216979904.jpg"
+  },
+  "categoryGalleries": {
+    "pre-wedding": {
+      "name": "Pre-Wedding Shoot",
+      "description": "Romantic pre-wedding portraits",
+      "images": []
+    },
+    "haldi": {
+      "name": "Haldi Shoot",
+      "description": "Vibrant haldi ceremony moments",
+      "images": []
+    },
+    "wedding": {
+      "name": "Wedding Shoot",
+      "description": "Cinematic wedding photography",
+      "images": []
+    },
+    "maternity-indoor": {
+      "name": "Maternity Indoor",
+      "description": "Elegant pregnancy portraits in-studio",
+      "images": []
+    },
+    "maternity-outdoor": {
+      "name": "Maternity Outdoor",
+      "description": "Natural light outdoor maternity portraits",
+      "images": []
+    },
+    "baby-indoor": {
+      "name": "Baby Indoor",
+      "description": "Indoor baby portrait shoots",
+      "images": []
+    },
+    "baby-outdoor": {
+      "name": "Baby Outdoor",
+      "description": "Outdoor baby portrait sessions",
+      "images": []
+    },
+    "newborn": {
+      "name": "Newborn Shoot",
+      "description": "Pure infant baby milestones",
+      "images": []
+    },
+    "photo-frames": {
+      "name": "Custom Photo Frames",
+      "description": "Handcrafted premium wooden frames",
+      "images": []
+    }
+  },
+  "categories": [
+    {
+      "name": "Reception Shoot",
+      "image": "/images/frames-preview.jpg",
+      "description": "Reception party props",
+      "url": "/reception"
+    },
+    {
+      "name": "Baby Shoot",
+      "image": "/images/SK_00604 copy.jpg.jpeg",
+      "description": "Adorable baby photography props",
+      "url": "/baby-shoot",
+      "subsections": [
+        {
+          "name": "Outdoor Shoot",
+          "description": "",
+          "url": ""
+        },
+        {
+          "name": "Indoor Shoot",
+          "description": "",
+          "url": ""
+        }
+      ]
+    }
+  ],
+  "services": [
+    {
+      "id": "srv-wedding",
+      "title": "Wedding Segment",
+      "description": "Premium cinematic wedding films and photography covering traditional, candid, and destination stories.",
+      "details": ["Multiple Sessions (Up to 12 Hours)", "Drone Coverage & Raw Files", "Cinematography & Cinematic Teasers", "3 Bound Albums Included"],
+      "image": "/img/gallery/wedding/wedding-cover.jpg",
+      "slug": "wedding"
+    },
+    {
+      "id": "srv-prewedding",
+      "title": "Pre-Wedding Shoot",
+      "description": "Stunning couples portraits shot on premium sets and scenic outdoor locations around Pune.",
+      "details": ["Curated Backdrops & Locations", "Outfits & Makeup Services", "Instagram Reels & Cinematic Cuts", "Delivery in 30 Days"],
+      "image": "/img/gallery/pre-wedding/pre-wedding-cover.jpg",
+      "slug": "pre-wedding"
+    },
+    {
+      "id": "srv-maternity-indoor",
+      "title": "Maternity Indoor",
+      "description": "Elegant pregnancy portraiture showcasing the journey of motherhood in premium gown collections in our climate-controlled studio.",
+      "details": ["35+ Gown Selection Access", "Bespoke Prop Sets", "Private Comfort Changing Rooms", "15 Retouched High-End Edits"],
+      "image": "/img/gallery/maternity-indoor/maternity-indoor-cover.jpeg",
+      "slug": "maternity-indoor"
+    },
+    {
+      "id": "srv-maternity-outdoor",
+      "title": "Maternity Outdoor",
+      "description": "Scenic, glowing natural light maternity portraits captured at Pune's most beautiful lakes and custom private farms.",
+      "details": ["Golden Hour Sunset Sessions", "Drone Reels & Cinematic Footage", "Outdoors Gown Fitting Assistant", "All Raw Conversions Delivered"],
+      "image": "/img/gallery/maternity-outdoor/1/SKO00321.JPG",
+      "slug": "maternity-outdoor"
+    },
+    {
+      "id": "srv-baby-indoor",
+      "title": "Baby Indoor",
+      "description": "Delightful baby indoor studio sessions with sterilized themed props and temperature-controlled settings.",
+      "details": ["Curated toddler props", "Organic safe wraps & fabrics", "Temperature-controlled floor", "High-res edited frames"],
+      "image": "/img/gallery/baby-indoor/IMG_2457.JPG.jpeg",
+      "slug": "baby-indoor"
+    },
+    {
+      "id": "srv-baby-outdoor",
+      "title": "Baby Outdoor",
+      "description": "Vibrant baby outdoor photography capturing playful giggles and candid moments amidst green parks and sunny fields.",
+      "details": ["Natural daylight shooting", "Sterilized themed toys", "Candid sibling highlights", "Layflat digital album delivery"],
+      "image": "/img/gallery/baby-outdoor/1/SKO03266.JPG",
+      "slug": "baby-outdoor"
+    },
+    {
+      "id": "srv-newborn",
+      "title": "Newborn Shoot",
+      "description": "Capturing the purest initial days of your newborn in safe wrapping styles by certified baby safety handlers.",
+      "details": ["Certified Newborn Safety Handlers", "Classic basket and nest themes", "Parent and baby sibling portrait captures", "Premium wooden frame prints"],
+      "image": "/img/gallery/newborn/newborn-cover.jpeg",
+      "slug": "newborn"
+    },
+    {
+      "id": "srv-frames",
+      "title": "Custom Photo Frames",
+      "description": "Premium handcrafted photo frames, available in various sizes and finishes to preserve your memories.",
+      "details": ["Premium Wood & Acrylic", "Custom Sizes", "Matte & Glossy Finishes", "Fast Delivery"],
+      "image": "/images/frames-preview.jpg",
+      "slug": "photo-frames"
+    }
+  ],
+  "contact": {
+    "email": "skstudiopune@gmail.com",
+    "phone": "+91 93071 12119",
+    "address": "SK STUDIO PUNE, Sakubai Gawali Gardan, Shriram Colony, Bhosari, Maharashtra 411039",
+    "whatsapp": "9307112119",
+    "instagram": "https://instagram.com/sk_studio_pune",
+    "facebook": "https://facebook.com/skstudiopune"
+  },
+  "settings": {
+    "title": "SK STUDIO PUNE - Photography Props Store",
+    "description": "India's First Photography Props Store. Handcrafted & handpicked props in a premium finish at affordable pricing.",
+    "primaryColor": "#8b9d83",
+    "secondaryColor": "#6b7d63"
+  },
+  "visualChanges": {},
+  "readyMadeThemes": [
+    {
+      "id": "setup-0699",
+      "badge": "Ready to Ship",
+      "image": "",
+      "title": "",
+      "originalPrice": "",
+      "salePrice": "",
+      "discount": ""
+    },
+    {
+      "id": "setup-0697",
+      "badge": "Ready to Ship",
+      "image": "",
+      "title": "",
+      "originalPrice": "",
+      "salePrice": "",
+      "discount": ""
+    },
+    {
+      "id": "setup-0698",
+      "badge": "Ready to Ship",
+      "image": "",
+      "title": "",
+      "originalPrice": "",
+      "salePrice": "",
+      "discount": ""
+    },
+    {
+      "id": "setup-0695",
+      "badge": "Ready to Ship",
+      "image": "",
+      "title": "",
+      "originalPrice": "",
+      "salePrice": "",
+      "discount": ""
+    }
+  ],
+  "bestSellers": [
+    {
+      "id": "bamboo-stroller",
+      "badge": "Ready to Ship",
+      "image": "",
+      "title": "",
+      "originalPrice": "",
+      "salePrice": "",
+      "discount": ""
+    },
+    {
+      "id": "red-gown",
+      "badge": "Ready to Ship",
+      "image": "",
+      "title": "",
+      "originalPrice": "",
+      "salePrice": "",
+      "discount": ""
+    },
+    {
+      "id": "flower-vase",
+      "badge": "Ready to Ship",
+      "image": "",
+      "title": "",
+      "originalPrice": "",
+      "salePrice": "",
+      "discount": ""
+    },
+    {
+      "id": "pink-gown",
+      "badge": "Ready to Ship",
+      "image": "",
+      "title": "",
+      "originalPrice": "",
+      "salePrice": "",
+      "discount": ""
+    }
+  ],
+  "newArrivals": [
+    {
+      "id": "prod-dmi0s",
+      "badge": "Ready to Ship",
+      "image": "",
+      "title": "",
+      "originalPrice": "",
+      "salePrice": "",
+      "discount": ""
+    },
+    {
+      "id": "prod-u6kxb",
+      "badge": "Ready to Ship",
+      "image": "",
+      "title": "",
+      "originalPrice": "",
+      "salePrice": "",
+      "discount": ""
+    },
+    {
+      "id": "prod-jb660",
+      "badge": "Ready to Ship",
+      "image": "",
+      "title": "",
+      "originalPrice": "",
+      "salePrice": "",
+      "discount": ""
+    },
+    {
+      "id": "prod-3adpa",
+      "badge": "Ready to Ship",
+      "image": "",
+      "title": "",
+      "originalPrice": "",
+      "salePrice": "",
+      "discount": ""
+    }
+  ],
+  "babyBackdrops": [
+    {
+      "id": "prod-2341b",
+      "badge": "Ready to Ship",
+      "image": "",
+      "title": "",
+      "originalPrice": "",
+      "salePrice": "",
+      "discount": ""
+    },
+    {
+      "id": "prod-g5hx2",
+      "badge": "Ready to Ship",
+      "image": "",
+      "title": "",
+      "originalPrice": "",
+      "salePrice": "",
+      "discount": ""
+    },
+    {
+      "id": "prod-2oyv1",
+      "badge": "Ready to Ship",
+      "image": "",
+      "title": "",
+      "originalPrice": "",
+      "salePrice": "",
+      "discount": ""
+    },
+    {
+      "id": "prod-qqeej",
+      "badge": "",
+      "image": "",
+      "title": "",
+      "originalPrice": "",
+      "salePrice": "",
+      "discount": ""
+    }
+  ],
+  "maternityBackdrops": [
+    {
+      "id": "prod-pwxfw",
+      "badge": "Ready to Ship",
+      "image": "",
+      "title": "",
+      "originalPrice": "",
+      "salePrice": "",
+      "discount": ""
+    },
+    {
+      "id": "prod-hhck8",
+      "badge": "Ready to Ship",
+      "image": "",
+      "title": "",
+      "originalPrice": "",
+      "salePrice": "",
+      "discount": ""
+    },
+    {
+      "id": "prod-g8h2h",
+      "badge": "Ready to Ship",
+      "image": "",
+      "title": "",
+      "originalPrice": "",
+      "salePrice": "",
+      "discount": ""
+    },
+    {
+      "id": "prod-0xgk4",
+      "badge": "Ready to Ship",
+      "image": "",
+      "title": "",
+      "originalPrice": "",
+      "salePrice": "",
+      "discount": ""
+    }
+  ],
+  "watchShop": [
+    {
+      "id": "video-3qxh4",
+      "thumbnail": "/images/sk_studio_pune_1735365337_3532822964605165868_63216979904.jpg",
+      "views": "👁 1K",
+      "product": {
+        "image": "",
+        "title": "",
+        "salePrice": "",
+        "originalPrice": ""
+      }
+    },
+    {
+      "id": "video-x56eh",
+      "thumbnail": "/images/sk_studio_pune_1735441615_3533462834545570706_63216979904.jpg",
+      "views": "👁 2K",
+      "product": {
+        "image": "",
+        "title": "",
+        "salePrice": "",
+        "originalPrice": ""
+      }
+    },
+    {
+      "id": "video-w8a7m",
+      "thumbnail": "/images/sk_studio_pune_1735441848_3533464786767526081_63216979904.jpg",
+      "views": "👁 2K",
+      "product": {
+        "image": "",
+        "title": "",
+        "salePrice": "",
+        "originalPrice": ""
+      }
+    },
+    {
+      "id": "video-26atu",
+      "thumbnail": "/images/sk_studio_pune_1735442082_3533466748032544866_63216979904.jpg",
+      "views": "👁 6K",
+      "product": {
+        "image": "",
+        "title": "",
+        "salePrice": "",
+        "originalPrice": ""
+      }
+    },
+    {
+      "id": "video-n3e3j",
+      "thumbnail": "/images/sk_studio_pune_1735554291_3534408022501734773_63216979904.jpg",
+      "views": "👁 4K",
+      "product": {
+        "image": "",
+        "title": "",
+        "salePrice": "",
+        "originalPrice": ""
+      }
+    }
+  ],
+  "gridColumns": {
+    "themes": 4,
+    "readyMade": 4,
+    "bestSellers": 4,
+    "newArrivals": 4,
+    "babyBackdrops": 4,
+    "maternityBackdrops": 4,
+    "watchShop": 5
+  },
+  "heroStats": [
+    [
+      "",
+      "                      Luxury Sessions",
+      "                           Luxury Sessions",
+      "                           Luxury Sessions"
+    ],
+    [
+      "",
+      "                                   Client Love"
+    ],
+    [
+      "",
+      "                                Preview Support"
+    ]
+  ],
+  "services": [
+    {
+      "id": "srv-wedding",
+      "title": "Wedding Segment",
+      "description": "Premium cinematic wedding films and photography covering traditional, candid, and destination stories.",
+      "details": [
+        "Multiple Sessions (Up to 12 Hours)",
+        "Drone Coverage & Raw Files",
+        "Cinematography & Cinematic Teasers",
+        "3 Bound Albums Included"
+      ],
+      "image": "/img/blog/s1.jpg",
+      "slug": "wedding"
+    },
+    {
+      "id": "srv-prewedding",
+      "title": "Pre-Wedding Shoot",
+      "description": "Stunning couples portraits shot on premium sets and scenic outdoor locations around Pune.",
+      "details": [
+        "Curated Backdrops & Locations",
+        "Outfits & Makeup Services",
+        "Instagram Reels & Cinematic Cuts",
+        "Delivery in 30 Days"
+      ],
+      "image": "/img/blog/s2.jpg",
+      "slug": "pre-wedding"
+    },
+    {
+      "id": "srv-maternity-indoor",
+      "title": "Maternity Indoor",
+      "description": "Elegant pregnancy portraiture showcasing the journey of motherhood in premium gown collections in our climate-controlled studio.",
+      "details": [
+        "35+ Gown Selection Access",
+        "Bespoke Prop Sets",
+        "Private Comfort Changing Rooms",
+        "15 Retouched High-End Edits"
+      ],
+      "image": "/img/blog/s4.jpg",
+      "slug": "maternity-indoor"
+    },
+    {
+      "id": "srv-maternity-outdoor",
+      "title": "Maternity Outdoor",
+      "description": "Scenic, glowing natural light maternity portraits captured at Pune's most beautiful lakes and custom private farms.",
+      "details": [
+        "Golden Hour Sunset Sessions",
+        "Drone Reels & Cinematic Footage",
+        "Outdoors Gown Fitting Assistant",
+        "All Raw Conversions Delivered"
+      ],
+      "image": "/img/blog/s5.jpg",
+      "slug": "maternity-outdoor"
+    },
+    {
+      "id": "srv-baby-indoor",
+      "title": "Baby Indoor",
+      "description": "Delightful baby indoor studio sessions with sterilized themed props and temperature-controlled settings.",
+      "details": [
+        "Curated toddler props",
+        "Organic safe wraps & fabrics",
+        "Temperature-controlled floor",
+        "High-res edited frames"
+      ],
+      "image": "/img/blog/s6.jpg",
+      "slug": "baby-indoor"
+    },
+    {
+      "id": "srv-baby-outdoor",
+      "title": "Baby Outdoor",
+      "description": "Vibrant baby outdoor photography capturing playful giggles and candid moments amidst green parks and sunny fields.",
+      "details": [
+        "Natural daylight shooting",
+        "Sterilized themed toys",
+        "Candid sibling highlights",
+        "Layflat digital album delivery"
+      ],
+      "image": "/img/gallery/baby-outdoor/1/SKO03266.JPG",
+      "slug": "baby-outdoor"
+    },
+    {
+      "id": "srv-newborn",
+      "title": "Newborn Shoot",
+      "description": "Capturing the purest initial days of your newborn in safe wrapping styles by certified baby safety handlers.",
+      "details": [
+        "Certified Newborn Safety Handlers",
+        "Classic basket and nest themes",
+        "Parent and baby sibling portrait captures",
+        "Premium wooden frame prints"
+      ],
+      "image": "/img/blog/s7.jpg",
+      "slug": "newborn"
+    },
+    {
+      "id": "srv-frames",
+      "title": "Custom Photo Frames",
+      "description": "Premium handcrafted photo frames, available in various sizes and finishes to preserve your memories.",
+      "details": [
+        "Premium Wood & Acrylic",
+        "Custom Sizes",
+        "Matte & Glossy Finishes",
+        "Fast Delivery"
+      ],
+      "image": "/images/frames-preview.jpg",
+      "slug": "photo-frames"
+    }
+  ],
+  "about": {
+    "tag": "CONFIDENT STUDIO STORY",
+    "title": "Crafting Unforgettable Visual Stories. Professional Excellence.",
+    "p1": "SK Studio Pune is a distinguished visual arts firm known for capturing unforgettable moments with cinematic precision, utilizing best-in-class props, sets, and styling.",
+    "p2": "With over 1,400+ positive reviews, we stand proud as one of Pune's most-rated photography firms. Our client portfolio includes corporate builders, national sports figures, and destination projects.",
+    "p3": "Dedicated to Precision, Artistry & Timeless Storytelling.",
+    "image": "/api/admin/gallery/file?name=1784312249526-Insta_Saver__sk_kids_pune_image_3703444488629310146_1440x1028_74.jpg",
+    "established": "Established 2016",
+    "awardLabel": "Pune’s Highest Rated Firm",
+    "stats": [
+      {
+        "end": 1400,
+        "label": "Google Reviews",
+        "suffix": "+"
+      },
+      {
+        "end": 350,
+        "label": "Projects Completed",
+        "suffix": ""
+      },
+      {
+        "end": 10,
+        "label": "Years Experience",
+        "suffix": "+"
+      }
+    ]
+  },
+  "process": {
+    "tag": "Studio Workflow",
+    "title": "Our Production Process",
+    "description": "Bespoke, professional, and detailed steps from planning to delivering layflat albums.",
+    "steps": [
+      {
+        "number": "01",
+        "icon": "MessageSquare",
+        "title": "Concept & Consult",
+        "description": "We align on props, dedicated gown collections, outfits, and location setups beforehand."
+      },
+      {
+        "number": "02",
+        "icon": "Layers",
+        "title": "Setup & Style",
+        "description": "Our production designers build bespoke backdrops and curate wraps tailored to the theme."
+      },
+      {
+        "number": "03",
+        "icon": "Camera",
+        "title": "The Shoot Day",
+        "description": "A comfortable, temperature-controlled, award-winning shoot experience for your family."
+      },
+      {
+        "number": "04",
+        "icon": "PenTool",
+        "title": "Cinematic Editing",
+        "description": "Applying award-winning filters, retouching, and matching color profiles."
+      },
+      {
+        "number": "05",
+        "icon": "CheckCircle",
+        "title": "Premium Delivery",
+        "description": "Receive wooden bound layflat photo books and downloadable digital galleries."
+      }
+    ]
+  },
+  "testimonials": [
+    {
+      "id": "t-2",
+      "name": "Anisha Gopinathan",
+      "role": "Google Reviews",
+      "avatar": "/images/props/harley-boy.jpg",
+      "rating": 5,
+      "text": "We had an amazing experience for our maternity photoshoot! Unfortunately, I couldn't travel to the studio but the team was so helpful they came for a home shoot with all required equipment and props and captured beautiful pictures. The photographer was incredibly talented and made us feel so comfortable throughout.",
+      "textStyle": {
+        "fontFamily": "Montserrat"
+      }
+    },
+    {
+      "id": "t-3",
+      "name": "Prasad More",
+      "role": "Google Reviews",
+      "avatar": "/img/clients/1.jpg",
+      "rating": 5,
+      "text": "We had an amazing experience with SK Studio for our maternity photoshoot! The photographer was incredibly talented and made us feel so comfortable throughout the session. The photos turned out beautifully, capturing such precious moments that we'll cherish forever. Highly recommend!"
+    }
+  ],
+  "servicesSubtitleStyle": {
+    "bold": false
+  }
+}

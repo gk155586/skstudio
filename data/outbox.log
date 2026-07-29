@@ -1,0 +1,22 @@
+[2026-07-23T12:57:09.668Z] MAIL OUTBOX LOG
+FROM: "SK Studio Pune" <skstudiopune@gmail.com>
+TO: rahul.sharma@example.com
+SUBJECT: Update from SK Photo Studio Pune
+BODY: <div style="font-family: sans-serif; padding: 20px; color: #111;">
+            <h2>Message from SK Photo Studio Pune</h2>
+            <p>Hi Client, we hope you loved your photos! Please drop a quick rating on our Google review page to support our studio.</p>
+            <hr style="border: none; border-top: 1px solid #eee; margin-top: 20px;" />
+            <p style="font-size: 11px; color: #666;">SK Photo Studio Pune • Bhosari, Pune, Maharashtra - 411039</p>
+          </div>
+-----------------------------------------------------
+[2026-07-23T12:57:18.062Z] MAIL OUTBOX LOG
+FROM: "SK Studio Pune" <skstudiopune@gmail.com>
+TO: rahul.sharma@example.com
+SUBJECT: Update from SK Photo Studio Pune
+BODY: <div style="font-family: sans-serif; padding: 20px; color: #111;">
+            <h2>Message from SK Photo Studio Pune</h2>
+            <p>Hi Client, this is SK Photo Studio Pune. We are excited to confirm your photoshoot booking! Our coordinator will reach out with outfit and backdrop details.</p>
+            <hr style="border: none; border-top: 1px solid #eee; margin-top: 20px;" />
+            <p style="font-size: 11px; color: #666;">SK Photo Studio Pune • Bhosari, Pune, Maharashtra - 411039</p>
+          </div>
+-----------------------------------------------------

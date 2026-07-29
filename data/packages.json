@@ -1,0 +1,90 @@
+[
+  {
+    "id": "pkg-baby",
+    "name": "Baby / Newborn Shoot Setup",
+    "price": 14999,
+    "offerPrice": 12999,
+    "duration": "2 Hours",
+    "editedPhotos": 15,
+    "rawPhotos": 50,
+    "albums": 1,
+    "drone": false,
+    "reels": false,
+    "cinematography": false,
+    "deliveryTime": "15 Days",
+    "printOptions": "10x12 Photo Book",
+    "faqs": [
+      {
+        "q": "Do you provide baby outfits?",
+        "a": "Yes, we have a curated collection of premium newborn wraps and toddler outfits."
+      }
+    ],
+    "isActive": true
+  },
+  {
+    "id": "pkg-maternity",
+    "name": "Maternity Portfolio Package",
+    "price": 19999,
+    "offerPrice": 17999,
+    "duration": "3 Hours",
+    "editedPhotos": 25,
+    "rawPhotos": 100,
+    "albums": 1,
+    "drone": false,
+    "reels": true,
+    "cinematography": false,
+    "deliveryTime": "15 Days",
+    "printOptions": "Premium Layflat Album",
+    "faqs": [
+      {
+        "q": "How many gown changes are included?",
+        "a": "The package includes 2 gown changes from our premium maternity gown collection."
+      }
+    ],
+    "isActive": true
+  },
+  {
+    "id": "pkg-prewedding",
+    "name": "Pre-Wedding Shoot Backdrop",
+    "price": 49999,
+    "offerPrice": 44999,
+    "duration": "6 Hours",
+    "editedPhotos": 50,
+    "rawPhotos": 300,
+    "albums": 2,
+    "drone": true,
+    "reels": true,
+    "cinematography": true,
+    "deliveryTime": "30 Days",
+    "printOptions": "Two 12x18 Coffee Table Books",
+    "faqs": [
+      {
+        "q": "Is makeup included?",
+        "a": "Yes, standard pre-wedding makeup is included for the couple."
+      }
+    ],
+    "isActive": true
+  },
+  {
+    "id": "pkg-wedding",
+    "name": "Full Wedding Props & Shoot",
+    "price": 99999,
+    "offerPrice": 89999,
+    "duration": "12 Hours (Multiple Sessions)",
+    "editedPhotos": 100,
+    "rawPhotos": 1000,
+    "albums": 3,
+    "drone": true,
+    "reels": true,
+    "cinematography": true,
+    "deliveryTime": "45 Days",
+    "printOptions": "Executive Wooden Bound Albums",
+    "faqs": [
+      {
+        "q": "Do you cover destinations outside Pune?",
+        "a": "Yes, travel and accommodation fees are customized based on the venue location."
+      }
+    ],
+    "isActive": true
+  }
+]

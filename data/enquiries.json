@@ -1,0 +1,92 @@
+[
+  {
+    "id": "enq-1",
+    "name": "Rahul Sharma",
+    "email": "rahul.sharma@example.com",
+    "phone": "9823012345",
+    "service": "Maternity Portfolio Package",
+    "budget": 20000,
+    "status": "Converted",
+    "message": "Looking for outdoor maternity shoot in Pune. Preferred location: Empress Garden.",
+    "createdAt": "2026-07-06T10:00:00.000Z",
+    "assignedStaff": "Ganesh SK",
+    "notes": [
+      {
+        "text": "Initial enquiry received via website form. Needs outdoor quotes.",
+        "timestamp": "2026-07-06T10:05:00.000Z"
+      }
+    ],
+    "convertedBookingId": "bk-1783448039542",
+    "updatedAt": "2026-07-07T18:13:59.542Z",
+    "isDeleted": true,
+    "deletedAt": "2026-07-15T08:48:45.934Z"
+  },
+  {
+    "id": "enq-2",
+    "name": "Neha Patil",
+    "email": "neha.patil@example.com",
+    "phone": "9764512345",
+    "service": "Baby / Newborn Shoot Setup",
+    "budget": 15000,
+    "status": "Converted",
+    "message": "Inquiring about 3-month baby photoshoot packages. Outdoor preferred.",
+    "createdAt": "2026-07-05T14:30:00.000Z",
+    "assignedStaff": "Unassigned",
+    "notes": [
+      {
+        "text": "Spoke on phone. Client interested in custom theme overlays.",
+        "timestamp": "2026-07-05T15:10:00.000Z"
+      }
+    ],
+    "convertedBookingId": "bk-1784105303724",
+    "updatedAt": "2026-07-15T08:48:23.725Z",
+    "isDeleted": true,
+    "deletedAt": "2026-07-15T08:48:50.665Z"
+  },
+  {
+    "id": "enq-3",
+    "name": "Amit Deshmukh",
+    "email": "amit.deshmukh@example.com",
+    "phone": "9988776655",
+    "service": "Full Wedding Props & Shoot",
+    "budget": 95000,
+    "status": "Converted",
+    "message": "Wedding on Dec 15th, looking for full cinematography, drone and print albums.",
+    "createdAt": "2026-07-04T08:15:00.000Z",
+    "assignedStaff": "Ganesh SK",
+    "notes": [
+      {
+        "text": "Sent pricing catalog and detailed invoice quote.",
+        "timestamp": "2026-07-04T09:00:00.000Z"
+      }
+    ],
+    "convertedBookingId": "bk-1784105310205",
+    "updatedAt": "2026-07-15T08:48:30.205Z",
+    "isDeleted": true,
+    "deletedAt": "2026-07-15T08:48:54.185Z"
+  },
+  {
+    "id": "enq-1784284824934-hf2c7",
+    "frameId": "frm-1783487907581",
+    "frameCode": "SK-FR-001",
+    "frameName": "Gold Matte Wedding Frame",
+    "customerName": "suraj",
+    "customerEmail": "skstudio@gmail.com",
+    "customerPhone": "9307112119",
+    "details": "",
+    "createdAt": "2026-07-17T10:40:24.934Z",
+    "status": "Converted",
+    "notes": [
+      {
+        "text": "confirmed",
+        "timestamp": "2026-07-17T11:48:16.068Z"
+      },
+      {
+        "text": "note",
+        "timestamp": "2026-07-23T11:38:08.117Z"
+      }
+    ],
+    "updatedAt": "2026-07-23T11:38:24.307Z",
+    "convertedBookingId": "bk-1784806704307"
+  }
+]

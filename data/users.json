@@ -1,0 +1,20 @@
+{
+  "admin": {
+    "id": "admin",
+    "email": "ganeshkalapadgk@gmail.com",
+    "password": "7799a2f47fcb0ef7855cf2cb123ff11779870b7d06b5e6f91d74667970bb7acc4e9f59e0bcd43f8d98101332f99f7098db6a20b3e7993694512e454afc3fdbe5",
+    "role": "admin",
+    "name": "Admin",
+    "isActive": true
+  },
+  "user_1785101373321_34gbx": {
+    "name": "ganesh",
+    "email": "ganeshk@gmail.com",
+    "phone": "123456",
+    "mobile": "123456",
+    "password": "44f3592e2cf08f1082a411f3956f52bdcfcd7f40fcc941470173afdae80891937f9025b91c5c57200a05feab0a33019ca1d7f6dd6463df17353431ddbd4f9fc3",
+    "role": "user",
+    "isActive": true,
+    "createdAt": "2026-07-26T21:29:33.321Z"
+  }
+}
