@@ -110,7 +110,12 @@ export default function FloatingChatWidget() {
       });
 
       if (res.ok) {
-        fetchWidgetMessages(isOpen);
+        const data = await res.json();
+        if (data.success && data.reply) {
+          setMessages((prev) => [...prev, data.reply]);
+        } else {
+          fetchWidgetMessages(isOpen);
+        }
       }
     } catch (e) {
       console.error("Widget message send error:", e);

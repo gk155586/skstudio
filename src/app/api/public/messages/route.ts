@@ -34,6 +34,27 @@ async function getUserSession() {
   return null;
 }
 
+// Generate smart instant response for client inquiries
+function generateAutoReply(userMsg: string): string {
+  const query = userMsg.toLowerCase();
+
+  if (query.includes("hi") || query.includes("hello") || query.includes("hey") || query.includes("hii")) {
+    return "Hello! 👋 Welcome to SK Photo Studio Pune. How can we help you today? Ask us about maternity shoots, baby photography, wedding packages, or studio pricing!";
+  } else if (query.includes("price") || query.includes("cost") || query.includes("charge") || query.includes("rate") || query.includes("package")) {
+    return "📸 SK Photo Studio Pune offers custom packages for Maternity, Baby, Pre-wedding & Wedding shoots. For custom package details & discounts, please leave your mobile number or chat directly on WhatsApp at +91 93071 12119!";
+  } else if (query.includes("maternity") || query.includes("pregnant") || query.includes("pregnancy")) {
+    return "🤰 Our Maternity Sessions include luxury gown closet access, indoor aesthetic lighting setups, and outdoor garden photography. Would you like to schedule a consultation?";
+  } else if (query.includes("baby") || query.includes("newborn") || query.includes("kids")) {
+    return "👶 We specialize in baby & newborn shoots with certified baby-safe props, themes, and comfortable studio environments. Tell us the age of your baby to share setup ideas!";
+  } else if (query.includes("wedding") || query.includes("pre-wedding") || query.includes("haldi")) {
+    return "💍 Congratulations! Our Wedding Segment covers pre-wedding, haldi, marriage ceremony & cinematic teasers. Contact us at +91 93071 12119 for date availability!";
+  } else if (query.includes("address") || query.includes("location") || query.includes("where")) {
+    return "📍 Studio Address: Sakubai Gawali Gardan, Shriram Colony, Bhosari, Maharashtra 411039. We are open Monday to Sunday!";
+  }
+
+  return `Thank you for reaching out to SK Photo Studio Pune! We have logged your request. Our team will respond shortly. For urgent inquiries, WhatsApp us at +91 93071 12119.`;
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -99,13 +120,14 @@ export async function POST(request: Request) {
 
     const allMessages = getMessages();
 
-    const newMessage = {
+    // 1. Save user's incoming message
+    const userMsg = {
       id: "msg-widget-" + Date.now() + "-" + Math.random().toString(36).substring(2, 6),
       channel: "floating_widget",
       sender: "user",
       senderName: userName,
       senderEmail: userEmail,
-      recipientEmail: userEmail, // recipient email set to user identifier for admin grouping
+      recipientEmail: userEmail,
       recipientName: "SK Studio Admin",
       recipientPhone: userPhone,
       body: messageText.trim(),
@@ -115,16 +137,37 @@ export async function POST(request: Request) {
       isGuest: !session,
     };
 
-    allMessages.push(newMessage);
+    allMessages.push(userMsg);
+
+    // 2. Generate instant Automated Studio Reply
+    const autoReplyText = generateAutoReply(messageText.trim());
+    const botMsg = {
+      id: "msg-bot-" + (Date.now() + 1) + "-" + Math.random().toString(36).substring(2, 6),
+      channel: "floating_widget",
+      sender: "admin",
+      senderName: "SK Studio Assistant",
+      senderEmail: userEmail,
+      recipientEmail: userEmail,
+      recipientName: userName,
+      body: autoReplyText,
+      timestamp: new Date(Date.now() + 500).toISOString(),
+      status: "delivered",
+      isRead: false,
+      isGuest: !session,
+    };
+
+    allMessages.push(botMsg);
+
     const success = await saveMessages(allMessages);
 
     if (success) {
-      // Broadcast SSE event to admin dashboard
-      sseHub.broadcast("data_changed", { type: "message_received", data: newMessage });
+      // Broadcast SSE event to admin dashboard and clients
+      sseHub.broadcast("data_changed", { type: "message_received", data: userMsg });
 
       return NextResponse.json({
         success: true,
-        data: newMessage,
+        data: userMsg,
+        reply: botMsg,
         userEmail,
       });
     } else {
