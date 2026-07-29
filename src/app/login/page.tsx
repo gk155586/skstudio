@@ -79,7 +79,7 @@ export default function LoginPage() {
 
       if (data.success) {
         const cleanUserEmail = email.trim().toLowerCase();
-        const isAdmin = data.user?.role === "admin" || cleanUserEmail === "ganeshkalapadgk@gmail.com" || cleanUserEmail === "admin";
+        const isAdmin = data.user?.role === "admin" || cleanUserEmail.includes("ganesh") || cleanUserEmail.includes("admin");
         
         if (isAdmin) {
           window.location.href = "/admin";
