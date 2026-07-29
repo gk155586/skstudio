@@ -1,22 +1,12 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { atomicDb } from "@/app/lib/db";
 import { verifyPassword } from "@/app/lib/auth";
 import { signJWT } from "@/app/lib/jwt";
 
 export const dynamic = "force-dynamic";
 
-const USERS_FILE = path.join(process.cwd(), "data", "users.json");
-
 function getUsers() {
-  try {
-    if (fs.existsSync(USERS_FILE)) {
-      return JSON.parse(fs.readFileSync(USERS_FILE, "utf8"));
-    }
-  } catch (error) {
-    console.error("Error reading users file:", error);
-  }
-  return {};
+  return atomicDb.readJson("users.json", {});
 }
 
 export async function POST(request: Request) {
@@ -57,7 +47,7 @@ export async function POST(request: Request) {
     }
 
     const [userId, user] = userEntry as [string, any];
-    
+
     if (!user.password) {
       return NextResponse.json(
         { success: false, message: "Invalid email or password" },
