@@ -38,24 +38,31 @@ export default function MessagingView({
     return () => clearInterval(timer);
   }, [fetchDashboardData]);
 
-  // Extract unique client emails from both user directory and message history
+  // Extract unique client identifiers from both user directory and message history (most recent first)
   const allClientEmails = Array.from(
     new Set([
-      ...users.filter(u => u.role !== "admin" && u.email).map(u => u.email.toLowerCase()),
       ...messages
-        .map(m => (m.sender === "user" ? (m.senderEmail || m.recipientEmail) : m.recipientEmail))
-        .filter(e => e && e !== "admin" && !e.includes("skstudiopune@gmail.com"))
-        .map(e => e.toLowerCase())
+        .slice()
+        .reverse()
+        .map(m => (m.sender === "user" ? (m.senderEmail || m.recipientEmail) : (m.recipientEmail || m.senderEmail)))
+        .filter(e => e && e !== "admin" && !e.includes("skstudiopune@gmail.com")),
+      ...users.filter(u => u.role !== "admin" && u.email).map(u => u.email.toLowerCase())
     ])
   );
 
-  // Filter clients by search term
+  // Filter clients by search term or sender name
   const filteredClients = allClientEmails.filter((email) => {
     const userObj = users.find(u => u.email?.toLowerCase() === email.toLowerCase());
-    const name = (userObj?.name || email).toLowerCase();
-    const phone = (userObj?.phone || userObj?.mobile || "").toLowerCase();
+    const userMsgs = messages.filter(
+      m => (m.recipientEmail && m.recipientEmail.toLowerCase() === email.toLowerCase()) ||
+           (m.senderEmail && m.senderEmail.toLowerCase() === email.toLowerCase())
+    );
+    const msgSender = userMsgs.find(m => m.senderName && m.senderName !== "You" && !m.senderName.includes("Admin") && !m.senderName.includes("Assistant"));
+    
+    const name = (userObj?.name || msgSender?.senderName || email).toLowerCase();
+    const phone = (userObj?.phone || userObj?.mobile || msgSender?.recipientPhone || "").toLowerCase();
     const term = clientSearch.toLowerCase();
-    return name.includes(term) || email.includes(term) || phone.includes(term);
+    return name.includes(term) || email.toLowerCase().includes(term) || phone.includes(term);
   });
 
   // Automatically select first client if none selected
@@ -82,6 +89,12 @@ export default function MessagingView({
   const handleSendMessage = async () => {
     if (!chatInput.trim() || !selectedClient || isSending) return;
     const userObj = users.find(u => u.email?.toLowerCase() === selectedClient.toLowerCase());
+    const userMsgs = messages.filter(
+      m => (m.recipientEmail && m.recipientEmail.toLowerCase() === selectedClient.toLowerCase()) ||
+           (m.senderEmail && m.senderEmail.toLowerCase() === selectedClient.toLowerCase())
+    );
+    const msgUser = userMsgs.find(m => m.senderName && !m.senderName.includes("Admin") && !m.senderName.includes("Assistant"));
+
     const textToSend = chatInput.trim();
     setChatInput("");
     setIsSending(true);
@@ -92,8 +105,8 @@ export default function MessagingView({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           recipientEmail: selectedClient,
-          recipientPhone: userObj?.phone || userObj?.mobile || "",
-          recipientName: userObj?.name || "Client",
+          recipientPhone: userObj?.phone || userObj?.mobile || msgUser?.recipientPhone || "",
+          recipientName: userObj?.name || msgUser?.senderName || "Client",
           messageText: textToSend
         }),
       });
@@ -141,6 +154,9 @@ export default function MessagingView({
     return recipient === target || sender === target;
   });
 
+  const currentGuestMsg = clientMessages.find(m => m.senderName && !m.senderName.includes("Admin") && !m.senderName.includes("Assistant"));
+  const headerDisplayName = currentClientUser?.name || currentGuestMsg?.senderName || (selectedClient.startsWith("guest_") ? "Live Guest Client" : selectedClient);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[700px] text-slate-900 font-sans">
       
@@ -155,7 +171,7 @@ export default function MessagingView({
           </div>
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-mono font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full">
-              {allClientEmails.length} Clients
+              {allClientEmails.length} Conversations
             </span>
             <button 
               onClick={() => fetchDashboardData()} 
@@ -172,7 +188,7 @@ export default function MessagingView({
           <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="Search client by name, email, phone..."
+            placeholder="Search client by name, phone..."
             value={clientSearch}
             onChange={(e) => setClientSearch(e.target.value)}
             className="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#b08d4b] font-medium"
@@ -182,53 +198,60 @@ export default function MessagingView({
         {/* Client List */}
         <div className="flex-grow overflow-y-auto flex flex-col gap-1.5 pr-1">
           {filteredClients.length === 0 ? (
-            <div className="text-center text-slate-400 text-xs py-12 font-mono">No matching clients found</div>
+            <div className="text-center text-slate-400 text-xs py-12 font-mono">No active conversations found</div>
           ) : (
             filteredClients.map((email) => {
               const u = users.find(x => x.email?.toLowerCase() === email.toLowerCase());
-              const name = u?.name || email.split("@")[0];
               const isSelected = selectedClient?.toLowerCase() === email.toLowerCase();
               
               const userMsgs = messages.filter(
-                m => (m.recipientEmail && m.recipientEmail.toLowerCase() === email) ||
-                     (m.senderEmail && m.senderEmail.toLowerCase() === email)
+                m => (m.recipientEmail && m.recipientEmail.toLowerCase() === email.toLowerCase()) ||
+                     (m.senderEmail && m.senderEmail.toLowerCase() === email.toLowerCase())
               );
               const lastMsg = userMsgs[userMsgs.length - 1];
               const unreadCount = userMsgs.filter(m => m.sender === "user" && !m.isRead).length;
+
+              const msgSender = userMsgs.find(m => m.senderName && !m.senderName.includes("Admin") && !m.senderName.includes("Assistant"));
+              const displayName = u?.name || msgSender?.senderName || (email.startsWith("guest_") ? "Live Guest Client" : email);
 
               return (
                 <button
                   key={email}
                   onClick={() => handleSelectClient(email)}
-                  className={`w-full p-3 rounded-xl text-left border flex flex-col gap-1 transition-all ${
-                    isSelected
-                      ? "bg-[#b08d4b]/15 border-[#b08d4b] shadow-sm"
-                      : "border-slate-100 bg-slate-50/50 hover:bg-slate-100 text-slate-700"
+                  className={`w-full text-left p-3 rounded-xl border transition-all flex items-start justify-between gap-2 ${
+                    isSelected 
+                      ? "bg-[#b08d4b]/10 border-[#b08d4b] shadow-sm" 
+                      : "bg-white border-slate-100 hover:bg-slate-50"
                   }`}
                 >
-                  <div className="flex justify-between items-center w-full">
-                    <div className="flex items-center gap-1.5">
-                      <span className={`text-xs font-bold ${isSelected ? "text-[#b08d4b]" : "text-slate-900"}`}>
-                        {name}
-                      </span>
-                      {unreadCount > 0 && (
-                        <span className="bg-rose-600 text-white font-mono text-[9px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
-                          {unreadCount} NEW
-                        </span>
-                      )}
+                  <div className="flex items-start gap-2.5 min-w-0">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 font-bold text-xs ${
+                      isSelected ? "bg-[#b08d4b] text-white" : "bg-slate-100 text-slate-600"
+                    }`}>
+                      {displayName.charAt(0).toUpperCase()}
                     </div>
-                    {userMsgs.length > 0 && lastMsg && (
-                      <span className="text-[9px] font-mono text-slate-400">
-                        {new Date(lastMsg.timestamp).toLocaleDateString([], { month: "short", day: "numeric" })}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs font-bold text-slate-900 truncate">
+                          {displayName}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                        {lastMsg ? lastMsg.body : "No messages yet"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-end shrink-0 gap-1">
+                    <span className="text-[9px] text-slate-400 font-mono">
+                      {lastMsg ? new Date(lastMsg.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ""}
+                    </span>
+                    {unreadCount > 0 && (
+                      <span className="bg-rose-500 text-white font-mono text-[9px] font-bold px-1.5 py-0.2 rounded-full animate-bounce">
+                        {unreadCount}
                       </span>
                     )}
                   </div>
-                  <span className="text-[10px] text-slate-500 font-mono truncate">{email}</span>
-                  {lastMsg && (
-                    <p className="text-[11px] text-slate-600 line-clamp-1 mt-0.5 font-medium">
-                      {lastMsg.sender === "admin" ? "You: " : `${lastMsg.senderName || 'Client'}: `}{lastMsg.body}
-                    </p>
-                  )}
                 </button>
               );
             })
@@ -236,121 +259,116 @@ export default function MessagingView({
         </div>
       </div>
 
-      {/* Main Chat Conversation Panel */}
-      <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between h-full overflow-hidden">
+      {/* Main Conversation Workspace */}
+      <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col h-full overflow-hidden">
         
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3 gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#b08d4b]/15 border border-[#b08d4b]/30 flex items-center justify-center text-[#b08d4b] font-black text-sm">
-              {(currentClientUser?.name || selectedClient || "C")[0].toUpperCase()}
-            </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-extrabold text-slate-900">{currentClientUser?.name || selectedClient || "Select Client"}</span>
-              <span className="text-[11px] text-slate-500 font-mono flex items-center gap-2">
-                <Mail size={11} className="text-slate-400" /> {selectedClient || "N/A"}
-                {(currentClientUser?.phone || currentClientUser?.mobile) && (
-                  <span className="flex items-center gap-1 font-semibold text-slate-700">
-                    • <Phone size={11} className="text-slate-400" /> {currentClientUser.phone || currentClientUser.mobile}
-                  </span>
-                )}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-1 bg-[#b08d4b]/15 text-[#b08d4b] border border-[#b08d4b]/30 rounded-full text-[10px] font-extrabold uppercase font-mono tracking-wider">
-              ⚡ Platform 2-Way Chat
-            </span>
-          </div>
-        </div>
-
-        {/* Message Stream */}
-        <div className="flex-grow overflow-y-auto my-4 pr-2 flex flex-col gap-3">
-          {!selectedClient ? (
-            <div className="text-center text-slate-400 text-xs my-auto font-mono">
-              Select a client from the left panel to open their conversation thread.
-            </div>
-          ) : clientMessages.length === 0 ? (
-            <div className="text-center text-slate-400 text-xs my-auto font-mono py-12">
-              No previous conversation logged for {selectedClient}. Send a message below to start thread!
-            </div>
-          ) : (
-            clientMessages.map((msg) => {
-              const isAdmin = msg.sender === "admin";
-
-              return (
-                <div
-                  key={msg.id}
-                  className={`flex flex-col max-w-[80%] p-3.5 rounded-2xl text-xs ${
-                    isAdmin
-                      ? "self-end bg-[#b08d4b] text-white rounded-br-none shadow-sm"
-                      : "self-start bg-slate-100 border border-slate-200 text-slate-900 rounded-bl-none"
-                  }`}
-                >
-                  <div className={`flex justify-between items-center gap-4 mb-1 text-[9px] font-mono ${isAdmin ? "text-white/80" : "text-slate-500"}`}>
-                    <span className="font-bold">{isAdmin ? "SK Studio Admin" : (msg.senderName || "Client")}</span>
-                    <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                  </div>
-
-                  <p className="whitespace-pre-line leading-relaxed">{msg.body}</p>
-
-                  <div className={`flex justify-end mt-1 text-[9px] font-mono ${isAdmin ? "text-white/70" : "text-slate-400"}`}>
-                    <CheckCheck size={12} />
-                  </div>
+        {/* Header Bar */}
+        {selectedClient ? (
+          <>
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-[#b08d4b]/15 text-[#b08d4b] font-extrabold flex items-center justify-center text-sm border border-[#b08d4b]/30">
+                  {headerDisplayName.charAt(0).toUpperCase()}
                 </div>
-              );
-            })
-          )}
-          <div ref={messagesEndRef} />
-        </div>
+                <div>
+                  <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    {headerDisplayName}
+                  </h2>
+                  <p className="text-[10px] font-mono text-slate-400 flex items-center gap-2">
+                    <Mail size={10} /> {selectedClient}
+                    {currentClientUser?.phone && (
+                      <span className="flex items-center gap-1 text-slate-500 font-semibold">
+                        <Phone size={10} /> {currentClientUser.phone}
+                      </span>
+                    )}
+                  </p>
+                </div>
+              </div>
 
-        {/* Quick Response Templates & Send Bar */}
-        <div className="flex flex-col gap-2 pt-3 border-t border-slate-100">
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider font-mono shrink-0 mr-1">Quick Reply:</span>
-            <button
-              onClick={() => handleApplyTemplate("confirm")}
-              className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-[10px] font-bold tracking-wide whitespace-nowrap transition-colors"
-            >
-              Confirm Shoot
-            </button>
-            <button
-              onClick={() => handleApplyTemplate("payment")}
-              className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-[10px] font-bold tracking-wide whitespace-nowrap transition-colors"
-            >
-              Payment Reminder
-            </button>
-            <button
-              onClick={() => handleApplyTemplate("remind")}
-              className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-[10px] font-bold tracking-wide whitespace-nowrap transition-colors"
-            >
-              Shoot Reminder
-            </button>
+              {/* Action shortcuts */}
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => handleApplyTemplate("confirm")}
+                  className="px-2.5 py-1 bg-slate-100 hover:bg-[#b08d4b]/10 hover:text-[#b08d4b] text-slate-700 text-[10px] font-bold rounded-lg transition-colors"
+                >
+                  Confirm Template
+                </button>
+                <button
+                  onClick={() => handleApplyTemplate("remind")}
+                  className="px-2.5 py-1 bg-slate-100 hover:bg-[#b08d4b]/10 hover:text-[#b08d4b] text-slate-700 text-[10px] font-bold rounded-lg transition-colors"
+                >
+                  Reminder
+                </button>
+              </div>
+            </div>
+
+            {/* Message Stream */}
+            <div className="flex-grow overflow-y-auto p-3 flex flex-col gap-3 bg-slate-50/50 rounded-xl border border-slate-100 mb-3">
+              {clientMessages.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-2">
+                  <Sparkles size={24} className="text-slate-300" />
+                  <p className="text-xs font-mono">No message history yet. Type a message below to start.</p>
+                </div>
+              ) : (
+                clientMessages.map((m, idx) => {
+                  const isAdmin = m.sender === "admin";
+                  return (
+                    <div
+                      key={m.id || idx}
+                      className={`flex flex-col ${isAdmin ? "items-end" : "items-start"}`}
+                    >
+                      <div className="flex items-center gap-1.5 mb-1 px-1">
+                        <span className="text-[10px] font-bold text-slate-600">
+                          {isAdmin ? "SK Studio Admin" : (m.senderName || "Client")}
+                        </span>
+                        <span className="text-[9px] font-mono text-slate-400">
+                          {new Date(m.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      
+                      <div className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed shadow-sm ${
+                        isAdmin 
+                          ? "bg-[#b08d4b] text-white rounded-tr-none font-medium" 
+                          : "bg-white border border-slate-200 text-slate-900 rounded-tl-none font-medium"
+                      }`}>
+                        {m.body}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Input Composer */}
+            <div className="flex items-center gap-2 pt-1">
+              <input
+                type="text"
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={`Type a reply to ${headerDisplayName}...`}
+                className="flex-grow bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#b08d4b] font-medium"
+              />
+              <button
+                onClick={handleSendMessage}
+                disabled={isSending || !chatInput.trim()}
+                className="bg-[#b08d4b] hover:bg-[#96753a] disabled:opacity-50 text-white px-5 py-2.5 rounded-xl font-bold text-xs transition-all shadow-sm flex items-center gap-1.5 shrink-0"
+              >
+                <span>Send</span>
+                <Send size={13} />
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-2">
+            <MessageSquare size={32} className="text-slate-300" />
+            <p className="text-xs font-mono">Select a client conversation from the left to view messages</p>
           </div>
-
-          <div className="flex items-center gap-2">
-            <input
-              type="text"
-              placeholder={selectedClient ? `Type real-time message to ${currentClientUser?.name || selectedClient}...` : "Select client first..."}
-              disabled={!selectedClient}
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="flex-grow px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#b08d4b] focus:bg-white font-medium transition-all disabled:opacity-50"
-            />
-
-            <button
-              onClick={handleSendMessage}
-              disabled={!chatInput.trim() || !selectedClient || isSending}
-              className="px-5 py-2.5 bg-[#b08d4b] hover:bg-[#96753a] disabled:opacity-40 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-sm flex items-center gap-1.5 transition-all shrink-0"
-            >
-              {isSending ? "Sending..." : "Send"} <Send size={13} />
-            </button>
-          </div>
-        </div>
+        )}
 
       </div>
+
     </div>
   );
 }

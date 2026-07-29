@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, useRef } from "react";
+import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 import PageLoader from "@/components/PageLoader";
 import FloatingChatWidget from "@/components/FloatingChatWidget";
@@ -45,6 +46,7 @@ const GOOGLE_FONTS = [
 ];
 
 export default function Providers({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const [theme, setTheme] = useState<Theme>("light");
   const [content, setContent] = useState<any>(null);
   const [contentLoading, setContentLoading] = useState(true);
@@ -600,8 +602,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         {/* Render actual website */}
         {children}
 
-        {/* Global Round Floating Chat Widget */}
-        <FloatingChatWidget />
+        {/* Global Round Floating Chat Widget (Hidden on Admin pages) */}
+        {!pathname?.startsWith("/admin") && <FloatingChatWidget />}
 
         {/* 4. DYNAMIC INLINE FLOATING BOX EDITOR OVERLAY */}
         {isVisualEditor && selectedEl && (
