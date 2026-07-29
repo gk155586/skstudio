@@ -114,8 +114,9 @@ export async function POST(request: Request) {
     }
 
     const session = await getUserSession();
+    const guestContact = (name || phone) ? `${name || "Guest"} (Ph: ${phone || "N/A"})` : "Guest Client";
     const userEmail = session ? session.email : (guestId || "guest_" + Date.now());
-    const userName = session ? session.name : (name || "Guest Client");
+    const userName = session ? session.name : guestContact;
     const userPhone = session ? (session.phone || session.mobile || "") : (phone || "");
 
     const allMessages = getMessages();

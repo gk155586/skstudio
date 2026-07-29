@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { MessageSquare, X, Send, Sparkles } from "lucide-react";
+import { MessageSquare, X, Send, Phone, User, Check, ExternalLink } from "lucide-react";
 
 export default function FloatingChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,9 +10,16 @@ export default function FloatingChatWidget() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [guestId, setGuestId] = useState<string>("");
   const [isSending, setIsSending] = useState(false);
+
+  // Guest contact form states
+  const [contactName, setContactName] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [hasSavedContact, setHasSavedContact] = useState(false);
+  const [showContactForm, setShowContactForm] = useState(false);
+
   const chatBodyRef = useRef<HTMLDivElement | null>(null);
 
-  // Initialize persistent guest identifier in localStorage if not logged in
+  // Initialize guest identifier & saved contact info
   useEffect(() => {
     let gid = localStorage.getItem("sk_guest_chat_id");
     if (!gid) {
@@ -20,6 +27,14 @@ export default function FloatingChatWidget() {
       localStorage.setItem("sk_guest_chat_id", gid);
     }
     setGuestId(gid);
+
+    const savedName = localStorage.getItem("sk_chat_name") || "";
+    const savedPhone = localStorage.getItem("sk_chat_phone") || "";
+    if (savedName || savedPhone) {
+      setContactName(savedName);
+      setContactPhone(savedPhone);
+      setHasSavedContact(true);
+    }
   }, []);
 
   // Fetch messages from backend
@@ -41,7 +56,7 @@ export default function FloatingChatWidget() {
     } catch (e) {}
   }, [guestId]);
 
-  // Poll every 15 seconds to stay lightweight while listening to real-time events
+  // Poll every 15 seconds
   useEffect(() => {
     if (!guestId) return;
 
@@ -83,17 +98,30 @@ export default function FloatingChatWidget() {
     }
   };
 
+  const saveContactInfo = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!contactPhone.trim() && !contactName.trim()) return;
+    localStorage.setItem("sk_chat_name", contactName.trim());
+    localStorage.setItem("sk_chat_phone", contactPhone.trim());
+    setHasSavedContact(true);
+    setShowContactForm(false);
+
+    // Send automated system notification with details
+    if (inputVal.trim() === "") {
+      setInputVal(`My Name: ${contactName.trim()} | Mobile: ${contactPhone.trim()}`);
+    }
+  };
+
   const handleSend = async () => {
     if (!inputVal.trim() || isSending || !guestId) return;
     const textToSend = inputVal.trim();
     setInputVal("");
     setIsSending(true);
 
-    // Optimistic UI insert
     const tempMsg = {
       id: "temp-" + Date.now(),
       sender: "user",
-      senderName: "You",
+      senderName: contactName ? `${contactName} (Ph: ${contactPhone})` : "You",
       body: textToSend,
       timestamp: new Date().toISOString(),
     };
@@ -106,6 +134,8 @@ export default function FloatingChatWidget() {
         body: JSON.stringify({
           guestId,
           messageText: textToSend,
+          name: contactName.trim(),
+          phone: contactPhone.trim(),
         }),
       });
 
@@ -141,7 +171,6 @@ export default function FloatingChatWidget() {
           --cw-ink-dim: #a3a3a3;
           --cw-line: rgba(255, 255, 255, 0.12);
           --cw-accent: #d1b06c;
-          --cw-accent-bright: #e5c889;
           --cw-gold: #d1b06c;
         }
         .chat-toggle-container {
@@ -219,7 +248,7 @@ export default function FloatingChatWidget() {
           right: 24px;
           width: 360px;
           max-width: calc(100vw - 32px);
-          height: 480px;
+          height: 520px;
           background: var(--cw-bg-raised);
           border: 1px solid var(--cw-accent);
           display: none;
@@ -235,7 +264,7 @@ export default function FloatingChatWidget() {
           display: flex;
         }
         .chat-head {
-          padding: 16px 20px;
+          padding: 14px 18px;
           border-bottom: 1px solid var(--cw-line);
           display: flex;
           justify-content: space-between;
@@ -244,7 +273,7 @@ export default function FloatingChatWidget() {
           background: var(--cw-bg);
         }
         .chat-head .who {
-          font-size: 0.95rem;
+          font-size: 0.9rem;
           font-weight: 800;
           color: var(--cw-accent);
           letter-spacing: 0.02em;
@@ -262,8 +291,8 @@ export default function FloatingChatWidget() {
           background: rgba(255,255,255,0.05);
           border: 1px solid var(--cw-line);
           color: var(--cw-ink);
-          width: 32px;
-          height: 32px;
+          width: 30px;
+          height: 30px;
           border-radius: 50%;
           display: flex;
           align-items: center;
@@ -278,7 +307,7 @@ export default function FloatingChatWidget() {
         .chat-body {
           flex: 1;
           overflow-y: auto;
-          padding: 16px 18px;
+          padding: 14px 16px;
           display: flex;
           flex-direction: column;
           gap: 12px;
@@ -354,7 +383,7 @@ export default function FloatingChatWidget() {
         }
       `}</style>
 
-      {/* Floating Toggle Button Container */}
+      {/* Floating Toggle Button */}
       <div className="chat-toggle-container">
         {!isOpen && (
           <div className="chat-toggle-pill hidden sm:block">
@@ -371,7 +400,7 @@ export default function FloatingChatWidget() {
         </button>
       </div>
 
-      {/* Floating Chat Panel Window */}
+      {/* Floating Chat Panel */}
       <div className={`chat-panel ${isOpen ? "open" : ""}`} id="chatPanel">
         <div className="chat-head">
           <div>
@@ -385,6 +414,58 @@ export default function FloatingChatWidget() {
             <X size={18} />
           </button>
         </div>
+
+        {/* Lead Capture Banner for Guests */}
+        {(!hasSavedContact || showContactForm) ? (
+          <form onSubmit={saveContactInfo} className="bg-[#1e1e1e] border-b border-[var(--cw-line)] p-3 flex flex-col gap-2">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--cw-accent)] flex items-center justify-between">
+              <span>📱 Share Contact for Callback & Prices:</span>
+              {hasSavedContact && (
+                <button type="button" onClick={() => setShowContactForm(false)} className="text-gray-400 hover:text-white">
+                  <X size={12} />
+                </button>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex items-center gap-1.5 bg-[#141414] border border-[var(--cw-line)] rounded-xl px-2.5 py-1.5 text-xs text-white">
+                <User size={12} className="text-[var(--cw-accent)]" />
+                <input
+                  type="text"
+                  placeholder="Your Name"
+                  value={contactName}
+                  onChange={(e) => setContactName(e.target.value)}
+                  className="w-full bg-transparent outline-none text-xs"
+                />
+              </div>
+              <div className="flex items-center gap-1.5 bg-[#141414] border border-[var(--cw-line)] rounded-xl px-2.5 py-1.5 text-xs text-white">
+                <Phone size={12} className="text-[var(--cw-accent)]" />
+                <input
+                  type="tel"
+                  placeholder="Mobile No."
+                  value={contactPhone}
+                  onChange={(e) => setContactPhone(e.target.value)}
+                  className="w-full bg-transparent outline-none text-xs"
+                />
+              </div>
+            </div>
+            <button
+              type="submit"
+              className="w-full py-1.5 bg-[var(--cw-accent)] text-black font-extrabold text-[10px] uppercase tracking-wider rounded-xl transition hover:opacity-90 flex items-center justify-center gap-1"
+            >
+              <Check size={12} /> Save Contact Info
+            </button>
+          </form>
+        ) : (
+          <div className="bg-[#1a1a1a] border-b border-[var(--cw-line)] px-3 py-1.5 flex items-center justify-between text-[11px] text-gray-300">
+            <div className="flex items-center gap-1.5 truncate">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
+              <span className="truncate">Contact: <strong>{contactName || "Guest"}</strong> ({contactPhone || "Saved"})</span>
+            </div>
+            <button onClick={() => setShowContactForm(true)} className="text-[10px] text-[var(--cw-accent)] hover:underline shrink-0 font-mono">
+              Edit
+            </button>
+          </div>
+        )}
 
         <div className="chat-body" id="chatBody" ref={chatBodyRef}>
           {messages.length === 0 ? (
@@ -407,6 +488,16 @@ export default function FloatingChatWidget() {
             })
           )}
         </div>
+
+        {/* Direct WhatsApp Quick Contact Button */}
+        <a
+          href="https://wa.me/919307112119?text=Hi%20SK%20Photo%20Studio%20Pune,%20I%20am%20inquiring%20about%20photoshoot%20packages."
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mx-3 my-1.5 py-2 bg-emerald-600/20 border border-emerald-500/40 hover:bg-emerald-600 hover:text-white text-emerald-400 text-[11px] font-bold rounded-xl text-center transition-all flex items-center justify-center gap-1.5"
+        >
+          <Phone size={13} /> Chat Directly on WhatsApp (+91 93071 12119) <ExternalLink size={11} />
+        </a>
 
         <div className="chat-input">
           <input
