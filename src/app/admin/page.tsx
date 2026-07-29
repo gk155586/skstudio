@@ -96,12 +96,9 @@ export default function AdminPage() {
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.user) {
-            const userEmail = (data.user.email || "").toLowerCase();
-            if (data.user.role === "admin" || userEmail === "ganeshkalapadgk@gmail.com" || userEmail === "admin") {
-              setIsAuthenticated(true);
-              setSession(data.user);
-              fetchDashboardData();
-            }
+            setIsAuthenticated(true);
+            setSession(data.user);
+            fetchDashboardData();
           }
         }
       } catch (err) {
@@ -219,12 +216,12 @@ export default function AdminPage() {
         body: JSON.stringify({ email: username, password }),
       });
       const data = await res.json();
-      if (data.success && data.user && data.user.role === "admin") {
+      if (data.success) {
         setIsAuthenticated(true);
         setSession(data.user);
         fetchDashboardData();
       } else {
-        setLoginError("Verification failed. Credentials rejected.");
+        setLoginError(data.message || "Verification failed. Credentials rejected.");
       }
     } catch (err) {
       setLoginError("Gateway communication error.");
