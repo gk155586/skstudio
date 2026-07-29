@@ -95,11 +95,18 @@ export default function AdminPage() {
         const response = await fetch("/api/auth/me");
         if (response.ok) {
           const data = await response.json();
-          if (data.success && data.user) {
+          const emailLower = (data.user?.email || "").toLowerCase();
+          const isAdminSession = data.success && data.user && (data.user.role === "admin" || emailLower === "ganeshkalapadgk@gmail.com" || emailLower === "admin");
+          
+          if (isAdminSession) {
             setIsAuthenticated(true);
             setSession(data.user);
             fetchDashboardData();
+          } else {
+            setIsAuthenticated(false);
           }
+        } else {
+          setIsAuthenticated(false);
         }
       } catch (err) {
         console.error("Auth check error:", err);
@@ -216,12 +223,15 @@ export default function AdminPage() {
         body: JSON.stringify({ email: username, password }),
       });
       const data = await res.json();
-      if (data.success) {
+      const emailLower = (data.user?.email || username || "").toLowerCase();
+      const isAdminLogin = data.success && (data.user?.role === "admin" || emailLower.includes("ganesh") || emailLower.includes("admin"));
+
+      if (isAdminLogin) {
         setIsAuthenticated(true);
         setSession(data.user);
         fetchDashboardData();
       } else {
-        setLoginError(data.message || "Verification failed. Credentials rejected.");
+        setLoginError(data.message || "Invalid Admin Security Credentials.");
       }
     } catch (err) {
       setLoginError("Gateway communication error.");

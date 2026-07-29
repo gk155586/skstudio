@@ -28,9 +28,9 @@ function checkRateLimit(ip: string): boolean {
 
 export async function middleware(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for") || "127.0.0.1";
-
-  // 1. Rate Limiting Enforcer (Protected endpoints)
   const path = request.nextUrl.pathname;
+
+  // 1. Rate Limiting Enforcer (Protected API endpoints)
   if (path.startsWith("/api/auth/login") || path.startsWith("/api/bookings")) {
     if (checkRateLimit(ip)) {
       return new NextResponse(
@@ -40,28 +40,31 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 2. Admin Route & API Protection
-  if (path.startsWith("/admin") || path.startsWith("/api/admin")) {
+  // 2. Admin API Protection (Return 401 JSON for unauthorized API calls, allow page rendering for /admin)
+  if (path.startsWith("/api/admin")) {
     const jwtCookie = request.cookies.get("sk_session_jwt");
-    if (!jwtCookie?.value) {
-      if (path.startsWith("/api/")) {
-        return new NextResponse(
-          JSON.stringify({ success: false, error: "Unauthorized access" }),
-          { status: 401, headers: { "Content-Type": "application/json" } }
-        );
+    const sessionCookie = request.cookies.get("sk_session");
+    let isAuthorized = false;
+
+    if (jwtCookie?.value) {
+      const payload: any = await verifyJWT(jwtCookie.value);
+      if (payload && (payload.role === "admin" || payload.email?.toLowerCase() === "ganeshkalapadgk@gmail.com")) {
+        isAuthorized = true;
       }
-      return NextResponse.redirect(new URL("/login", request.url));
+    } else if (sessionCookie?.value) {
+      try {
+        const session = JSON.parse(sessionCookie.value);
+        if (session && (session.role === "admin" || session.email?.toLowerCase() === "ganeshkalapadgk@gmail.com")) {
+          isAuthorized = true;
+        }
+      } catch (e) {}
     }
 
-    const payload = await verifyJWT(jwtCookie.value);
-    if (!payload || payload.role !== "admin") {
-      if (path.startsWith("/api/")) {
-        return new NextResponse(
-          JSON.stringify({ success: false, error: "Forbidden" }),
-          { status: 403, headers: { "Content-Type": "application/json" } }
-        );
-      }
-      return NextResponse.redirect(new URL("/login", request.url));
+    if (!isAuthorized) {
+      return new NextResponse(
+        JSON.stringify({ success: false, error: "Unauthorized access" }),
+        { status: 401, headers: { "Content-Type": "application/json" } }
+      );
     }
   }
 
