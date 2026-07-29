@@ -7,7 +7,7 @@ const playfairDisplay = Playfair_Display({
   variable: "--font-display",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800", "900"],
-  display: "swap", // Ensure text renders immediately in fallback font
+  display: "swap",
 });
 
 const poppins = Poppins({
@@ -25,15 +25,25 @@ const teko = Teko({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://skstudio.store"),
   title: "SK Studio Pune | Premium Photography Studio & Portfolio",
   description: "India's premium photography studio based in Pune. Capturing unforgettable moments with artistic precision: wedding segment, maternity indoor/outdoor, newborn, baby & toddlers shoot.",
   keywords: "Best Photo Studio in Pimpri Chinchwad, Maternity Photoshoot Studio in Pune, Birthday Photoshoot Pune, Wedding Photography Pune, Baby Shoot Pune",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=5",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.png", type: "image/png" },
+      { url: "/icon.png", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+    shortcut: "/favicon.png",
+  },
   openGraph: {
     title: "SK Studio Pune | Premium Photography",
     description: "Capturing unforgettable moments with artistic precision.",
     type: "website",
-    url: "http://localhost:3001/",
+    url: "https://skstudio.store",
+    images: [{ url: "/icon.png", width: 512, height: 512, alt: "SK Studio Pune Icon" }],
   },
 };
 
@@ -44,6 +54,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/favicon.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+      </head>
       <body
         className={`${playfairDisplay.variable} ${poppins.variable} ${teko.variable} antialiased`}
       >
