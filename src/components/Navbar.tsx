@@ -57,7 +57,8 @@ export default function Navbar() {
 
   useEffect(() => {
     checkAuthAndUnread();
-    const interval = setInterval(checkAuthAndUnread, 3000);
+    // Poll every 30 seconds instead of 3s to keep server response fast
+    const interval = setInterval(checkAuthAndUnread, 30000);
     window.addEventListener("focus", checkAuthAndUnread);
 
     // Instant real-time SSE listener for admin message dispatches
