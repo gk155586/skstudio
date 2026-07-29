@@ -542,6 +542,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (typeof window === "undefined" || isVisualEditor) return;
 
+    // Skip smooth-scroll library on touch/mobile devices for instant 120Hz native touch response
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+    if (isMobile) return;
+
     const lenis = new Lenis({
       duration: 0.3,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),

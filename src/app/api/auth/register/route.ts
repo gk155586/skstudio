@@ -89,7 +89,6 @@ export async function POST(request: Request) {
           // Set 30-day persistent session cookies
           response.cookies.set("sk_session", JSON.stringify(userObj), {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
             path: "/",
             maxAge: 30 * 24 * 60 * 60,
@@ -97,7 +96,6 @@ export async function POST(request: Request) {
 
           response.cookies.set("sk_session_jwt", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
             path: "/",
             maxAge: 30 * 24 * 60 * 60,
@@ -162,7 +160,6 @@ export async function POST(request: Request) {
     // Set 30-day persistent cookies (both sk_session and sk_session_jwt)
     response.cookies.set("sk_session", JSON.stringify(userSessionObj), {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
       maxAge: 30 * 24 * 60 * 60,
@@ -170,7 +167,6 @@ export async function POST(request: Request) {
 
     response.cookies.set("sk_session_jwt", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
       maxAge: 30 * 24 * 60 * 60,

@@ -70,17 +70,18 @@ export default function LoginPage() {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email: email.trim(), password }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        // Redirect based on role
+        // Redirect with full reload to set persistent session
         if (data.user?.role === "admin") {
-          router.push("/admin");
+          window.location.href = "/admin";
         } else {
-          router.push("/bookings");
+          window.location.href = "/bookings";
         }
       } else {
         setLoginError(data.message || "Login failed");
@@ -134,6 +135,7 @@ export default function LoginPage() {
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           name: regName.trim(),
           email: regEmail.trim(),
@@ -145,8 +147,8 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (data.success) {
-        // Redirect to dashboard
-        router.push("/bookings");
+        // Redirect to dashboard with full reload
+        window.location.href = "/bookings";
       } else {
         setRegError(data.message || "Registration failed");
       }
