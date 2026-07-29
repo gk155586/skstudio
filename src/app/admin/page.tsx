@@ -99,10 +99,14 @@ export default function AdminPage() {
             setIsAuthenticated(true);
             setSession(data.user);
             fetchDashboardData();
+          } else {
+            router.push("/admin/login");
           }
+        } else {
+          router.push("/admin/login");
         }
       } catch (err) {
-        console.error("Auth check failed:", err);
+        router.push("/admin/login");
       } finally {
         setLoading(false);
       }

@@ -446,7 +446,7 @@ export default function Navbar() {
                 <div className="relative group select-none">
                   <button className="flex items-center gap-2 rounded-full border border-[var(--accent)]/40 bg-[var(--accent)]/10 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.15em] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-black transition-all">
                     <UserCheck size={14} />
-                    <span className="max-w-[100px] truncate">{userSession.name || "Account"}</span>
+                    <span className="max-w-[100px] truncate">{(userSession.name || "Account").replace(/\s*\(Admin\)/gi, "")}</span>
                     <ChevronDown size={12} className="transition-transform group-hover:rotate-180" />
                   </button>
 
@@ -454,9 +454,19 @@ export default function Navbar() {
                   <div className="absolute right-0 top-full pt-2 w-52 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                     <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-2xl p-2 shadow-2xl flex flex-col gap-1 backdrop-blur-xl">
                       <div className="px-3 py-2 border-b border-[var(--card-border)] flex flex-col">
-                        <span className="text-xs font-bold truncate text-[var(--foreground)]">{userSession.name}</span>
+                        <span className="text-xs font-bold truncate text-[var(--foreground)]">{(userSession.name || "Account").replace(/\s*\(Admin\)/gi, "")}</span>
                         <span className="text-[10px] font-mono text-gray-400 truncate">{userSession.email}</span>
                       </div>
+
+                      {(userSession.role === "admin" || (userSession.email && (userSession.email.toLowerCase() === "ganeshkalapadgk@gmail.com" || userSession.email.toLowerCase() === "admin"))) && (
+                        <Link
+                          href="/admin"
+                          className="px-3 py-2 rounded-xl text-xs font-extrabold text-[var(--accent)] bg-[var(--accent)]/10 hover:bg-[var(--accent)] hover:text-black transition-all flex items-center justify-between border border-[var(--accent)]/30 mb-1"
+                        >
+                          <span>🛡️ Admin Dashboard</span>
+                          <ChevronRight size={13} />
+                        </Link>
+                      )}
 
                       <Link
                         href="/bookings"
@@ -700,6 +710,15 @@ export default function Navbar() {
           <div className="mt-8 mb-4 flex flex-col gap-2 justify-center w-full">
             {userSession ? (
               <>
+                {(userSession.role === "admin" || (userSession.email && (userSession.email.toLowerCase() === "ganeshkalapadgk@gmail.com" || userSession.email.toLowerCase() === "admin"))) && (
+                  <Link 
+                    href="/admin" 
+                    onClick={() => setMobileMenuOpen(false)} 
+                    className="w-full text-center rounded-full bg-[var(--accent)] text-black font-extrabold py-3 text-xs uppercase tracking-[0.15em] transition-all shadow-md border border-[var(--accent)] mb-1"
+                  >
+                    🛡️ Admin Dashboard
+                  </Link>
+                )}
                 <button
                   onClick={() => {
                     setMobileMenuOpen(false);
