@@ -41,12 +41,12 @@ export default function FloatingChatWidget() {
     } catch (e) {}
   }, [guestId]);
 
-  // Poll & listen to real-time SSE stream for admin responses
+  // Poll every 15 seconds to stay lightweight while listening to real-time events
   useEffect(() => {
     if (!guestId) return;
 
     fetchWidgetMessages(isOpen);
-    const interval = setInterval(() => fetchWidgetMessages(isOpen), 3000);
+    const interval = setInterval(() => fetchWidgetMessages(isOpen), 15000);
 
     let eventSource: EventSource | null = null;
     try {
@@ -130,76 +130,107 @@ export default function FloatingChatWidget() {
     <>
       <style jsx global>{`
         :root {
-          --cw-bg: #1b1a18;
-          --cw-bg-raised: #232120;
-          --cw-ink: #ede7da;
-          --cw-ink-dim: #b7b0a1;
-          --cw-line: rgba(237, 231, 218, 0.12);
-          --cw-accent: #c1442d;
-          --cw-accent-bright: #e0603f;
-          --cw-brass: #b8925b;
+          --cw-bg: #141414;
+          --cw-bg-raised: #1e1e1e;
+          --cw-ink: #f5f5f5;
+          --cw-ink-dim: #a3a3a3;
+          --cw-line: rgba(255, 255, 255, 0.12);
+          --cw-accent: #d1b06c;
+          --cw-accent-bright: #e5c889;
+          --cw-gold: #d1b06c;
+        }
+        .chat-toggle-container {
+          position: fixed;
+          bottom: 24px;
+          right: 24px;
+          z-index: 99999 !important;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .chat-toggle-pill {
+          background: #1e1e1e;
+          color: #f5f5f5;
+          border: 1px solid var(--cw-accent);
+          padding: 6px 14px;
+          border-radius: 20px;
+          font-size: 0.75rem;
+          font-weight: 700;
+          box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+          letter-spacing: 0.05em;
+          white-space: nowrap;
+          pointer-events: none;
+          animation: floatPulse 3s infinite ease-in-out;
+        }
+        @keyframes floatPulse {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-3px); }
         }
         .chat-toggle {
-          position: fixed;
-          bottom: 26px;
-          right: 26px;
-          width: 58px;
-          height: 58px;
+          width: 60px;
+          height: 60px;
           border-radius: 50%;
-          background: var(--cw-accent);
+          background: linear-gradient(135deg, #d1b06c 0%, #a68443 100%);
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          z-index: 150;
-          border: none;
-          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-          transition: transform 0.2s ease, background 0.2s ease;
+          border: 2px solid rgba(255,255,255,0.2);
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 15px rgba(209, 176, 108, 0.4);
+          transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          color: #000000;
         }
         .chat-toggle:hover {
-          transform: scale(1.05);
-          background: var(--cw-accent-bright);
+          transform: scale(1.1) rotate(5deg);
+          box-shadow: 0 10px 30px rgba(209, 176, 108, 0.6);
         }
         .chat-toggle .dot {
           position: absolute;
           top: -2px;
           right: -2px;
-          width: 18px;
-          height: 18px;
-          background: var(--cw-brass);
+          width: 22px;
+          height: 22px;
+          background: #ef4444;
           border-radius: 50%;
-          font-size: 0.65rem;
-          font-weight: bold;
-          color: var(--cw-bg);
+          font-size: 0.7rem;
+          font-weight: 800;
+          color: #ffffff;
           display: flex;
           align-items: center;
           justify-content: center;
           font-family: monospace;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-          border: 2px solid var(--cw-bg);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+          border: 2px solid #000000;
+          animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.15); }
+          100% { transform: scale(1); }
         }
         .chat-panel {
           position: fixed;
           bottom: 96px;
-          right: 26px;
-          width: 340px;
-          max-width: calc(100vw - 40px);
-          height: 440px;
+          right: 24px;
+          width: 360px;
+          max-width: calc(100vw - 32px);
+          height: 480px;
           background: var(--cw-bg-raised);
-          border: 1px solid var(--cw-line);
+          border: 1px solid var(--cw-accent);
           display: none;
           flex-direction: column;
-          z-index: 150;
-          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+          z-index: 99999 !important;
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
           font-family: 'Inter', sans-serif;
-          border-radius: 16px;
+          border-radius: 24px;
           overflow: hidden;
+          backdrop-filter: blur(16px);
         }
         .chat-panel.open {
           display: flex;
         }
         .chat-head {
-          padding: 16px 18px;
+          padding: 16px 20px;
           border-bottom: 1px solid var(--cw-line);
           display: flex;
           justify-content: space-between;
@@ -208,19 +239,36 @@ export default function FloatingChatWidget() {
           background: var(--cw-bg);
         }
         .chat-head .who {
-          font-size: 0.9rem;
-          font-weight: 600;
+          font-size: 0.95rem;
+          font-weight: 800;
+          color: var(--cw-accent);
+          letter-spacing: 0.02em;
         }
         .chat-head .status {
-          font-size: 0.72rem;
-          color: var(--cw-brass);
+          font-size: 0.7rem;
+          color: #10b981;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          margin-top: 2px;
         }
         .chat-head button {
-          background: none;
-          border: none;
-          color: var(--cw-ink-dim);
-          font-size: 1.2rem;
+          background: rgba(255,255,255,0.05);
+          border: 1px solid var(--cw-line);
+          color: var(--cw-ink);
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           cursor: pointer;
+          transition: all 0.2s;
+        }
+        .chat-head button:hover {
+          background: rgba(255,255,255,0.15);
+          color: #fff;
         }
         .chat-body {
           flex: 1;
@@ -228,83 +276,116 @@ export default function FloatingChatWidget() {
           padding: 16px 18px;
           display: flex;
           flex-direction: column;
-          gap: 10px;
+          gap: 12px;
+          background: #141414;
         }
         .msg {
-          max-width: 82%;
-          padding: 9px 13px;
-          font-size: 0.86rem;
-          border-radius: 8px;
-          line-height: 1.4;
+          max-width: 84%;
+          padding: 10px 14px;
+          font-size: 0.85rem;
+          border-radius: 14px;
+          line-height: 1.45;
           word-break: break-word;
         }
         .msg.admin {
-          background: var(--cw-bg);
+          background: #232323;
           align-self: flex-start;
-          color: var(--cw-ink-dim);
-          border: 1px solid var(--cw-line);
+          color: #e5e5e5;
+          border: 1px solid rgba(255,255,255,0.08);
+          border-bottom-left-radius: 2px;
         }
         .msg.user {
-          background: var(--cw-accent);
+          background: linear-gradient(135deg, #d1b06c 0%, #b8925b 100%);
           align-self: flex-end;
-          color: #f6f1e7;
+          color: #000000;
+          font-weight: 600;
+          border-bottom-right-radius: 2px;
         }
         .msg .time {
           display: block;
-          font-size: 0.62rem;
+          font-size: 0.6rem;
           margin-top: 4px;
-          opacity: 0.6;
+          opacity: 0.7;
           font-family: monospace;
         }
         .chat-input {
           display: flex;
           border-top: 1px solid var(--cw-line);
-          background: var(--cw-bg);
+          background: var(--cw-bg-raised);
+          padding: 8px 12px;
+          align-items: center;
+          gap: 8px;
         }
         .chat-input input {
           flex: 1;
-          background: none;
-          border: none;
+          background: #141414;
+          border: 1px solid var(--cw-line);
+          border-radius: 20px;
           color: var(--cw-ink);
-          padding: 14px;
+          padding: 10px 16px;
           font-family: inherit;
-          font-size: 0.86rem;
+          font-size: 0.85rem;
         }
         .chat-input input:focus {
           outline: none;
+          border-color: var(--cw-accent);
         }
         .chat-input button {
-          background: none;
+          background: var(--cw-accent);
           border: none;
-          color: var(--cw-brass);
-          padding: 0 16px;
+          color: #000000;
+          width: 38px;
+          height: 38px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           cursor: pointer;
-          font-size: 1rem;
+          transition: transform 0.2s;
+          shrink: 0;
+        }
+        .chat-input button:hover {
+          transform: scale(1.08);
         }
       `}</style>
 
-      {/* Round Floating Toggle Button */}
-      <button className="chat-toggle" onClick={toggleChat} aria-label="Open studio live chat">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f6f1e7" strokeWidth="2">
-          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-        </svg>
-        {unreadCount > 0 && <span className="dot" id="chatDot">{unreadCount}</span>}
-      </button>
+      {/* Floating Toggle Button Container */}
+      <div className="chat-toggle-container">
+        {!isOpen && (
+          <div className="chat-toggle-pill hidden sm:block">
+            💬 Chat with Studio
+          </div>
+        )}
+        <button className="chat-toggle" onClick={toggleChat} aria-label="Open studio live chat">
+          {isOpen ? (
+            <X size={26} strokeWidth={2.5} color="#000000" />
+          ) : (
+            <MessageSquare size={26} strokeWidth={2.5} color="#000000" />
+          )}
+          {unreadCount > 0 && <span className="dot" id="chatDot">{unreadCount}</span>}
+        </button>
+      </div>
 
       {/* Floating Chat Panel Window */}
       <div className={`chat-panel ${isOpen ? "open" : ""}`} id="chatPanel">
         <div className="chat-head">
           <div>
             <div className="who">SK Photo Studio Pune</div>
-            <div className="status">● LIVE SUPPORT ONLINE</div>
+            <div className="status">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse" />
+              Live Studio Assistant
+            </div>
           </div>
-          <button onClick={toggleChat} aria-label="Close chat">×</button>
+          <button onClick={toggleChat} aria-label="Close chat">
+            <X size={18} />
+          </button>
         </div>
 
         <div className="chat-body" id="chatBody" ref={chatBodyRef}>
           {messages.length === 0 ? (
             <div className="msg admin">
-              Hi! Welcome to SK Photo Studio Pune. Ask us anything about bookings, maternity/baby shoots, or photography packages!
+              👋 Hello! Welcome to <strong>SK Photo Studio Pune</strong>.<br/><br/>
+              How can we assist you today? Feel free to ask about maternity, baby shoots, wedding packages, or custom photo frames!
               <span className="time">{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
             </div>
           ) : (
@@ -326,13 +407,13 @@ export default function FloatingChatWidget() {
           <input
             id="chatInput"
             type="text"
-            placeholder="Type a message…"
+            placeholder="Type a message..."
             value={inputVal}
             onChange={(e) => setInputVal(e.target.value)}
             onKeyDown={handleKeyDown}
           />
           <button onClick={handleSend} aria-label="Send message">
-            ➤
+            <Send size={18} strokeWidth={2.5} />
           </button>
         </div>
       </div>
