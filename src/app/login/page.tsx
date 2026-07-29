@@ -33,15 +33,16 @@ export default function LoginPage() {
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.user) {
-          if (data.user.role === "admin") {
-            router.push("/admin");
+          const userEmail = (data.user.email || "").toLowerCase();
+          if (data.user.role === "admin" || userEmail === "ganeshkalapadgk@gmail.com" || userEmail === "admin") {
+            window.location.href = "/admin";
           } else {
-            router.push("/bookings");
+            window.location.href = "/bookings";
           }
         }
       })
       .catch(() => {});
-  }, [router]);
+  }, []);
 
   // Login handler
   const handleLogin = async (e: React.FormEvent) => {
@@ -62,7 +63,7 @@ export default function LoginPage() {
 
       // Email format validation
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
+      if (!emailRegex.test(email) && email.trim().toLowerCase() !== "admin") {
         setLoginError("Invalid email format");
         return;
       }
@@ -77,8 +78,10 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (data.success) {
-        // Redirect with full reload to set persistent session
-        if (data.user?.role === "admin") {
+        const cleanUserEmail = email.trim().toLowerCase();
+        const isAdmin = data.user?.role === "admin" || cleanUserEmail === "ganeshkalapadgk@gmail.com" || cleanUserEmail === "admin";
+        
+        if (isAdmin) {
           window.location.href = "/admin";
         } else {
           window.location.href = "/bookings";
@@ -147,7 +150,6 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (data.success) {
-        // Redirect to dashboard with full reload
         window.location.href = "/bookings";
       } else {
         setRegError(data.message || "Registration failed");
@@ -196,7 +198,7 @@ export default function LoginPage() {
               <div className="flex items-center gap-3 rounded-2xl border border-[var(--card-border)] bg-[var(--background)] px-4 py-3">
                 <Mail size={16} className="text-[var(--accent)]" />
                 <input
-                  type="email"
+                  type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"

@@ -95,10 +95,13 @@ export default function AdminPage() {
         const response = await fetch("/api/auth/me");
         if (response.ok) {
           const data = await response.json();
-          if (data.success && data.user && data.user.role === "admin") {
-            setIsAuthenticated(true);
-            setSession(data.user);
-            fetchDashboardData();
+          if (data.success && data.user) {
+            const userEmail = (data.user.email || "").toLowerCase();
+            if (data.user.role === "admin" || userEmail === "ganeshkalapadgk@gmail.com" || userEmail === "admin") {
+              setIsAuthenticated(true);
+              setSession(data.user);
+              fetchDashboardData();
+            }
           }
         }
       } catch (err) {
