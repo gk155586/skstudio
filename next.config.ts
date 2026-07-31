@@ -77,9 +77,18 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  // Add cache headers for static assets
+  // Add cache headers for static assets & images
   async headers() {
     return [
+      {
+        source: "/img/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
       {
         source: "/:path*",
         headers: [
