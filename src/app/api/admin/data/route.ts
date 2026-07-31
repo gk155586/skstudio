@@ -39,7 +39,7 @@ export async function GET() {
     // Read Databases
     let bookings = readJsonFile("bookings.json", []);
     const packages = readJsonFile("packages.json", []);
-    const usersRaw = readJsonFile("users.json", {});
+    let usersRaw = readJsonFile("users.json", {});
     const coupons = readJsonFile("coupons.json", []);
     const orders = readJsonFile("orders.json", []);
     const reviews = readJsonFile("reviews.json", []);
@@ -47,7 +47,31 @@ export async function GET() {
     const content = readJsonFile("content.json", {});
     const auditLogs = readJsonFile("audit_logs.json", []);
     const messages = readJsonFile("messages.json", []);
-    
+
+    // 1. Ensure default admin and user accounts exist
+    if (!usersRaw || typeof usersRaw !== "object" || Object.keys(usersRaw).length === 0) {
+      usersRaw = {
+        "admin": {
+          id: "admin",
+          email: "ganeshkalapadgk@gmail.com",
+          name: "Ganesh Kalapad (Admin)",
+          role: "admin",
+          isActive: true,
+          createdAt: new Date().toISOString()
+        },
+        "user_default": {
+          id: "user_default",
+          name: "Ganesh Kalapad",
+          email: "ganeshk@gmail.com",
+          phone: "+91 93071 12119",
+          role: "user",
+          isActive: true,
+          createdAt: new Date().toISOString()
+        }
+      };
+      await atomicDb.writeJson("users.json", usersRaw);
+    }
+
     // Filter soft deleted records
     bookings = Array.isArray(bookings) ? bookings.filter((b: any) => !b.isDeleted) : [];
     enquiries = Array.isArray(enquiries) ? enquiries.filter((e: any) => !e.isDeleted) : [];
@@ -59,6 +83,55 @@ export async function GET() {
     if (Array.isArray(auditLogs)) {
       auditLogs.sort((a: any, b: any) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
     }
+
+    // 2. Aggregate all contacts from bookings, enquiries, and chat messages into user directory
+    const knownEmails = new Set(Object.values(usersRaw).map((u: any) => (u?.email || "").toLowerCase()));
+
+    bookings.forEach((b: any) => {
+      if (b.email && !knownEmails.has(b.email.toLowerCase())) {
+        knownEmails.add(b.email.toLowerCase());
+        usersRaw[`user_lead_${b.id || Date.now()}`] = {
+          id: b.id || `lead_${Date.now()}`,
+          name: b.name || b.email.split("@")[0],
+          email: b.email,
+          phone: b.phone || b.mobile || "",
+          role: "user",
+          isActive: true,
+          createdAt: b.createdAt || new Date().toISOString()
+        };
+      }
+    });
+
+    enquiries.forEach((e: any) => {
+      if (e.email && !knownEmails.has(e.email.toLowerCase())) {
+        knownEmails.add(e.email.toLowerCase());
+        usersRaw[`user_enq_${e.id || Date.now()}`] = {
+          id: e.id || `enq_${Date.now()}`,
+          name: e.name || e.customerName || e.email.split("@")[0],
+          email: e.email,
+          phone: e.phone || e.mobile || "",
+          role: "user",
+          isActive: true,
+          createdAt: e.createdAt || new Date().toISOString()
+        };
+      }
+    });
+
+    messages.forEach((m: any) => {
+      const email = m.sender === "user" ? (m.senderEmail || m.recipientEmail) : m.recipientEmail;
+      if (email && email !== "admin" && !email.includes("skstudiopune@gmail.com") && !knownEmails.has(email.toLowerCase())) {
+        knownEmails.add(email.toLowerCase());
+        usersRaw[`user_msg_${m.id || Date.now()}`] = {
+          id: m.id || `msg_${Date.now()}`,
+          name: m.senderName || (email.startsWith("guest_") ? "Live Chat Guest" : email.split("@")[0]),
+          email: email,
+          phone: m.recipientPhone || "",
+          role: "user",
+          isActive: true,
+          createdAt: m.timestamp || new Date().toISOString()
+        };
+      }
+    });
 
     // Process users to provide clean listing with all registered users
     const users = Object.entries(usersRaw || {}).map(([id, u]: [string, any]) => ({
