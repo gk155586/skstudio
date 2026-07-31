@@ -49,10 +49,23 @@ export async function GET() {
     const auditLogs = readJsonFile("audit_logs.json", []);
     let messages = readJsonFile("messages.json", []);
 
-    // 1. Ensure default admin and user accounts exist
-    if (!usersRaw || typeof usersRaw !== "object") {
-      usersRaw = {};
+    // 1. Ensure usersRaw is a clean key-value Record object
+    if (!usersRaw || typeof usersRaw !== "object" || Array.isArray(usersRaw)) {
+      if (Array.isArray(usersRaw)) {
+        const normalized: Record<string, any> = {};
+        (usersRaw as any[]).forEach((u: any, idx: number) => {
+          if (u && (u.id || u.email)) {
+            normalized[u.id || u.email] = u;
+          } else if (u) {
+            normalized[`user_${idx}`] = u;
+          }
+        });
+        usersRaw = normalized;
+      } else {
+        usersRaw = {};
+      }
     }
+
     if (!usersRaw["admin"]) {
       usersRaw["admin"] = {
         id: "admin",
