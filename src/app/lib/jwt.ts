@@ -1,6 +1,6 @@
 const JWT_SECRET = process.env.JWT_SECRET || "sk-studio-pune-enterprise-secret-signature-2026";
 
-function base64UrlToBuffer(str: string): Uint8Array {
+function base64UrlToUint8Array(str: string): Uint8Array<ArrayBuffer> {
   const base64 = str.replace(/-/g, "+").replace(/_/g, "/");
   const pad = base64.length % 4;
   const padded = pad ? base64 + "=".repeat(4 - pad) : base64;
@@ -9,9 +9,7 @@ function base64UrlToBuffer(str: string): Uint8Array {
     const buf = Buffer.from(padded, "base64");
     const ab = new ArrayBuffer(buf.length);
     const view = new Uint8Array(ab);
-    for (let i = 0; i < buf.length; ++i) {
-      view[i] = buf[i];
-    }
+    view.set(buf);
     return view;
   }
 
@@ -69,7 +67,9 @@ export async function signJWT(payload: any, expiryMs: number = 30 * 24 * 60 * 60
     enc.encode(`${encodedHeader}.${encodedPayload}`)
   );
 
-  const signature = uint8ArrayToBase64Url(new Uint8Array(signatureBuffer));
+  const sigArray = new Uint8Array(new ArrayBuffer(signatureBuffer.byteLength));
+  sigArray.set(new Uint8Array(signatureBuffer));
+  const signature = uint8ArrayToBase64Url(sigArray);
   return `${encodedHeader}.${encodedPayload}.${signature}`;
 }
 
@@ -84,18 +84,18 @@ export async function verifyJWT(token: string): Promise<any | null> {
 
     const key = await getCryptoKey();
     const dataBuf = enc.encode(`${encodedHeader}.${encodedPayload}`);
-    const sigBuf = base64UrlToBuffer(signature);
+    const sigBuf = base64UrlToUint8Array(signature);
 
     const isValid = await crypto.subtle.verify(
       "HMAC",
       key,
-      sigBuf.buffer as ArrayBuffer,
-      dataBuf.buffer as ArrayBuffer
+      sigBuf,
+      dataBuf
     );
 
     if (!isValid) return null;
 
-    const payloadRaw = new TextDecoder().decode(base64UrlToBuffer(encodedPayload));
+    const payloadRaw = new TextDecoder().decode(base64UrlToUint8Array(encodedPayload));
     const payload = JSON.parse(payloadRaw);
 
     if (payload.exp && Date.now() > payload.exp) {
