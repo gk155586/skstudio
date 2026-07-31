@@ -5,7 +5,7 @@ const DATA_DIR = path.join(process.cwd(), "data");
 
 // In-memory read cache
 const dbCache: Record<string, { data: any; timestamp: number }> = {};
-const CACHE_TTL = 30000; // 30 seconds Cache TTL for high speed reading
+const CACHE_TTL = 500; // 500ms short Cache TTL for ultra fast live sync
 
 // Promise-based serialization queue for concurrent writes
 let writePromiseQueue = Promise.resolve();
