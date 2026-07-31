@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { sseHub } from "@/app/lib/sse";
 import { atomicDb } from "@/app/lib/db";
 import { backgroundQueue } from "@/app/lib/queue";
+import { verifyJWT } from "@/app/lib/jwt";
 
 export const dynamic = "force-dynamic";
 
