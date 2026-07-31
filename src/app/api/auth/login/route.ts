@@ -9,6 +9,9 @@ function getUsers() {
   return atomicDb.readJson("users.json", {});
 }
 
+// Only these exact emails are treated as admin
+const ADMIN_EMAILS = ["ganeshkalapadgk@gmail.com", "admin"];
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -25,13 +28,10 @@ export async function POST(request: Request) {
     const cleanEmail = email.trim().toLowerCase();
     const users = getUsers();
 
-    const isAdminAttempt =
-      cleanEmail === "ganeshkalapadgk@gmail.com" ||
-      cleanEmail === "admin" ||
-      cleanEmail.includes("ganesh");
+    const isAdminAttempt = ADMIN_EMAILS.includes(cleanEmail);
 
-    // 1. Ensure admin account exists in persistent storage
-    if (isAdminAttempt) {
+    // 1. First-time setup: create admin account if it doesn't exist yet
+    if (isAdminAttempt && !users["admin"]?.password) {
       users["admin"] = {
         id: "admin",
         email: "ganeshkalapadgk@gmail.com",
@@ -63,16 +63,12 @@ export async function POST(request: Request) {
 
     const [userId, user] = userEntry as [string, any];
 
-    // 3. Verify password (for admin attempt, accept & update password hash)
+    // 3. Verify password for ALL users (including admin)
     let passwordMatch = false;
-    if (isAdminAttempt) {
-      passwordMatch = true;
-    } else {
-      try {
-        passwordMatch = verifyPassword(password, user.password);
-      } catch (err) {
-        passwordMatch = false;
-      }
+    try {
+      passwordMatch = verifyPassword(password, user.password);
+    } catch (err) {
+      passwordMatch = false;
     }
 
     if (!passwordMatch) {
@@ -86,9 +82,9 @@ export async function POST(request: Request) {
 
     const sessionObj = {
       userId: isAdminAttempt ? "admin" : userId,
-      email: isAdminAttempt ? "ganeshkalapadgk@gmail.com" : user.email,
-      name: isAdminAttempt ? "Ganesh Kalapad (Admin)" : (user.name || "User"),
-      phone: user.phone || user.mobile || "+91 93071 12119",
+      email: user.email || cleanEmail,
+      name: user.name || "User",
+      phone: user.phone || user.mobile || "",
       role: effectiveRole,
     };
 
