@@ -46,7 +46,7 @@ export async function GET() {
     let enquiries = readJsonFile("enquiries.json", []);
     const content = readJsonFile("content.json", {});
     const auditLogs = readJsonFile("audit_logs.json", []);
-    const messages = readJsonFile("messages.json", []);
+    let messages = readJsonFile("messages.json", []);
 
     // 1. Ensure default admin and user accounts exist
     if (!usersRaw || typeof usersRaw !== "object") {
@@ -75,6 +75,123 @@ export async function GET() {
     }
     await atomicDb.writeJson("users.json", usersRaw);
 
+    // 2. Ensure default bookings exist if empty
+    if (!Array.isArray(bookings) || bookings.length === 0) {
+      bookings = [
+        {
+          id: "bk-default-1",
+          user_id: "user_rahul",
+          name: "Rahul Sharma",
+          email: "rahul.sharma@example.com",
+          phone: "+91 98230 12345",
+          service: "Maternity Portfolio Package",
+          date: "2026-08-10",
+          message: "Outdoor maternity shoot session at Empress Garden Pune.",
+          createdAt: new Date().toISOString(),
+          status: "confirmed",
+          photographer: "Ganesh SK",
+          price: 25000,
+          advancePaid: 5000,
+          balanceDue: 20000
+        },
+        {
+          id: "bk-default-2",
+          user_id: "user_neha",
+          name: "Neha Patil",
+          email: "neha.patil@example.com",
+          phone: "+91 97645 12345",
+          service: "Baby / Newborn Shoot Setup",
+          date: "2026-08-15",
+          message: "3-month baby photoshoot with indoor theme setup.",
+          createdAt: new Date().toISOString(),
+          status: "confirmed",
+          photographer: "Sunil K",
+          price: 18000,
+          advancePaid: 3000,
+          balanceDue: 15000
+        },
+        {
+          id: "bk-default-3",
+          user_id: "user_amit",
+          name: "Amit Deshmukh",
+          email: "amit.deshmukh@example.com",
+          phone: "+91 99887 76655",
+          service: "Full Wedding Props & Shoot",
+          date: "2026-09-01",
+          message: "Full wedding photography & drone cinematography package.",
+          createdAt: new Date().toISOString(),
+          status: "pending",
+          photographer: "Ganesh SK",
+          price: 95000,
+          advancePaid: 15000,
+          balanceDue: 80000
+        }
+      ];
+      await atomicDb.writeJson("bookings.json", bookings);
+    }
+
+    // 3. Ensure default enquiries exist if empty
+    if (!Array.isArray(enquiries) || enquiries.length === 0) {
+      enquiries = [
+        {
+          id: "enq-default-1",
+          customerName: "Priya Kulkarni",
+          name: "Priya Kulkarni",
+          email: "priya.kulkarni@example.com",
+          phone: "+91 98900 11223",
+          service: "Pre-Wedding Shoot",
+          budget: 35000,
+          status: "New",
+          message: "Inquiring about pre-wedding photography locations around Lonavala.",
+          createdAt: new Date().toISOString(),
+          assignedStaff: "Ganesh SK"
+        },
+        {
+          id: "enq-default-2",
+          customerName: "Vikram Rathod",
+          name: "Vikram Rathod",
+          email: "vikram.rathod@example.com",
+          phone: "+91 91234 56789",
+          service: "Corporate Event Photography",
+          budget: 50000,
+          status: "Contacted",
+          message: "Need 2 photographers for a full-day corporate summit.",
+          createdAt: new Date().toISOString(),
+          assignedStaff: "Sunil K"
+        }
+      ];
+      await atomicDb.writeJson("enquiries.json", enquiries);
+    }
+
+    // 4. Ensure default messages exist if empty
+    if (!Array.isArray(messages) || messages.length === 0) {
+      messages = [
+        {
+          id: "msg-widget-1",
+          channel: "floating_widget",
+          sender: "user",
+          senderName: "Rahul Sharma (Ph: 9823012345)",
+          senderEmail: "rahul.sharma@example.com",
+          recipientEmail: "rahul.sharma@example.com",
+          recipientPhone: "9823012345",
+          body: "Hi, I want to inquire about outdoor maternity packages.",
+          timestamp: new Date().toISOString()
+        },
+        {
+          id: "msg-widget-2",
+          channel: "floating_widget",
+          sender: "admin",
+          senderName: "Ganesh Kalapad (Admin)",
+          senderEmail: "ganeshkalapadgk@gmail.com",
+          recipientEmail: "rahul.sharma@example.com",
+          recipientPhone: "9823012345",
+          body: "Hello Rahul! We have special outdoor maternity shoot setups at Empress Garden Pune.",
+          timestamp: new Date().toISOString()
+        }
+      ];
+      await atomicDb.writeJson("messages.json", messages);
+    }
+
     // Filter soft deleted records
     bookings = Array.isArray(bookings) ? bookings.filter((b: any) => !b.isDeleted) : [];
     enquiries = Array.isArray(enquiries) ? enquiries.filter((e: any) => !e.isDeleted) : [];
@@ -87,7 +204,7 @@ export async function GET() {
       auditLogs.sort((a: any, b: any) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
     }
 
-    // 2. Aggregate all contacts from bookings, enquiries, and chat messages into user directory
+    // 5. Aggregate all contacts from bookings, enquiries, and chat messages into user directory
     const knownEmails = new Set(Object.values(usersRaw).map((u: any) => (u?.email || "").toLowerCase()));
 
     bookings.forEach((b: any) => {
