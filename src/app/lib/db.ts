@@ -1,7 +1,28 @@
 import fs from "fs";
 import path from "path";
 
-const DATA_DIR = path.join(process.cwd(), "data");
+function getDataDir(): string {
+  const candidates = [
+    path.join(process.cwd(), "data"),
+    path.join(process.cwd(), "..", "data"),
+    path.resolve(process.cwd(), "data"),
+    path.resolve("data")
+  ];
+
+  for (const dir of candidates) {
+    try {
+      if (fs.existsSync(dir)) return dir;
+    } catch {}
+  }
+
+  const defaultDir = path.join(process.cwd(), "data");
+  try {
+    if (!fs.existsSync(defaultDir)) {
+      fs.mkdirSync(defaultDir, { recursive: true });
+    }
+  } catch {}
+  return defaultDir;
+}
 
 // In-memory read cache
 const dbCache: Record<string, { data: any; timestamp: number }> = {};
@@ -20,7 +41,9 @@ export const atomicDb = {
       return dbCache[cacheKey].data;
     }
 
-    const filePath = path.join(DATA_DIR, filename);
+    const dataDir = getDataDir();
+    const filePath = path.join(dataDir, filename);
+
     try {
       if (fs.existsSync(filePath)) {
         const raw = fs.readFileSync(filePath, "utf8");
@@ -47,11 +70,12 @@ export const atomicDb = {
       writePromiseQueue = writePromiseQueue
         .then(async () => {
           try {
-            if (!fs.existsSync(DATA_DIR)) {
-              fs.mkdirSync(DATA_DIR, { recursive: true });
+            const dataDir = getDataDir();
+            if (!fs.existsSync(dataDir)) {
+              fs.mkdirSync(dataDir, { recursive: true });
             }
 
-            const filePath = path.join(DATA_DIR, filename);
+            const filePath = path.join(dataDir, filename);
             const tempPath = filePath + `.tmp-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
 
             // 1. Write to temporary file
