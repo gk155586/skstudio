@@ -1,14 +1,23 @@
 const JWT_SECRET = process.env.JWT_SECRET || "sk-studio-pune-enterprise-secret-signature-2026";
 
-function base64UrlToUint8Array(str: string): Uint8Array {
+function base64UrlToBuffer(str: string): Uint8Array {
   const base64 = str.replace(/-/g, "+").replace(/_/g, "/");
   const pad = base64.length % 4;
   const padded = pad ? base64 + "=".repeat(4 - pad) : base64;
+  
   if (typeof Buffer !== "undefined") {
-    return new Uint8Array(Buffer.from(padded, "base64"));
+    const buf = Buffer.from(padded, "base64");
+    const ab = new ArrayBuffer(buf.length);
+    const view = new Uint8Array(ab);
+    for (let i = 0; i < buf.length; ++i) {
+      view[i] = buf[i];
+    }
+    return view;
   }
+
   const binary = atob(padded);
-  const bytes = new Uint8Array(binary.length);
+  const ab = new ArrayBuffer(binary.length);
+  const bytes = new Uint8Array(ab);
   for (let i = 0; i < binary.length; i++) {
     bytes[i] = binary.charCodeAt(i);
   }
@@ -75,18 +84,18 @@ export async function verifyJWT(token: string): Promise<any | null> {
 
     const key = await getCryptoKey();
     const dataBuf = enc.encode(`${encodedHeader}.${encodedPayload}`);
-    const sigBuf = base64UrlToUint8Array(signature);
+    const sigBuf = base64UrlToBuffer(signature);
 
     const isValid = await crypto.subtle.verify(
       "HMAC",
       key,
-      sigBuf,
-      dataBuf
+      sigBuf.buffer as ArrayBuffer,
+      dataBuf.buffer as ArrayBuffer
     );
 
     if (!isValid) return null;
 
-    const payloadRaw = new TextDecoder().decode(base64UrlToUint8Array(encodedPayload));
+    const payloadRaw = new TextDecoder().decode(base64UrlToBuffer(encodedPayload));
     const payload = JSON.parse(payloadRaw);
 
     if (payload.exp && Date.now() > payload.exp) {
