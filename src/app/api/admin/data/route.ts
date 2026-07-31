@@ -49,28 +49,31 @@ export async function GET() {
     const messages = readJsonFile("messages.json", []);
 
     // 1. Ensure default admin and user accounts exist
-    if (!usersRaw || typeof usersRaw !== "object" || Object.keys(usersRaw).length === 0) {
-      usersRaw = {
-        "admin": {
-          id: "admin",
-          email: "ganeshkalapadgk@gmail.com",
-          name: "Ganesh Kalapad (Admin)",
-          role: "admin",
-          isActive: true,
-          createdAt: new Date().toISOString()
-        },
-        "user_default": {
-          id: "user_default",
-          name: "Ganesh Kalapad",
-          email: "ganeshk@gmail.com",
-          phone: "+91 93071 12119",
-          role: "user",
-          isActive: true,
-          createdAt: new Date().toISOString()
-        }
-      };
-      await atomicDb.writeJson("users.json", usersRaw);
+    if (!usersRaw || typeof usersRaw !== "object") {
+      usersRaw = {};
     }
+    if (!usersRaw["admin"]) {
+      usersRaw["admin"] = {
+        id: "admin",
+        email: "ganeshkalapadgk@gmail.com",
+        name: "Ganesh Kalapad (Admin)",
+        role: "admin",
+        isActive: true,
+        createdAt: new Date().toISOString()
+      };
+    }
+    if (!usersRaw["user_default"]) {
+      usersRaw["user_default"] = {
+        id: "user_default",
+        name: "Ganesh Kalapad",
+        email: "ganeshk@gmail.com",
+        phone: "+91 93071 12119",
+        role: "user",
+        isActive: true,
+        createdAt: new Date().toISOString()
+      };
+    }
+    await atomicDb.writeJson("users.json", usersRaw);
 
     // Filter soft deleted records
     bookings = Array.isArray(bookings) ? bookings.filter((b: any) => !b.isDeleted) : [];
