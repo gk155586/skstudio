@@ -41,6 +41,23 @@ export default function UsersView({
   // Normalize user array
   const userList = Array.isArray(users) ? users : Object.entries(users).map(([id, u]: [string, any]) => ({ id, ...u }));
 
+  // Helper: resolve a clean display name from email using userList
+  const resolveClientName = (email: string): string => {
+    if (!email) return "Guest Client";
+    const user = userList.find((u) => (u.email || "").toLowerCase() === email.toLowerCase());
+    if (user?.name) {
+      // Strip phone suffix like "Rahul Sharma (Ph: 9823012345)" -> "Rahul Sharma"
+      return user.name.replace(/\s*\(Ph:.*\)$/i, "").trim() || user.name;
+    }
+    // Try to extract name from messages senderName
+    const userMsg = (messages || []).find((m: any) => m.sender === "user" && (m.senderEmail || m.recipientEmail || "").toLowerCase() === email.toLowerCase());
+    if (userMsg?.senderName) {
+      return userMsg.senderName.replace(/\s*\(Ph:.*\)$/i, "").trim() || userMsg.senderName;
+    }
+    if (email.startsWith("guest_")) return "Guest Client";
+    return email.split("@")[0].replace(/[._-]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  };
+
   // Filter widget chat threads (from logged-in users or guest IDs)
   const widgetMessages = (messages || []).filter(
     (m) => m.channel === "floating_widget" || (m.id && (m.id.startsWith("msg-widget") || m.id.startsWith("msg-bot"))) || (m.senderName && m.senderName.includes("Ph:"))
@@ -425,7 +442,7 @@ export default function UsersView({
                       <div className="flex justify-between items-center w-full">
                         <div className="flex items-center gap-1.5">
                           <span className={`text-xs font-bold ${isSelected ? "text-[#c1442d]" : "text-slate-900"}`}>
-                            {lastMsg?.senderName || (id.startsWith("guest_") ? "Guest Client" : id)}
+                            {resolveClientName(id as string)}
                           </span>
                           {unreadCount > 0 && (
                             <span className="bg-rose-600 text-white font-mono text-[9px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
@@ -439,7 +456,7 @@ export default function UsersView({
                           </span>
                         )}
                       </div>
-                      <span className="text-[10px] text-slate-500 font-mono truncate">{id}</span>
+                      <span className="text-[10px] text-slate-500 font-mono truncate">{id as string}</span>
                       {lastMsg && (
                         <p className="text-[11px] text-slate-600 line-clamp-1 mt-0.5 font-medium">
                           {lastMsg.sender === "admin" ? "You: " : ""}{lastMsg.body}
@@ -458,14 +475,14 @@ export default function UsersView({
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-[#c1442d]/10 border border-[#c1442d]/30 text-[#c1442d] font-black text-xs flex items-center justify-center">
-                  {(selectedWidgetClient || "W")[0].toUpperCase()}
+                  {resolveClientName(selectedWidgetClient)[0].toUpperCase()}
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xs font-bold text-slate-900 font-mono">
-                    {selectedWidgetClient || "Select Widget Client Thread"}
+                  <span className="text-sm font-bold text-slate-900">
+                    {selectedWidgetClient ? resolveClientName(selectedWidgetClient) : "Select Widget Client Thread"}
                   </span>
                   <span className="text-[10px] text-slate-500 font-mono">
-                    Channel: Floating Round Chat Widget
+                    {selectedWidgetClient || "No client selected"} · Floating Chat Widget
                   </span>
                 </div>
               </div>
@@ -497,7 +514,7 @@ export default function UsersView({
                         }`}
                       >
                         <div className={`flex justify-between items-center gap-4 mb-1 text-[9px] font-mono ${isAdmin ? "text-white/80" : "text-slate-500"}`}>
-                          <span className="font-bold">{isAdmin ? "SK Studio Admin" : (m.senderName || "Guest User")}</span>
+                          <span className="font-bold">{isAdmin ? "You (Admin)" : resolveClientName(m.senderEmail || m.recipientEmail || "")}</span>
                           <span>{new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                         </div>
                         <p className="whitespace-pre-line leading-relaxed">{m.body}</p>
@@ -511,7 +528,7 @@ export default function UsersView({
             <div className="flex items-center gap-2 pt-3 border-t border-slate-100">
               <input
                 type="text"
-                placeholder={selectedWidgetClient ? `Reply to ${selectedWidgetClient}...` : "Select client..."}
+                placeholder={selectedWidgetClient ? `Reply to ${resolveClientName(selectedWidgetClient)}...` : "Select client..."}
                 disabled={!selectedWidgetClient}
                 value={widgetReplyText}
                 onChange={(e) => setWidgetReplyText(e.target.value)}

@@ -122,10 +122,10 @@ export default function AdminPage() {
   useEffect(() => {
     if (!isAuthenticated) return;
     
-    // Polling fallback every 4 seconds
+    // Polling fallback every 8 seconds (non-blocking background sync)
     const pollTimer = setInterval(() => {
-      fetchDashboardData();
-    }, 4000);
+      fetchDashboardData(true);
+    }, 8000);
 
     // Create EventSource listener for instant push events
     const eventSource = new EventSource("/api/admin/events");
@@ -176,9 +176,9 @@ export default function AdminPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
-  // Fetch telemetry
-  const fetchDashboardData = async () => {
-    setDataLoading(true);
+  // Fetch telemetry (silent = true means background poll, no loading spinner)
+  const fetchDashboardData = async (silent: boolean = false) => {
+    if (!silent) setDataLoading(true);
     try {
       const response = await fetch(`/api/admin/data?t=${Date.now()}`, { cache: "no-store" });
       const data = await response.json();
@@ -210,7 +210,7 @@ export default function AdminPage() {
     } catch (err) {
       console.error("Dashboard fetch error:", err);
     } finally {
-      setDataLoading(false);
+      if (!silent) setDataLoading(false);
     }
   };
 
@@ -546,7 +546,7 @@ export default function AdminPage() {
           <div className="flex items-center gap-3">
 
             <button 
-              onClick={fetchDashboardData}
+              onClick={() => fetchDashboardData()}
               className="p-3 rounded-full border border-slate-200 bg-white text-[#b08d4b] hover:scale-105 shadow-sm transition-all duration-150"
             >
               <RefreshCw size={14} className={dataLoading ? "animate-spin" : ""} />
