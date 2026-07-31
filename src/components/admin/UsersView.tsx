@@ -43,12 +43,12 @@ export default function UsersView({
 
   // Filter widget chat threads (from logged-in users or guest IDs)
   const widgetMessages = (messages || []).filter(
-    (m) => m.channel === "floating_widget" || (m.id && m.id.startsWith("msg-widget"))
+    (m) => m.channel === "floating_widget" || (m.id && (m.id.startsWith("msg-widget") || m.id.startsWith("msg-bot"))) || (m.senderName && m.senderName.includes("Ph:"))
   );
 
   const widgetClientIdentifiers = Array.from(
     new Set([
-      ...widgetMessages.map((m) => (m.sender === "user" ? (m.senderEmail || m.recipientEmail) : m.recipientEmail)).filter(Boolean)
+      ...widgetMessages.map((m) => (m.sender === "user" ? (m.senderEmail || m.recipientEmail) : (m.recipientEmail || m.senderEmail))).filter(Boolean)
     ])
   );
 

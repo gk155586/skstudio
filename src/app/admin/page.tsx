@@ -190,6 +190,7 @@ export default function AdminPage() {
         setOrders(data.orders || []);
         setReviews(data.reviews || []);
         setEnquiries(data.enquiries || []);
+        setMessages(data.messages || []);
         setAuditLogs(data.auditLogs || []);
         setContent(data.content || null);
         if (data.settings) setSettings(data.settings);
