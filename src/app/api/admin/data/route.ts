@@ -4,6 +4,7 @@ import { atomicDb } from "@/app/lib/db";
 import { verifyJWT } from "@/app/lib/jwt";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 function readJsonFile(filename: string, defaultVal: any) {
   return atomicDb.readJson(filename, defaultVal);
@@ -277,21 +278,30 @@ export async function GET() {
 
     const crew = content.crew || ["Ganesh SK", "Sunil K", "Rohit P"];
 
-    return NextResponse.json({
-      success: true,
-      bookings,
-      packages,
-      users,
-      coupons,
-      orders,
-      reviews,
-      enquiries,
-      messages,
-      auditLogs,
-      settings,
-      content,
-      crew
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        bookings,
+        packages,
+        users,
+        coupons,
+        orders,
+        reviews,
+        enquiries,
+        messages,
+        auditLogs,
+        settings,
+        content,
+        crew
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
+          "Pragma": "no-cache",
+          "Expires": "0"
+        }
+      }
+    );
   } catch (error: unknown) {
     console.error("ADMIN DATA API ERROR:", error);
     const message = error instanceof Error ? error.message : "Internal Server Error";

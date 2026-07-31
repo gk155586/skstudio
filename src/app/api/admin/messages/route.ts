@@ -5,6 +5,7 @@ import { atomicDb } from "@/app/lib/db";
 import { verifyJWT } from "@/app/lib/jwt";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 function getMessages() {
   return atomicDb.readJson("messages.json", []);
