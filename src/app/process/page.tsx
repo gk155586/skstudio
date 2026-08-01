@@ -46,39 +46,39 @@ export default function DedicatedProcessPage() {
     <div className="relative min-h-screen bg-[var(--background)] text-[var(--foreground)] selection:bg-[var(--accent)] selection:text-black">
       <Navbar />
 
-      <main className="pt-28 pb-20">
-        <section className="py-12 px-6 max-w-7xl mx-auto">
-          <Reveal style="blur" className="text-center mb-16">
-            <span className="inline-block text-xs font-mono tracking-widest text-[var(--accent)] uppercase font-semibold mb-4 px-4 py-1.5 rounded-full border border-[var(--accent)]/30 bg-[var(--accent)]/10">
+      <main className="pt-24 pb-14">
+        <section className="py-8 px-4 sm:px-6 max-w-7xl mx-auto">
+          <Reveal style="blur" className="text-center mb-10">
+            <span className="inline-block text-xs font-mono tracking-widest text-[var(--accent)] uppercase font-semibold mb-3 px-4 py-1.5 rounded-full border border-[var(--accent)]/30 bg-[var(--accent)]/10">
               Seamless Client Experience
             </span>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-display leading-tight tracking-tight mb-6">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display leading-tight tracking-tight mb-4">
               Our 5-Step <span className="text-[var(--accent)]">Process</span>
             </h1>
-            <p className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-sm sm:text-base text-gray-400 max-w-xl mx-auto leading-relaxed">
               From your initial consultation to final luxury frame delivery, discover how we ensure a comfortable, memorable, and stress-free photoshoot experience.
             </p>
           </Reveal>
 
           {/* Timeline Steps Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {steps.map((st, i) => {
               const Icon = st.icon;
               return (
-                <Reveal key={st.step} style="blur" delayMs={i * 90}>
-                  <div className="h-full p-8 rounded-3xl bg-[var(--card-bg)] border border-[var(--card-border)] shadow-xl flex flex-col relative group hover:border-[var(--accent)]/60 transition-all duration-300">
-                    <div className="flex items-center justify-between mb-6">
-                      <span className="text-4xl font-extrabold font-mono text-[var(--accent)] opacity-80">
+                <Reveal key={st.step} style="blur" delayMs={i * 80}>
+                  <div className="h-full p-5 rounded-2xl bg-[var(--card-bg)] border border-[var(--card-border)] shadow-lg flex flex-col relative group hover:border-[var(--accent)]/60 transition-all duration-300 hover:-translate-y-1">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-xs font-mono font-black text-[var(--accent)] tracking-widest px-2.5 py-1 rounded-lg bg-[var(--accent)]/10 border border-[var(--accent)]/20">
                         {st.step}
                       </span>
-                      <div className="w-12 h-12 rounded-2xl bg-[var(--accent)]/15 border border-[var(--accent)]/30 text-[var(--accent)] flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <Icon className="w-6 h-6" />
+                      <div className="w-9 h-9 rounded-xl bg-[var(--accent)]/15 border border-[var(--accent)]/30 text-[var(--accent)] flex items-center justify-center group-hover:scale-110 group-hover:bg-[var(--accent)] group-hover:text-black transition-all">
+                        <Icon className="w-5 h-5" />
                       </div>
                     </div>
-                    <h3 className="text-xl font-extrabold font-display mb-3 text-[var(--foreground)] group-hover:text-[var(--accent)] transition-colors">
+                    <h3 className="text-base font-extrabold font-display mb-2 text-[var(--foreground)] group-hover:text-[var(--accent)] transition-colors">
                       {st.title}
                     </h3>
-                    <p className="text-sm text-gray-400 leading-relaxed font-sans">
+                    <p className="text-xs text-gray-400 leading-relaxed font-sans flex-1">
                       {st.desc}
                     </p>
                   </div>
