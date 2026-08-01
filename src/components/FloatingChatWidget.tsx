@@ -1,15 +1,22 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import { MessageSquare, X, Send, Phone, User, Check, ExternalLink } from "lucide-react";
 
 export default function FloatingChatWidget() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
   const [inputVal, setInputVal] = useState("");
   const [unreadCount, setUnreadCount] = useState(0);
   const [guestId, setGuestId] = useState<string>("");
   const [isSending, setIsSending] = useState(false);
+
+  // Hide global floating widget on user dashboard (/bookings) and admin pages (/admin)
+  if (pathname?.startsWith("/bookings") || pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   // Guest contact form states
   const [contactName, setContactName] = useState("");

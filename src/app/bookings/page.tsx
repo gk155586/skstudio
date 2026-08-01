@@ -366,14 +366,7 @@ export default function BookingsPage() {
         </div>
       </div>
 
-      {/* ─── FAB (Floating Action Button) ─── */}
-      <Link
-        href="/#contact"
-        className="fixed bottom-20 right-5 z-50 w-14 h-14 rounded-2xl bg-[var(--accent)] text-black flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-transform"
-        title="Book New Session"
-      >
-        <Plus size={24} strokeWidth={2.5} />
-      </Link>
+
 
       {/* Authenticated Client Chat Modal */}
       <ClientChatModal
