@@ -202,8 +202,8 @@ export default function AdminPage() {
         if (msgData.success) {
           setMessages(msgData.messages || []);
           const uniqClients = Array.from(new Set((msgData.messages || []).map((m: any) => m.recipientEmail))).filter(Boolean);
-          if (uniqClients.length > 0 && !selectedClient) {
-            setSelectedClient(uniqClients[0] as string);
+          if (uniqClients.length > 0) {
+            setSelectedClient((prev) => prev || (uniqClients[0] as string));
           }
         }
       }

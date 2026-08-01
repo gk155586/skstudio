@@ -84,32 +84,7 @@ export default function DashboardView({
   return (
     <div className="flex flex-col gap-8 text-slate-900 font-sans">
       
-      {/* Quick Action Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white rounded-2xl p-6 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-xl font-black font-display tracking-tight text-[#b08d4b]">
-            SK PHOTO STUDIO PUNE
-          </h2>
-          <p className="text-xs text-slate-300 font-medium">
-            Studio Operations Overview • {new Date().toLocaleDateString("en-IN", { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' })}
-          </p>
-        </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <button
-            onClick={() => setActiveTab("bookings")}
-            className="px-4 py-2 bg-[#b08d4b] hover:bg-[#96753a] text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow transition-all flex items-center gap-2"
-          >
-            <Plus size={14} /> New Booking
-          </button>
-          <button
-            onClick={() => setActiveTab("payments")}
-            className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-2"
-          >
-            <FileText size={14} /> Generate Invoice
-          </button>
-        </div>
-      </div>
 
       {/* Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">

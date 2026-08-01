@@ -67,10 +67,10 @@ export default function MessagingView({
 
   // Automatically select first client if none selected
   useEffect(() => {
-    if (!selectedClient && allClientEmails.length > 0) {
-      setSelectedClient(allClientEmails[0]);
+    if (allClientEmails.length > 0) {
+      setSelectedClient((prev) => prev || allClientEmails[0]);
     }
-  }, [allClientEmails, selectedClient, setSelectedClient]);
+  }, [allClientEmails, setSelectedClient]);
 
   // Auto-scroll chat stream to bottom when messages update
   useEffect(() => {
