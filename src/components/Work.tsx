@@ -170,7 +170,7 @@ export default function Work() {
         </div>
 
         {/* DESKTOP/LAPTOP PERFECT GRID LAYOUT */}
-        <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-24 gap-x-12 lg:gap-x-24 w-full mt-12 lg:mt-24 px-4 lg:px-12">
+        <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-10 lg:gap-y-12 gap-x-12 lg:gap-x-24 w-full mt-10 lg:mt-16 px-4 lg:px-12">
           {filteredItems.map((item, idx) => {
             // Uniform aspect ratio based on Pre-Wedding image size
             const aspectClass = "aspect-[3/5]";
@@ -206,15 +206,15 @@ export default function Work() {
                   </div>
 
                   {/* Editorial Typography (Pushed down below the image) */}
-                  <div className="relative z-20 mt-8 md:mt-10 md:ml-4 group-hover:md:ml-8 transition-all duration-700 ease-out bg-[var(--background)]/80 backdrop-blur-sm p-4 rounded-xl border border-[var(--card-border)]/50 md:border-none md:bg-transparent md:backdrop-blur-none md:p-0">
-                    <span className="text-xs font-mono tracking-[0.3em] text-[var(--accent)] uppercase font-extrabold mb-3 block">
+                  <div className="relative z-20 mt-4 md:mt-5 md:ml-4 group-hover:md:ml-8 transition-all duration-700 ease-out bg-[var(--background)]/80 backdrop-blur-sm p-4 rounded-xl border border-[var(--card-border)]/50 md:border-none md:bg-transparent md:backdrop-blur-none md:p-0">
+                    <span className="text-xs font-mono tracking-[0.3em] text-[var(--accent)] uppercase font-extrabold mb-1.5 block">
                       {item.category}
                     </span>
                     <h4 className="text-3xl lg:text-4xl font-black text-[var(--foreground)] group-hover:text-[var(--accent)] font-display leading-[1.1] tracking-tighter transition-colors duration-500 drop-shadow-md">
                       {item.title}
                     </h4>
                     
-                    <div className="mt-6 flex items-center gap-4 text-xs font-bold uppercase tracking-[0.2em] text-gray-500 group-hover:text-[var(--foreground)] transition-colors duration-300">
+                    <div className="mt-3 flex items-center gap-4 text-xs font-bold uppercase tracking-[0.2em] text-gray-500 group-hover:text-[var(--foreground)] transition-colors duration-300">
                       <span className="w-8 h-[2px] bg-[var(--accent)] group-hover:w-16 transition-all duration-700 ease-out" />
                       Explore Story
                     </div>
