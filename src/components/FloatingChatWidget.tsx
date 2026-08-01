@@ -13,11 +13,6 @@ export default function FloatingChatWidget() {
   const [guestId, setGuestId] = useState<string>("");
   const [isSending, setIsSending] = useState(false);
 
-  // Hide global floating widget on user dashboard (/bookings) and admin pages (/admin)
-  if (pathname?.startsWith("/bookings") || pathname?.startsWith("/admin")) {
-    return null;
-  }
-
   // Guest contact form states
   const [contactName, setContactName] = useState("");
   const [contactPhone, setContactPhone] = useState("");
@@ -167,6 +162,11 @@ export default function FloatingChatWidget() {
       handleSend();
     }
   };
+
+  // Hide global floating widget on user dashboard (/bookings) and admin pages (/admin)
+  if (pathname?.startsWith("/bookings") || pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   return (
     <>

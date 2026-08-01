@@ -11,7 +11,7 @@ interface MessagingViewProps {
   users: any[];
   messages: any[];
   selectedClient: string;
-  setSelectedClient: (email: string) => void;
+  setSelectedClient: React.Dispatch<React.SetStateAction<string>>;
   chatChannel?: string;
   setChatChannel?: (channel: string) => void;
   saveTransaction?: (action: string, payload: any) => Promise<any>;
