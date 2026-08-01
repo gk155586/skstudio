@@ -116,7 +116,7 @@ export default function Services() {
     : defaultServices;
 
   return (
-    <section id="services" className="pt-6 pb-16 md:pt-10 md:pb-24 px-4 md:px-12 bg-[#FAFAFA] relative overflow-hidden">
+    <section id="services" className="pt-6 pb-10 md:pt-10 md:pb-14 px-4 md:px-12 bg-[#FAFAFA] relative overflow-hidden">
       
       <div className="max-w-6xl mx-auto flex flex-col gap-2 md:gap-4">
         

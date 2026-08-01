@@ -82,10 +82,10 @@ export default function Testimonials() {
   ];
 
   return (
-    <section id="testimonials" className="py-10 md:py-24 px-4 md:px-12 bg-[var(--background)] border-t border-[var(--card-border)] relative overflow-hidden">
+    <section id="testimonials" className="pt-10 md:pt-14 pb-0 px-4 md:px-12 bg-[var(--background)] border-t border-[var(--card-border)] relative overflow-hidden">
       <div className="absolute top-1/3 left-0 w-80 h-80 rounded-full bg-[var(--accent)] opacity-[0.02] blur-[120px] pointer-events-none" />
 
-      <div className="max-w-6xl mx-auto flex flex-col gap-8 md:gap-16">
+      <div className="max-w-6xl mx-auto flex flex-col gap-6 md:gap-10">
         <div className="flex flex-col items-center text-center">
           <span className="text-[10px] md:text-xs font-semibold tracking-[0.3em] text-[var(--accent)] uppercase font-mono mb-2 md:mb-4">
             Client Stories

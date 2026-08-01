@@ -119,7 +119,7 @@ export default function ContactForm() {
   };
 
   return (
-    <section id="contact" className="py-24 px-6 md:px-12 bg-[var(--background)] border-t border-[var(--card-border)] relative overflow-hidden">
+    <section id="contact" className="py-10 md:py-14 px-6 md:px-12 bg-[var(--background)] border-t border-[var(--card-border)] relative overflow-hidden">
       <div className="absolute top-1/2 right-0 w-80 h-80 rounded-full bg-[var(--accent)] opacity-[0.02] blur-[120px] pointer-events-none" />
 
       <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-16 items-stretch">
