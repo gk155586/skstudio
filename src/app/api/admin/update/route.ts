@@ -70,7 +70,9 @@ export async function POST(request: Request) {
     let message = "";
     let updatedPayload: any = null;
 
-    switch (action) {
+    const normAction = (action || "").toLowerCase().trim();
+
+    switch (normAction) {
       case "update_booking": {
         const bookings = readJsonFile("bookings.json", []);
         const idx = bookings.findIndex((b: any) => b.id === data.id);
@@ -354,7 +356,11 @@ export async function POST(request: Request) {
         break;
       }
 
-      case "update_user": {
+      case "update_user":
+      case "user_update":
+      case "toggle_user":
+      case "suspend_user":
+      case "update_user_status": {
         const usersRaw = readJsonFile("users.json", {});
         const users: Record<string, any> = {};
         if (Array.isArray(usersRaw)) {
@@ -370,31 +376,44 @@ export async function POST(request: Request) {
         }
 
         const targetId = (data.id || data.email || "").toLowerCase();
-        const userEntry = Object.entries(users).find(
+        let userEntry = Object.entries(users).find(
           ([key, u]: [string, any]) =>
             key.toLowerCase() === targetId ||
             (u.email || "").toLowerCase() === targetId ||
             (u.id || "").toLowerCase() === targetId
         );
 
-        if (userEntry) {
-          const [matchedKey, existingUser] = userEntry;
-          users[matchedKey] = {
-            ...existingUser,
-            ...data,
-            updatedAt: new Date().toISOString()
+        if (!userEntry) {
+          // Fallback: create record if user in list was from bookings/enquiries
+          const newKey = data.id || `user_${Date.now()}`;
+          users[newKey] = {
+            id: newKey,
+            email: data.email || targetId,
+            name: data.name || data.email || "Client",
+            phone: data.phone || data.mobile || "",
+            role: "user",
+            isActive: data.isActive !== undefined ? data.isActive : true,
+            createdAt: new Date().toISOString()
           };
-          success = await writeJsonFile("users.json", users);
-          updatedPayload = users[matchedKey];
-          message = "User account status updated successfully";
-          logAuditTrail(session.email, "UPDATE_USER", { userId: matchedKey, fields: Object.keys(data) });
-        } else {
-          message = "User not found";
+          userEntry = [newKey, users[newKey]];
         }
+
+        const [matchedKey, existingUser] = userEntry;
+        users[matchedKey] = {
+          ...existingUser,
+          ...data,
+          updatedAt: new Date().toISOString()
+        };
+        success = await writeJsonFile("users.json", users);
+        updatedPayload = users[matchedKey];
+        message = "User account status updated successfully";
+        logAuditTrail(session.email, "UPDATE_USER", { userId: matchedKey, fields: Object.keys(data) });
         break;
       }
 
-      case "delete_user": {
+      case "delete_user":
+      case "user_delete":
+      case "remove_user": {
         const usersRaw = readJsonFile("users.json", {});
         const users: Record<string, any> = {};
         if (Array.isArray(usersRaw)) {
@@ -429,13 +448,16 @@ export async function POST(request: Request) {
             logAuditTrail(session.email, "DELETE_USER", { userId: matchedKey });
           }
         } else {
-          message = "User not found";
+          // If user already deleted or not in file, consider success
+          success = true;
+          updatedPayload = { id: targetId, isDeleted: true };
+          message = "User account removed";
         }
         break;
       }
 
       default: {
-        message = "Invalid update action specified";
+        message = `Invalid update action specified: ${action}`;
         break;
       }
     }
