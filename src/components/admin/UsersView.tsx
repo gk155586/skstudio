@@ -46,13 +46,17 @@ export default function UsersView({
     if (!email) return "Guest Client";
     const user = userList.find((u) => (u.email || "").toLowerCase() === email.toLowerCase());
     if (user?.name) {
-      // Strip phone suffix like "Rahul Sharma (Ph: 9823012345)" -> "Rahul Sharma"
+      if (email.toLowerCase() !== "ganeshkalapadgk@gmail.com" && user.name === "Ganesh Kalapad (Admin)") {
+        return email.split("@")[0].replace(/[._-]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+      }
       return user.name.replace(/\s*\(Ph:.*\)$/i, "").trim() || user.name;
     }
-    // Try to extract name from messages senderName
-    const userMsg = (messages || []).find((m: any) => m.sender === "user" && (m.senderEmail || m.recipientEmail || "").toLowerCase() === email.toLowerCase());
+    // Try to extract name from messages senderName (excluding admin)
+    const userMsg = (messages || []).find(
+      (m: any) => m.sender === "user" && m.senderName && !m.senderName.includes("Admin") && (m.senderEmail || m.recipientEmail || "").toLowerCase() === email.toLowerCase()
+    );
     if (userMsg?.senderName) {
-      return userMsg.senderName.replace(/\s*\(Ph:.*\)$/i, "").trim() || userMsg.senderName;
+      return userMsg.senderName.replace(/\s*\(Ph:.*\)$/i, "").trim();
     }
     if (email.startsWith("guest_")) return "Guest Client";
     return email.split("@")[0].replace(/[._-]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -361,24 +365,28 @@ export default function UsersView({
                               title="Send Direct Platform Message"
                             >
                               <MessageSquare size={14} />
-                            </button>
+                            </button>                             {u.role !== "admin" && u.email?.toLowerCase() !== "ganeshkalapadgk@gmail.com" ? (
+                              <>
+                                <button
+                                  onClick={() => handleToggleStatus(u)}
+                                  className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 transition-colors"
+                                  title={u.isActive !== false ? "Suspend User" : "Activate User"}
+                                >
+                                  {u.isActive !== false ? <XCircle size={14} className="text-amber-600" /> : <CheckCircle size={14} className="text-emerald-600" />}
+                                </button>
 
-                            <button
-                              onClick={() => handleToggleStatus(u)}
-                              className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 transition-colors"
-                              title={u.isActive !== false ? "Suspend User" : "Activate User"}
-                            >
-                              {u.isActive !== false ? <XCircle size={14} className="text-amber-600" /> : <CheckCircle size={14} className="text-emerald-600" />}
-                            </button>
-
-                            {u.role !== "admin" && (
-                              <button
-                                onClick={() => handleDeleteUser(u)}
-                                className="p-1.5 rounded-lg border border-rose-200 hover:bg-rose-50 text-rose-600 transition-colors"
-                                title="Delete User"
-                              >
-                                <Trash2 size={14} />
-                              </button>
+                                <button
+                                  onClick={() => handleDeleteUser(u)}
+                                  className="p-1.5 rounded-lg border border-rose-200 hover:bg-rose-50 text-rose-600 transition-colors"
+                                  title="Delete User"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </>
+                            ) : (
+                              <span className="text-[10px] font-mono font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-1 rounded-md cursor-default select-none" title="Primary Administrator Account Protected">
+                                PROTECTED
+                              </span>
                             )}
                           </div>
                         </td>

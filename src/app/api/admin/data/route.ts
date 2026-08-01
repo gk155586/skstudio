@@ -66,27 +66,91 @@ export async function GET() {
       }
     }
 
-    if (!usersRaw["admin"]) {
-      usersRaw["admin"] = {
+    // Default seed accounts for client directory
+    const seedAccounts: Record<string, any> = {
+      admin: {
         id: "admin",
         email: "ganeshkalapadgk@gmail.com",
         name: "Ganesh Kalapad (Admin)",
+        phone: "+91 93071 12119",
         role: "admin",
         isActive: true,
-        createdAt: new Date().toISOString()
-      };
-    }
-    if (!usersRaw["user_default"]) {
-      usersRaw["user_default"] = {
+        createdAt: "2026-08-01T00:00:00.000Z"
+      },
+      user_rahul: {
+        id: "user_rahul",
+        name: "Rahul Sharma",
+        email: "rahul.sharma@example.com",
+        phone: "+91 98230 12345",
+        role: "user",
+        isActive: true,
+        createdAt: "2026-07-31T10:00:00.000Z"
+      },
+      user_neha: {
+        id: "user_neha",
+        name: "Neha Patil",
+        email: "neha.patil@example.com",
+        phone: "+91 97645 12345",
+        role: "user",
+        isActive: true,
+        createdAt: "2026-07-31T12:00:00.000Z"
+      },
+      user_amit: {
+        id: "user_amit",
+        name: "Amit Deshmukh",
+        email: "amit.deshmukh@example.com",
+        phone: "+91 99887 76655",
+        role: "user",
+        isActive: true,
+        createdAt: "2026-08-01T08:00:00.000Z"
+      },
+      user_priya: {
+        id: "user_priya",
+        name: "Priya Kulkarni",
+        email: "priya.kulkarni@example.com",
+        phone: "+91 98900 11223",
+        role: "user",
+        isActive: true,
+        createdAt: "2026-08-01T09:00:00.000Z"
+      },
+      user_default: {
         id: "user_default",
         name: "Ganesh Kalapad",
         email: "ganeshk@gmail.com",
         phone: "+91 93071 12119",
         role: "user",
         isActive: true,
-        createdAt: new Date().toISOString()
-      };
+        createdAt: "2026-08-01T09:30:00.000Z"
+      }
+    };
+
+    // Ensure seed accounts exist if no users in users.json yet
+    if (Object.keys(usersRaw).length === 0) {
+      Object.assign(usersRaw, seedAccounts);
+    } else {
+      if (!usersRaw["admin"]) {
+        usersRaw["admin"] = seedAccounts.admin;
+      }
     }
+
+    // Clean up any corrupt entries where name was set to "Ganesh Kalapad (Admin)" for non-admin accounts
+    Object.keys(usersRaw).forEach((k) => {
+      const u = usersRaw[k];
+      if (!u) return;
+      const emailLower = (u.email || "").toLowerCase();
+      if (emailLower !== "ganeshkalapadgk@gmail.com") {
+        if (u.role === "admin") u.role = "user";
+        if (u.name === "Ganesh Kalapad (Admin)") {
+          if (emailLower === "amit.deshmukh@example.com") u.name = "Amit Deshmukh";
+          else if (emailLower === "rahul.sharma@example.com") u.name = "Rahul Sharma";
+          else if (emailLower === "neha.patil@example.com") u.name = "Neha Patil";
+          else if (emailLower === "priya.kulkarni@example.com") u.name = "Priya Kulkarni";
+          else if (emailLower === "ganeshk@gmail.com") u.name = "Ganesh Kalapad";
+          else u.name = u.email ? u.email.split("@")[0] : "Client";
+        }
+      }
+    });
+
     await atomicDb.writeJson("users.json", usersRaw);
 
     // 2. Ensure default bookings exist if empty
@@ -218,14 +282,16 @@ export async function GET() {
       auditLogs.sort((a: any, b: any) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
     }
 
-    // 5. Aggregate all contacts from bookings, enquiries, and chat messages into user directory
+    // 5. Aggregate new contacts from bookings & enquiries into usersRaw permanently (if email not present)
     const knownEmails = new Set(Object.values(usersRaw).map((u: any) => (u?.email || "").toLowerCase()));
+    let usersAdded = false;
 
     bookings.forEach((b: any) => {
       if (b.email && !knownEmails.has(b.email.toLowerCase())) {
         knownEmails.add(b.email.toLowerCase());
-        usersRaw[`user_lead_${b.id || Date.now()}`] = {
-          id: b.id || `lead_${Date.now()}`,
+        const newKey = `user_lead_${b.id || Date.now()}`;
+        usersRaw[newKey] = {
+          id: newKey,
           name: b.name || b.email.split("@")[0],
           email: b.email,
           phone: b.phone || b.mobile || "",
@@ -233,14 +299,16 @@ export async function GET() {
           isActive: true,
           createdAt: b.createdAt || new Date().toISOString()
         };
+        usersAdded = true;
       }
     });
 
     enquiries.forEach((e: any) => {
       if (e.email && !knownEmails.has(e.email.toLowerCase())) {
         knownEmails.add(e.email.toLowerCase());
-        usersRaw[`user_enq_${e.id || Date.now()}`] = {
-          id: e.id || `enq_${Date.now()}`,
+        const newKey = `user_enq_${e.id || Date.now()}`;
+        usersRaw[newKey] = {
+          id: newKey,
           name: e.name || e.customerName || e.email.split("@")[0],
           email: e.email,
           phone: e.phone || e.mobile || "",
@@ -248,35 +316,34 @@ export async function GET() {
           isActive: true,
           createdAt: e.createdAt || new Date().toISOString()
         };
+        usersAdded = true;
       }
     });
 
-    messages.forEach((m: any) => {
-      const email = m.sender === "user" ? (m.senderEmail || m.recipientEmail) : m.recipientEmail;
-      if (email && email !== "admin" && !email.includes("skstudiopune@gmail.com") && !knownEmails.has(email.toLowerCase())) {
-        knownEmails.add(email.toLowerCase());
-        usersRaw[`user_msg_${m.id || Date.now()}`] = {
-          id: m.id || `msg_${Date.now()}`,
-          name: m.senderName || (email.startsWith("guest_") ? "Live Chat Guest" : email.split("@")[0]),
-          email: email,
-          phone: m.recipientPhone || "",
-          role: "user",
-          isActive: true,
-          createdAt: m.timestamp || new Date().toISOString()
-        };
+    if (usersAdded) {
+      await atomicDb.writeJson("users.json", usersRaw);
+    }
+
+    // Process users to provide clean, deduplicated listing by email
+    const deduplicatedMap = new Map<string, any>();
+    Object.entries(usersRaw || {}).forEach(([id, u]: [string, any]) => {
+      if (!u) return;
+      const key = (u.email || id).toLowerCase();
+      // Admin account priority or keep existing first record
+      if (!deduplicatedMap.has(key) || u.role === "admin") {
+        deduplicatedMap.set(key, {
+          id: u.id || id,
+          name: u.name || "Client",
+          email: u.email || id,
+          phone: u.phone || u.mobile || "",
+          role: u.role || "user",
+          isActive: u.isActive !== false,
+          createdAt: u.createdAt || new Date().toISOString(),
+        });
       }
     });
 
-    // Process users to provide clean listing with all registered users
-    const users = Object.entries(usersRaw || {}).map(([id, u]: [string, any]) => ({
-      id: u?.id || id,
-      name: u?.name || "Client",
-      email: u?.email || id,
-      phone: u?.phone || u?.mobile || "",
-      role: u?.role || "user",
-      isActive: u?.isActive !== false,
-      createdAt: u?.createdAt || new Date().toISOString(),
-    }));
+    const users = Array.from(deduplicatedMap.values());
 
     // Extract settings from content.json
     const settings = {
