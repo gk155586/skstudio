@@ -163,15 +163,15 @@ export default function UserLoginPage() {
 
             <div className="flex flex-col gap-2">
               <label className="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-mono">
-                Email Address
+                Email Address or Mobile Number
               </label>
               <div className="flex items-center gap-3 rounded-2xl border border-[var(--card-border)] bg-[var(--background)] px-4 py-3.5">
                 <Mail size={16} className="text-[var(--accent)]" />
                 <input
-                  type="email"
+                  type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="yourname@example.com"
+                  placeholder="yourname@example.com or 9823012345"
                   className="w-full bg-transparent outline-none text-sm"
                   disabled={loginLoading}
                 />

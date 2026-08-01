@@ -6,11 +6,28 @@ import { sseHub } from "@/app/lib/sse";
 
 export const dynamic = "force-dynamic";
 
-function getUsers() {
-  return atomicDb.readJson("users.json", {});
+function normalizeUsers(usersRaw: any): Record<string, any> {
+  if (!usersRaw || typeof usersRaw !== "object") return {};
+  if (Array.isArray(usersRaw)) {
+    const record: Record<string, any> = {};
+    usersRaw.forEach((u: any, idx: number) => {
+      if (u && (u.id || u.email)) {
+        record[u.id || u.email] = u;
+      } else if (u) {
+        record[`user_${idx}`] = u;
+      }
+    });
+    return record;
+  }
+  return usersRaw;
 }
 
-async function saveUsers(users: any) {
+function getUsers(): Record<string, any> {
+  const raw = atomicDb.readJson("users.json", {});
+  return normalizeUsers(raw);
+}
+
+async function saveUsers(users: Record<string, any>) {
   await atomicDb.writeJson("users.json", users);
 }
 
@@ -27,9 +44,13 @@ export async function POST(request: Request) {
       );
     }
 
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanMobile = mobile.trim();
+    const digitsMobile = cleanMobile.replace(/\D/g, "");
+
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(cleanEmail)) {
       return NextResponse.json(
         { success: false, message: "Invalid email format" },
         { status: 400 }
@@ -45,99 +66,60 @@ export async function POST(request: Request) {
     }
 
     const users = getUsers();
-    const cleanEmail = email.trim().toLowerCase();
 
-    // Check if email already exists
+    // Check if email or mobile already exists
     const existingUserEntry = Object.entries(users).find(
-      ([_, user]: [string, any]) => user.email?.toLowerCase() === cleanEmail
+      ([_, user]: [string, any]) => {
+        const uEmail = (user.email || "").toLowerCase();
+        const uPhone = (user.phone || user.mobile || "").replace(/\D/g, "");
+        return (
+          uEmail === cleanEmail ||
+          (digitsMobile.length >= 7 && uPhone.length >= 7 && uPhone.endsWith(digitsMobile))
+        );
+      }
     );
+
+    let userId: string;
+    let userObjToSave: any;
+    const hashedPassword = hashPassword(password);
 
     if (existingUserEntry) {
       const [existingId, existingUser] = existingUserEntry as [string, any];
+      userId = existingId;
 
-      // Email exists - verify password
-      if (existingUser.password) {
-        let passwordMatch = false;
-        try {
-          passwordMatch = verifyPassword(password, existingUser.password);
-        } catch (err) {
-          console.log("Password check fallback for existing user");
-          passwordMatch = false;
-        }
-
-        if (passwordMatch) {
-          const userObj = {
-            userId: existingId,
-            email: existingUser.email,
-            name: existingUser.name,
-            role: existingUser.role || "user",
-          };
-
-          const token = await signJWT(userObj, 30 * 24 * 60 * 60 * 1000);
-
-          const response = NextResponse.json({
-            success: true,
-            message: "Logged in with existing account",
-            user: {
-              id: existingId,
-              email: existingUser.email,
-              name: existingUser.name,
-              role: existingUser.role || "user",
-            },
-          });
-
-          // Set 30-day persistent session cookies
-          response.cookies.set("sk_session", JSON.stringify(userObj), {
-            httpOnly: true,
-            sameSite: "lax",
-            path: "/",
-            maxAge: 30 * 24 * 60 * 60,
-          });
-
-          response.cookies.set("sk_session_jwt", token, {
-            httpOnly: true,
-            sameSite: "lax",
-            path: "/",
-            maxAge: 30 * 24 * 60 * 60,
-          });
-
-          return response;
-        } else {
-          return NextResponse.json(
-            {
-              success: false,
-              message: "An account with this email already exists. Password incorrect.",
-            },
-            { status: 400 }
-          );
-        }
-      }
+      // If user exists: update password to newly registered password so account is active & usable
+      existingUser.password = hashedPassword;
+      if (name.trim()) existingUser.name = name.trim();
+      existingUser.email = cleanEmail;
+      existingUser.phone = cleanMobile;
+      existingUser.mobile = cleanMobile;
+      existingUser.isActive = true;
+      userObjToSave = existingUser;
+    } else {
+      // New user registration
+      userId = `user_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      userObjToSave = {
+        id: userId,
+        name: name.trim(),
+        email: cleanEmail,
+        phone: cleanMobile,
+        mobile: cleanMobile,
+        password: hashedPassword,
+        role: "user",
+        isActive: true,
+        createdAt: new Date().toISOString(),
+      };
     }
 
-    // New user registration
-    const hashedPassword = hashPassword(password);
-    const userId = `user_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    const cleanMobile = mobile.trim();
-
-    const newUser = {
-      name: name.trim(),
-      email: cleanEmail,
-      phone: cleanMobile,
-      mobile: cleanMobile,
-      password: hashedPassword,
-      role: "user",
-      isActive: true,
-      createdAt: new Date().toISOString(),
-    };
-
-    users[userId] = newUser;
+    users[userId] = userObjToSave;
     await saveUsers(users);
 
     const userSessionObj = {
       userId,
-      email: newUser.email,
-      name: newUser.name,
-      role: newUser.role,
+      email: userObjToSave.email,
+      name: userObjToSave.name,
+      phone: userObjToSave.phone || userObjToSave.mobile || "",
+      role: userObjToSave.role || "user",
     };
 
     const token = await signJWT(userSessionObj, 30 * 24 * 60 * 60 * 1000);
@@ -145,16 +127,16 @@ export async function POST(request: Request) {
     const response = NextResponse.json(
       {
         success: true,
-        message: "Account created successfully",
+        message: existingUserEntry ? "Account setup complete. Welcome!" : "Account created successfully",
         user: {
           id: userId,
-          name: newUser.name,
-          email: newUser.email,
-          role: newUser.role,
-          phone: newUser.phone,
+          name: userObjToSave.name,
+          email: userObjToSave.email,
+          role: userObjToSave.role || "user",
+          phone: userObjToSave.phone,
         },
       },
-      { status: 201 }
+      { status: existingUserEntry ? 200 : 201 }
     );
 
     // Set 30-day persistent cookies (both sk_session and sk_session_jwt)
@@ -177,11 +159,11 @@ export async function POST(request: Request) {
       type: "new_user",
       data: {
         id: userId,
-        name: newUser.name,
-        email: newUser.email,
-        phone: newUser.phone,
-        role: newUser.role,
-        createdAt: newUser.createdAt,
+        name: userObjToSave.name,
+        email: userObjToSave.email,
+        phone: userObjToSave.phone,
+        role: userObjToSave.role || "user",
+        createdAt: userObjToSave.createdAt || new Date().toISOString(),
       },
     });
 

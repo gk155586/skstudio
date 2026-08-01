@@ -5,11 +5,32 @@ import { signJWT } from "@/app/lib/jwt";
 
 export const dynamic = "force-dynamic";
 
-function getUsers() {
-  return atomicDb.readJson("users.json", {});
+function normalizeUsers(usersRaw: any): Record<string, any> {
+  if (!usersRaw || typeof usersRaw !== "object") return {};
+  if (Array.isArray(usersRaw)) {
+    const record: Record<string, any> = {};
+    usersRaw.forEach((u: any, idx: number) => {
+      if (u && (u.id || u.email)) {
+        record[u.id || u.email] = u;
+      } else if (u) {
+        record[`user_${idx}`] = u;
+      }
+    });
+    return record;
+  }
+  return usersRaw;
 }
 
-// Only these exact emails are treated as admin
+function getUsers(): Record<string, any> {
+  const raw = atomicDb.readJson("users.json", {});
+  return normalizeUsers(raw);
+}
+
+async function saveUsers(users: Record<string, any>) {
+  await atomicDb.writeJson("users.json", users);
+}
+
+// Only these exact identifiers are treated as admin
 const ADMIN_EMAILS = ["ganeshkalapadgk@gmail.com", "admin"];
 
 export async function POST(request: Request) {
@@ -20,15 +41,16 @@ export async function POST(request: Request) {
     // Validate input
     if (!email || !password) {
       return NextResponse.json(
-        { success: false, message: "Email and password are required" },
+        { success: false, message: "Email or mobile number and password are required" },
         { status: 400 }
       );
     }
 
-    const cleanEmail = email.trim().toLowerCase();
+    const cleanInput = email.trim().toLowerCase();
+    const digitsInput = cleanInput.replace(/\D/g, "");
     const users = getUsers();
 
-    const isAdminAttempt = ADMIN_EMAILS.includes(cleanEmail);
+    const isAdminAttempt = ADMIN_EMAILS.includes(cleanInput);
 
     // 1. First-time setup: create admin account if it doesn't exist yet
     if (isAdminAttempt && !users["admin"]?.password) {
@@ -40,15 +62,20 @@ export async function POST(request: Request) {
         role: "admin",
         isActive: true,
       };
-      await atomicDb.writeJson("users.json", users);
+      await saveUsers(users);
     }
 
-    // 2. Find user in database
-    let userEntry = Object.entries(users).find(
-      ([_, user]: [string, any]) =>
-        user.email?.toLowerCase() === cleanEmail ||
-        user.id?.toLowerCase() === cleanEmail
-    );
+    // 2. Find user in database by Email, Mobile/Phone, or User ID
+    let userEntry = Object.entries(users).find(([_, user]: [string, any]) => {
+      if (!user) return false;
+      const uEmail = (user.email || "").toLowerCase();
+      const uId = (user.id || "").toLowerCase();
+      const uPhone = (user.phone || user.mobile || "").replace(/\D/g, "");
+
+      if (uEmail === cleanInput || uId === cleanInput) return true;
+      if (digitsInput.length >= 7 && uPhone.length >= 7 && uPhone.endsWith(digitsInput)) return true;
+      return false;
+    });
 
     if (!userEntry && isAdminAttempt) {
       userEntry = ["admin", users["admin"]];
@@ -56,24 +83,33 @@ export async function POST(request: Request) {
 
     if (!userEntry) {
       return NextResponse.json(
-        { success: false, message: "Invalid email or password" },
+        { success: false, message: "Invalid email/mobile or password" },
         { status: 401 }
       );
     }
 
     const [userId, user] = userEntry as [string, any];
 
-    // 3. Verify password for ALL users (including admin)
+    // 3. Verify or claim password
     let passwordMatch = false;
-    try {
-      passwordMatch = verifyPassword(password, user.password);
-    } catch (err) {
-      passwordMatch = false;
+
+    if (!user.password) {
+      // Seed user or guest account created without password -> set password on first login
+      user.password = hashPassword(password);
+      users[userId] = user;
+      await saveUsers(users);
+      passwordMatch = true;
+    } else {
+      try {
+        passwordMatch = verifyPassword(password, user.password);
+      } catch (err) {
+        passwordMatch = false;
+      }
     }
 
     if (!passwordMatch) {
       return NextResponse.json(
-        { success: false, message: "Invalid email or password" },
+        { success: false, message: "Invalid email/mobile or password" },
         { status: 401 }
       );
     }
@@ -82,7 +118,7 @@ export async function POST(request: Request) {
 
     const sessionObj = {
       userId: isAdminAttempt ? "admin" : userId,
-      email: user.email || cleanEmail,
+      email: user.email || cleanInput,
       name: user.name || "User",
       phone: user.phone || user.mobile || "",
       role: effectiveRole,
