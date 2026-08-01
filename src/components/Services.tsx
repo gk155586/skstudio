@@ -205,18 +205,18 @@ export default function Services() {
                 <div className="flex flex-col md:flex-row w-full h-auto md:h-[500px] gap-4 md:gap-8 mt-2 md:mt-4">
                   {/* Left: Single tall image */}
                   <Reveal style="slide-up" className="w-full md:w-[25%] h-[400px] md:h-full relative overflow-hidden">
-                    <Image src="/images/row1_1_fixed.jpg" alt="Album 1" fill unoptimized className="object-cover" />
+                    <Image src="/images/row1_1_fixed.jpg" alt="Album 1" fill sizes="(max-width: 768px) 100vw, 25vw" className="object-cover" />
                   </Reveal>
                   {/* Middle: Two images side-by-side with rounded bottom */}
                   <Reveal style="slide-up" delayMs={100} className="w-full md:w-[35%] h-[400px] md:h-full relative flex flex-col bg-white">
                     <div className="flex-1 w-full flex gap-2 rounded-b-[4rem] overflow-hidden">
-                      <div className="w-1/2 h-full relative"><Image src="/images/row1_2_fixed_v2.jpg" alt="Album 2" fill unoptimized className="object-cover" /></div>
-                      <div className="w-1/2 h-full relative"><Image src="/images/row1_3_fixed.jpg" alt="Album 3" fill unoptimized className="object-cover object-top" /></div>
+                      <div className="w-1/2 h-full relative"><Image src="/images/row1_2_fixed_v2.jpg" alt="Album 2" fill sizes="(max-width: 768px) 50vw, 18vw" className="object-cover" /></div>
+                      <div className="w-1/2 h-full relative"><Image src="/images/row1_3_fixed.jpg" alt="Album 3" fill sizes="(max-width: 768px) 50vw, 18vw" className="object-cover object-top" /></div>
                     </div>
                   </Reveal>
                   {/* Right: Collage with Pill */}
                   <Reveal style="slide-up" delayMs={200} className="w-full md:w-[40%] h-[400px] md:h-full relative">
-                    <div className="w-full h-full relative overflow-hidden rounded-t-[3rem] md:rounded-t-none md:rounded-tr-[5rem] md:rounded-br-[2rem]"><Image src={getImg(3)} alt="Album 4" fill unoptimized className="object-cover object-center" /></div>
+                    <div className="w-full h-full relative overflow-hidden rounded-t-[3rem] md:rounded-t-none md:rounded-tr-[5rem] md:rounded-br-[2rem]"><Image src={getImg(3)} alt="Album 4" fill sizes="(max-width: 768px) 100vw, 40vw" className="object-cover object-center" /></div>
                   </Reveal>
                 </div>
 
@@ -224,19 +224,19 @@ export default function Services() {
                 <div className="flex flex-col md:flex-row w-full h-auto md:h-[500px] gap-4 md:gap-8 mt-16 md:mt-24">
                   {/* Left: Large image + small bordered image */}
                   <Reveal style="slide-up" className="w-full md:w-[40%] h-[400px] md:h-full relative flex items-center">
-                    <div className="w-[60%] h-[90%] relative overflow-hidden rounded-md shadow-lg z-0"><Image src="/img/gallery/baby-outdoor/SK_00582_fixed.jpg" alt="Album 6" fill unoptimized className="object-cover" /></div>
+                    <div className="w-[60%] h-[90%] relative overflow-hidden rounded-md shadow-lg z-0"><Image src="/img/gallery/baby-outdoor/SK_00582_fixed.jpg" alt="Album 6" fill sizes="(max-width: 768px) 60vw, 25vw" className="object-cover" /></div>
                     <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[45%] h-[70%] z-10 shadow-xl">
-                      <div className="w-full h-full relative overflow-hidden rounded-md"><Image src={getImg(6)} alt="Album 7" fill unoptimized className="object-cover object-top" /></div>
+                      <div className="w-full h-full relative overflow-hidden rounded-md"><Image src={getImg(6)} alt="Album 7" fill sizes="(max-width: 768px) 45vw, 20vw" className="object-cover object-top" /></div>
                     </div>
                   </Reveal>
                   {/* Middle: Arch Top Right */}
                   <Reveal style="slide-up" delayMs={100} className="w-full md:w-[30%] h-[400px] md:h-full relative overflow-hidden rounded-md md:rounded-tr-[6rem]">
-                    <Image src="/images/center_fixed.jpg" alt="Album 8" fill unoptimized className="object-cover object-center" />
+                    <Image src="/images/center_fixed.jpg" alt="Album 8" fill sizes="(max-width: 768px) 100vw, 30vw" className="object-cover object-center" />
                   </Reveal>
                   {/* Right: Two overlapping images with cutout look */}
                   <Reveal style="slide-up" delayMs={200} className="w-full md:w-[30%] h-[400px] md:h-full relative">
-                    <div className="w-[80%] h-[70%] absolute right-0 top-0 overflow-hidden rounded-md"><Image src={getImg(8)} alt="Album 9" fill unoptimized className="object-cover object-top" /></div>
-                    <div className="w-[60%] h-[60%] absolute left-0 bottom-10 overflow-hidden rounded-l-full shadow-2xl"><Image src="/images/right_fixed.jpg" alt="Album 10" fill unoptimized className="object-cover" /></div>
+                    <div className="w-[80%] h-[70%] absolute right-0 top-0 overflow-hidden rounded-md"><Image src={getImg(8)} alt="Album 9" fill sizes="(max-width: 768px) 80vw, 25vw" className="object-cover object-top" /></div>
+                    <div className="w-[60%] h-[60%] absolute left-0 bottom-10 overflow-hidden rounded-l-full shadow-2xl"><Image src="/images/right_fixed.jpg" alt="Album 10" fill sizes="(max-width: 768px) 60vw, 20vw" className="object-cover" /></div>
                   </Reveal>
                 </div>
 
@@ -244,19 +244,19 @@ export default function Services() {
                 <div className="flex flex-col md:flex-row w-full h-auto md:h-[400px] gap-4 md:gap-8 mt-16 md:mt-24">
                   {/* Left: Large Landscape */}
                   <Reveal style="slide-up" className="w-full md:w-[50%] h-[400px] md:h-full relative overflow-hidden rounded-md">
-                    <Image src={getImg(10)} alt="Album 11" fill unoptimized className="object-cover object-top" />
+                    <Image src={getImg(10)} alt="Album 11" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover object-top" />
                   </Reveal>
                   {/* Middle: Portrait */}
                   <Reveal style="slide-up" delayMs={100} className="w-full md:w-[25%] h-[400px] md:h-full relative overflow-hidden rounded-md">
-                    <Image src={getImg(11)} alt="Album 12" fill unoptimized className="object-cover object-top" />
+                    <Image src={getImg(11)} alt="Album 12" fill sizes="(max-width: 768px) 100vw, 25vw" className="object-cover object-top" />
                   </Reveal>
                   {/* Right: Grid of 3 */}
                   <Reveal style="slide-up" delayMs={200} className="w-full md:w-[25%] h-[400px] md:h-full flex flex-col bg-white p-2 md:p-0">
                     <div className="flex-1 w-full flex gap-2">
-                      <div className="w-1/2 h-full relative overflow-hidden"><Image src={getImg(12)} alt="Album 13" fill unoptimized className="object-cover" /></div>
+                      <div className="w-1/2 h-full relative overflow-hidden"><Image src={getImg(12)} alt="Album 13" fill sizes="(max-width: 768px) 50vw, 12vw" className="object-cover" /></div>
                       <div className="w-1/2 h-full flex flex-col gap-2">
-                        <div className="w-full h-[50%] relative overflow-hidden"><Image src={getImg(13)} alt="Album 14" fill unoptimized className="object-cover object-top" /></div>
-                        <div className="w-full h-[50%] relative overflow-hidden"><Image src="/images/row3_last_fixed.jpg" alt="Album 15" fill unoptimized className="object-cover object-bottom" /></div>
+                        <div className="w-full h-[50%] relative overflow-hidden"><Image src={getImg(13)} alt="Album 14" fill sizes="(max-width: 768px) 50vw, 12vw" className="object-cover object-top" /></div>
+                        <div className="w-full h-[50%] relative overflow-hidden"><Image src="/images/row3_last_fixed.jpg" alt="Album 15" fill sizes="(max-width: 768px) 50vw, 12vw" className="object-cover object-bottom" /></div>
                       </div>
                     </div>
                   </Reveal>
@@ -266,17 +266,17 @@ export default function Services() {
                 <div className="flex flex-col md:flex-row w-full h-auto md:h-[500px] gap-4 md:gap-8 mt-16 md:mt-24">
                   {/* Left: Overlapping portrait */}
                   <Reveal style="slide-up" className="w-full md:w-[30%] h-[400px] md:h-full relative">
-                    <div className="w-[85%] h-[80%] absolute left-0 top-0 overflow-hidden rounded-md"><Image src={getImg(15)} alt="Album 16" fill unoptimized className="object-cover object-top" /></div>
-                    <div className="w-[55%] h-[45%] absolute right-0 bottom-4 shadow-lg overflow-hidden rounded-sm"><div className="w-full h-full relative"><Image src="/images/row4_overlap_fixed.jpg" alt="Album 17" fill unoptimized className="object-cover" /></div></div>
+                    <div className="w-[85%] h-[80%] absolute left-0 top-0 overflow-hidden rounded-md"><Image src={getImg(15)} alt="Album 16" fill sizes="(max-width: 768px) 85vw, 25vw" className="object-cover object-top" /></div>
+                    <div className="w-[55%] h-[45%] absolute right-0 bottom-4 shadow-lg overflow-hidden rounded-sm"><div className="w-full h-full relative"><Image src="/images/row4_overlap_fixed.jpg" alt="Album 17" fill sizes="(max-width: 768px) 55vw, 18vw" className="object-cover" /></div></div>
                   </Reveal>
                   {/* Middle: Single portrait */}
                   <Reveal style="slide-up" delayMs={100} className="w-full md:w-[30%] h-[400px] md:h-full relative overflow-hidden rounded-md">
-                    <Image src={getImg(17)} alt="Album 18" fill unoptimized className="object-cover object-top" />
+                    <Image src={getImg(17)} alt="Album 18" fill sizes="(max-width: 768px) 100vw, 30vw" className="object-cover object-top" />
                   </Reveal>
                   {/* Right: Large Portrait */}
                   <Reveal style="slide-up" delayMs={200} className="w-full md:w-[40%] h-[400px] md:h-full flex flex-col">
                     <div className="flex-1 w-full relative overflow-hidden rounded-md">
-                      <Image src="/images/row4_last_fixed.jpg" alt="Album 19" fill unoptimized className="object-cover object-top" />
+                      <Image src="/images/row4_last_fixed.jpg" alt="Album 19" fill sizes="(max-width: 768px) 100vw, 40vw" className="object-cover object-top" />
                     </div>
                   </Reveal>
                 </div>

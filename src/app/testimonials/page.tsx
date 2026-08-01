@@ -133,7 +133,7 @@ export default function DedicatedTestimonialsPage() {
                         src={rev.avatar}
                         alt={rev.name}
                         fill
-                        unoptimized
+                        sizes="44px"
                         className="object-cover"
                       />
                     </div>
@@ -150,7 +150,7 @@ export default function DedicatedTestimonialsPage() {
           {/* CALL TO ACTION */}
           <Reveal style="blur" className="mt-20">
             <div className="p-10 sm:p-14 rounded-3xl border border-[var(--accent)]/40 shadow-2xl text-white relative overflow-hidden min-h-[300px] flex flex-col items-center justify-center text-center">
-              <Image src="/images/sk_studio_pune_1726027106_3454488205886241451_63216979904_-_Copy.jpg" alt="Call to Action Background" fill unoptimized className="object-cover object-top z-0" />
+              <Image src="/images/sk_studio_pune_1726027106_3454488205886241451_63216979904_-_Copy.jpg" alt="Call to Action Background" fill sizes="100vw" className="object-cover object-top z-0" />
               <div className="absolute inset-0 bg-black/20 z-0 pointer-events-none" />
               <h2 className="text-3xl sm:text-4xl font-extrabold font-display mb-4 relative z-10">
                 Ready to Capture Your Story?

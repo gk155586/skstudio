@@ -141,11 +141,10 @@ export default function Work() {
                     src={item.image}
                     alt={item.title}
                     fill
-                    unoptimized
                     loading="eager"
                     decoding="async"
                     className="object-cover object-center transition-transform duration-700 group-hover:scale-110"
-                    sizes="45vw"
+                    sizes="(max-width: 768px) 45vw, 33vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-300" />
                 </div>
@@ -195,10 +194,9 @@ export default function Work() {
                       src={item.image}
                       alt={item.title}
                       fill
-                      unoptimized
                       loading="lazy"
                       className="object-cover object-center transition-transform duration-[2000ms] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-110"
-                      sizes="33vw"
+                      sizes="(max-width: 768px) 100vw, 33vw"
                     />
                     
                     {/* Minimalist overlay */}
