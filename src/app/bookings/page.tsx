@@ -274,12 +274,6 @@ export default function BookingsPage() {
               <Camera size={40} className="mx-auto text-gray-300 mb-3" />
               <p className="text-sm text-gray-500 font-medium">No bookings yet</p>
               <p className="text-xs text-gray-400 mt-1">Create your first booking to get started!</p>
-              <Link
-                href="/#contact"
-                className="inline-flex items-center gap-2 mt-4 text-xs font-bold px-5 py-2.5 rounded-xl bg-[var(--accent)] text-black hover:opacity-90 transition-all"
-              >
-                <Plus size={14} /> Book a Session
-              </Link>
             </div>
           ) : (
             <div className="divide-y divide-[var(--card-border)]">
