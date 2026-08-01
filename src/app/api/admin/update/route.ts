@@ -354,6 +354,86 @@ export async function POST(request: Request) {
         break;
       }
 
+      case "update_user": {
+        const usersRaw = readJsonFile("users.json", {});
+        const users: Record<string, any> = {};
+        if (Array.isArray(usersRaw)) {
+          usersRaw.forEach((u: any, idx: number) => {
+            if (u && (u.id || u.email)) {
+              users[u.id || u.email] = u;
+            } else if (u) {
+              users[`user_${idx}`] = u;
+            }
+          });
+        } else if (usersRaw && typeof usersRaw === "object") {
+          Object.assign(users, usersRaw);
+        }
+
+        const targetId = (data.id || data.email || "").toLowerCase();
+        const userEntry = Object.entries(users).find(
+          ([key, u]: [string, any]) =>
+            key.toLowerCase() === targetId ||
+            (u.email || "").toLowerCase() === targetId ||
+            (u.id || "").toLowerCase() === targetId
+        );
+
+        if (userEntry) {
+          const [matchedKey, existingUser] = userEntry;
+          users[matchedKey] = {
+            ...existingUser,
+            ...data,
+            updatedAt: new Date().toISOString()
+          };
+          success = await writeJsonFile("users.json", users);
+          updatedPayload = users[matchedKey];
+          message = "User account status updated successfully";
+          logAuditTrail(session.email, "UPDATE_USER", { userId: matchedKey, fields: Object.keys(data) });
+        } else {
+          message = "User not found";
+        }
+        break;
+      }
+
+      case "delete_user": {
+        const usersRaw = readJsonFile("users.json", {});
+        const users: Record<string, any> = {};
+        if (Array.isArray(usersRaw)) {
+          usersRaw.forEach((u: any, idx: number) => {
+            if (u && (u.id || u.email)) {
+              users[u.id || u.email] = u;
+            } else if (u) {
+              users[`user_${idx}`] = u;
+            }
+          });
+        } else if (usersRaw && typeof usersRaw === "object") {
+          Object.assign(users, usersRaw);
+        }
+
+        const targetId = (data.id || data.email || "").toLowerCase();
+        const userEntry = Object.entries(users).find(
+          ([key, u]: [string, any]) =>
+            key.toLowerCase() === targetId ||
+            (u.email || "").toLowerCase() === targetId ||
+            (u.id || "").toLowerCase() === targetId
+        );
+
+        if (userEntry) {
+          const [matchedKey, existingUser] = userEntry;
+          if (existingUser.role === "admin" || matchedKey === "admin") {
+            message = "Cannot delete primary administrator account";
+          } else {
+            delete users[matchedKey];
+            success = await writeJsonFile("users.json", users);
+            updatedPayload = { id: matchedKey, isDeleted: true };
+            message = "User account deleted successfully";
+            logAuditTrail(session.email, "DELETE_USER", { userId: matchedKey });
+          }
+        } else {
+          message = "User not found";
+        }
+        break;
+      }
+
       default: {
         message = "Invalid update action specified";
         break;
