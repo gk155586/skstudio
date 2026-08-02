@@ -53,14 +53,14 @@ export const metadata: Metadata = {
   creator: "SK Photo Studio Pune",
   icons: {
     icon: [
-      { url: "/icon-light.png", media: "(prefers-color-scheme: light)", type: "image/png" },
-      { url: "/icon-dark.png", media: "(prefers-color-scheme: dark)", type: "image/png" },
-      { url: "/favicon-light.png", media: "(prefers-color-scheme: light)", type: "image/png" },
-      { url: "/favicon-dark.png", media: "(prefers-color-scheme: dark)", type: "image/png" },
+      { url: "/icon.png", sizes: "512x512", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-48.png", sizes: "48x48", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
     ],
     apple: [
-      { url: "/apple-touch-icon-light.png", media: "(prefers-color-scheme: light)", type: "image/png" },
-      { url: "/apple-touch-icon-dark.png", media: "(prefers-color-scheme: dark)", type: "image/png" },
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
     shortcut: "/icon.png",
   },
@@ -140,10 +140,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/icon-light.png" media="(prefers-color-scheme: light)" type="image/png" />
-        <link rel="icon" href="/icon-dark.png" media="(prefers-color-scheme: dark)" type="image/png" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon-light.png" media="(prefers-color-scheme: light)" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon-dark.png" media="(prefers-color-scheme: dark)" />
+        <link rel="icon" href="/icon.png" sizes="512x512" type="image/png" />
+        <link rel="icon" href="/icon-192.png" sizes="192x192" type="image/png" />
+        <link rel="icon" href="/icon-48.png" sizes="48x48" type="image/png" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
