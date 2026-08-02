@@ -106,6 +106,7 @@ export async function POST(request: Request) {
 
     if (success) {
       // Trigger SSE broadcaster to update client and admin panels in real-time
+      sseHub.broadcast("message_received", newMessage);
       sseHub.broadcast("data_changed", { type: "message_received", data: newMessage });
       return NextResponse.json({
         success: true,

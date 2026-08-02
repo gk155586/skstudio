@@ -162,7 +162,20 @@ export async function POST(request: Request) {
     const success = await saveMessages(allMessages);
 
     if (success) {
-      // Broadcast SSE event to admin dashboard and clients
+      // 3. Update lastActiveAt if registered user
+      if (session?.email) {
+        try {
+          const users = atomicDb.readJson("users.json", {});
+          const uEntry = Object.values(users).find((u: any) => u?.email?.toLowerCase() === session.email.toLowerCase()) as any;
+          if (uEntry) {
+            uEntry.lastActiveAt = new Date().toISOString();
+            await atomicDb.writeJson("users.json", users);
+          }
+        } catch {}
+      }
+
+      // 4. Broadcast SSE events to admin dashboard and clients for instant real-time sync
+      sseHub.broadcast("message_received", userMsg);
       sseHub.broadcast("data_changed", { type: "message_received", data: userMsg });
 
       return NextResponse.json({

@@ -58,24 +58,24 @@ export default function FloatingChatWidget() {
     } catch (e) {}
   }, [guestId]);
 
-  // Poll every 15 seconds
+  // Poll every 2 seconds for real-time messaging fallback + SSE real-time push
   useEffect(() => {
     if (!guestId) return;
 
     fetchWidgetMessages(isOpen);
-    const interval = setInterval(() => fetchWidgetMessages(isOpen), 15000);
+    const interval = setInterval(() => fetchWidgetMessages(isOpen), 2000);
 
     let eventSource: EventSource | null = null;
     try {
       eventSource = new EventSource("/api/public/events");
-      eventSource.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data.type === "data_changed" || data.type === "message_received") {
-            fetchWidgetMessages(isOpen);
-          }
-        } catch (err) {}
+      const handleSseUpdate = () => {
+        fetchWidgetMessages(isOpen);
       };
+
+      eventSource.onmessage = handleSseUpdate;
+      eventSource.addEventListener("data_changed", handleSseUpdate);
+      eventSource.addEventListener("message_received", handleSseUpdate);
+      eventSource.addEventListener("message", handleSseUpdate);
     } catch (err) {}
 
     return () => {

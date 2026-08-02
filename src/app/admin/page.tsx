@@ -447,8 +447,8 @@ export default function AdminPage() {
         };
       case "messaging":
         return {
-          title: "Messages Hub",
-          desc: "Direct two-way platform messaging with registered clients."
+          title: "Real-Time Messages & Live Chat Hub",
+          desc: "Real-time live chat widget threads, visitor inquiries, and direct client messaging."
         };
       case "payments":
         return {
