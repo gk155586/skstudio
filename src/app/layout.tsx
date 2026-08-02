@@ -53,11 +53,15 @@ export const metadata: Metadata = {
   creator: "SK Photo Studio Pune",
   icons: {
     icon: [
-      { url: "/icon.png", type: "image/png" },
-      { url: "/favicon.png", type: "image/png" },
-      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon-light.png", media: "(prefers-color-scheme: light)", type: "image/png" },
+      { url: "/icon-dark.png", media: "(prefers-color-scheme: dark)", type: "image/png" },
+      { url: "/favicon-light.png", media: "(prefers-color-scheme: light)", type: "image/png" },
+      { url: "/favicon-dark.png", media: "(prefers-color-scheme: dark)", type: "image/png" },
     ],
-    apple: "/apple-touch-icon.png",
+    apple: [
+      { url: "/apple-touch-icon-light.png", media: "(prefers-color-scheme: light)", type: "image/png" },
+      { url: "/apple-touch-icon-dark.png", media: "(prefers-color-scheme: dark)", type: "image/png" },
+    ],
     shortcut: "/icon.png",
   },
   openGraph: {
@@ -136,9 +140,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" href="/favicon.png" type="image/png" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="icon" href="/icon-light.png" media="(prefers-color-scheme: light)" type="image/png" />
+        <link rel="icon" href="/icon-dark.png" media="(prefers-color-scheme: dark)" type="image/png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon-light.png" media="(prefers-color-scheme: light)" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon-dark.png" media="(prefers-color-scheme: dark)" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
