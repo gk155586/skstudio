@@ -33,12 +33,12 @@ export default function UsersView({
   const [onlineFilter, setOnlineFilter] = useState<"all" | "online" | "offline">("all");
   const [selectedUserDetail, setSelectedUserDetail] = useState<any | null>(null);
 
-  // Normalize user array
-  const userList = Array.isArray(users) ? users : Object.entries(users).map(([id, u]: [string, any]) => ({ id, ...u }));
+  // Normalize user array and exclude admin from client directory
+  const rawList = Array.isArray(users) ? users : Object.entries(users).map(([id, u]: [string, any]) => ({ id, ...u }));
+  const userList = rawList.filter(u => u.role !== "admin" && u.id !== "admin" && (u.email || "").toLowerCase() !== "ganeshkalapadgk@gmail.com");
 
   // Helper to determine if a user is currently online (active within last 10 minutes)
   const isUserOnline = (u: any): boolean => {
-    if (u.role === "admin") return true; // Admin is active on console
     if (!u.lastActiveAt) return false;
     const diffMs = Date.now() - new Date(u.lastActiveAt).getTime();
     return diffMs < 10 * 60 * 1000; // 10 minutes
@@ -46,22 +46,27 @@ export default function UsersView({
 
   // Helper to format last seen
   const formatLastSeen = (u: any): string => {
-    if (u.role === "admin") return "Active Now (Admin)";
     if (isUserOnline(u)) return "Online Now";
     if (!u.lastActiveAt) return "Recently Seen";
     const date = new Date(u.lastActiveAt);
     return date.toLocaleDateString("en-IN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
   };
 
-  // Metrics
-  const totalUsers = userList.length;
-  const activeCount = userList.filter(u => u.isActive !== false).length;
-  const onlineCount = userList.filter(u => isUserOnline(u)).length;
-  const clientCount = userList.filter(u => u.role !== "admin").length;
-  const adminCount = userList.filter(u => u.role === "admin").length;
+  const [localUsers, setLocalUsers] = useState<any[]>(userList);
 
-  // Filtered registered users
-  const filteredUsers = userList.filter((u) => {
+  // Keep localUsers synced when props update
+  React.useEffect(() => {
+    setLocalUsers(userList);
+  }, [users, userList]);
+
+  // Metrics (Client Users Only)
+  const totalUsers = localUsers.length;
+  const activeCount = localUsers.filter(u => u.isActive !== false).length;
+  const onlineCount = localUsers.filter(u => isUserOnline(u)).length;
+  const suspendedCount = localUsers.filter(u => u.isActive === false).length;
+
+  // Filtered registered client users
+  const filteredUsers = localUsers.filter((u) => {
     const name = (u.name || "").toLowerCase();
     const email = (u.email || "").toLowerCase();
     const phone = (u.phone || u.mobile || "").toLowerCase();
@@ -69,36 +74,58 @@ export default function UsersView({
     const search = searchTerm.toLowerCase();
 
     const matchesSearch = name.includes(search) || email.includes(search) || phone.includes(search) || id.includes(search);
-    const matchesRole = roleFilter === "all" || (roleFilter === "admin" ? u.role === "admin" : u.role !== "admin");
     const matchesStatus = statusFilter === "all" || (statusFilter === "active" ? u.isActive !== false : u.isActive === false);
     const onlineState = isUserOnline(u);
     const matchesOnline = onlineFilter === "all" || (onlineFilter === "online" ? onlineState : !onlineState);
 
-    return matchesSearch && matchesRole && matchesStatus && matchesOnline;
+    return matchesSearch && matchesStatus && matchesOnline;
   });
 
   const handleDeleteUser = async (user: any) => {
     const confirmDelete = window.confirm(`Are you sure you want to delete user "${user.name || user.email}"? This action cannot be undone.`);
     if (!confirmDelete) return;
 
+    // Optimistic UI update for ultra-fast response
+    setLocalUsers(prev => prev.filter(u => (u.id || u.email) !== (user.id || user.email)));
+    if (selectedUserDetail?.email === user.email) {
+      setSelectedUserDetail(null);
+    }
+
     const res = await saveTransaction("delete_user", { id: user.id || user.email, email: user.email });
     if (res && res.success) {
       fetchDashboardData();
-      if (selectedUserDetail?.email === user.email) {
-        setSelectedUserDetail(null);
-      }
+    } else {
+      // Revert if request fails
+      setLocalUsers(userList);
     }
   };
 
   const handleToggleStatus = async (user: any) => {
     const newStatus = !(user.isActive !== false);
+
+    // Optimistic UI update for instant 60fps state toggle
+    setLocalUsers(prev => prev.map(u => {
+      if ((u.id || u.email) === (user.id || user.email)) {
+        return { ...u, isActive: newStatus };
+      }
+      return u;
+    }));
+
+    if (selectedUserDetail && (selectedUserDetail.id || selectedUserDetail.email) === (user.id || user.email)) {
+      setSelectedUserDetail((prev: any) => prev ? { ...prev, isActive: newStatus } : null);
+    }
+
     const res = await saveTransaction("update_user", {
       id: user.id || user.email,
       email: user.email,
       isActive: newStatus
     });
+
     if (res && res.success) {
       fetchDashboardData();
+    } else {
+      // Revert if request fails
+      setLocalUsers(userList);
     }
   };
 
@@ -119,8 +146,8 @@ export default function UsersView({
             <Users size={24} />
           </div>
           <div>
-            <h2 className="text-xl font-extrabold text-slate-900 font-display">Registered Users & Client Directory</h2>
-            <p className="text-xs text-slate-500 font-mono mt-0.5">Real-time user accounts, active status, profiles, and access control.</p>
+            <h2 className="text-xl font-extrabold text-slate-900 font-display">Registered Client Directory</h2>
+            <p className="text-xs text-slate-500 font-mono mt-0.5">Real-time client accounts, active status, profiles, and access control.</p>
           </div>
         </div>
 
@@ -137,10 +164,10 @@ export default function UsersView({
       {/* Top Metrics Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Total Users", val: totalUsers, desc: `${clientCount} Clients, ${adminCount} Admins`, icon: <Users size={20} className="text-[#b08d4b]" /> },
+          { label: "Total Client Users", val: totalUsers, desc: `${totalUsers} Registered Clients`, icon: <Users size={20} className="text-[#b08d4b]" /> },
           { label: "Online Now", val: onlineCount, desc: "Active in real-time", icon: <Activity size={20} className="text-emerald-500 animate-pulse" /> },
-          { label: "Active Accounts", val: activeCount, desc: `${totalUsers - activeCount} Suspended`, icon: <CheckCircle size={20} className="text-sky-600" /> },
-          { label: "Administrators", val: adminCount, desc: "System Superusers", icon: <Shield size={20} className="text-purple-600" /> }
+          { label: "Active Accounts", val: activeCount, desc: `${suspendedCount} Suspended`, icon: <CheckCircle size={20} className="text-sky-600" /> },
+          { label: "Suspended Accounts", val: suspendedCount, desc: "Restricted Access", icon: <ShieldAlert size={20} className="text-rose-600" /> }
         ].map((stat, i) => (
           <div key={i} className="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm flex flex-col justify-between gap-3">
             <div className="flex justify-between items-start">
@@ -326,10 +353,15 @@ export default function UsersView({
                           <>
                             <button
                               onClick={() => handleToggleStatus(u)}
-                              className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 transition-colors"
-                              title={u.isActive !== false ? "Suspend User" : "Activate User"}
+                              className={`px-2.5 py-1 rounded-lg text-[10px] font-bold font-mono transition-all flex items-center gap-1.5 ${
+                                u.isActive === false
+                                  ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm animate-pulse"
+                                  : "bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800"
+                              }`}
+                              title={u.isActive === false ? "Reactivate & Unsuspend Account" : "Suspend Account"}
                             >
-                              {u.isActive !== false ? <XCircle size={14} className="text-amber-600" /> : <CheckCircle size={14} className="text-emerald-600" />}
+                              {u.isActive === false ? <CheckCircle size={12} /> : <XCircle size={12} />}
+                              <span>{u.isActive === false ? "Unsuspend 🟢" : "Suspend"}</span>
                             </button>
 
                             <button
@@ -447,13 +479,28 @@ export default function UsersView({
             </div>
 
             {/* Actions */}
-            <div className="flex justify-end gap-3 pt-2 border-t border-slate-100">
+            <div className="flex flex-wrap justify-end gap-3 pt-2 border-t border-slate-100">
               <button
                 onClick={() => setSelectedUserDetail(null)}
                 className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold uppercase rounded-xl"
               >
                 Close
               </button>
+
+              {selectedUserDetail.role !== "admin" && selectedUserDetail.email?.toLowerCase() !== "ganeshkalapadgk@gmail.com" && (
+                <button
+                  onClick={() => handleToggleStatus(selectedUserDetail)}
+                  className={`px-4 py-2 text-xs font-bold uppercase rounded-xl flex items-center gap-1.5 transition-all ${
+                    selectedUserDetail.isActive === false
+                      ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-md animate-pulse"
+                      : "bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300"
+                  }`}
+                >
+                  {selectedUserDetail.isActive === false ? <CheckCircle size={14} /> : <XCircle size={14} />}
+                  {selectedUserDetail.isActive === false ? "Unsuspend Account 🟢" : "Suspend Account 🔴"}
+                </button>
+              )}
+
               <button
                 onClick={() => {
                   handleMessageUser(selectedUserDetail.email);
