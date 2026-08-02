@@ -27,10 +27,10 @@ export default function PaymentsView({
   saveTransaction
 }: PaymentsViewProps) {
   // Builder Input state
-  const [invoiceClientName, setInvoiceClientName] = useState<string>("Rahul Sharma");
-  const [invoiceClientPhone, setInvoiceClientPhone] = useState<string>("+91 98765 43210");
-  const [invoiceClientEmail, setInvoiceClientEmail] = useState<string>("client@gmail.com");
-  const [invoiceClientAddress, setInvoiceClientAddress] = useState<string>("Salisbury Park, Pune - 411037");
+  const [invoiceClientName, setInvoiceClientName] = useState<string>("Client Name");
+  const [invoiceClientPhone, setInvoiceClientPhone] = useState<string>("+91 93071 12119");
+  const [invoiceClientEmail, setInvoiceClientEmail] = useState<string>("client@example.com");
+  const [invoiceClientAddress, setInvoiceClientAddress] = useState<string>("Pune, Maharashtra");
   const [customerState, setCustomerState] = useState<string>("MH"); // MH = Maharashtra
 
   const [invoiceService, setInvoiceService] = useState<string>("Wedding Segment");
@@ -107,8 +107,7 @@ export default function PaymentsView({
 
   // Line Items
   const [lineItems, setLineItems] = useState<any[]>([
-    { description: "Main Event Photography (Candid & Traditional)", rate: 20000, qty: 1 },
-    { description: "Cinematic Film & Highlights Editing", rate: 15000, qty: 1 }
+    { description: "Photography Shoot Package", rate: 35000, qty: 1 }
   ]);
 
   // Modal Control
@@ -119,9 +118,9 @@ export default function PaymentsView({
   // Bank & Terms
   const [studioUpiId, setStudioUpiId] = useState<string>("9307112119@ybl");
   const [terms, setTerms] = useState<string[]>([
-    "Advance deposit is non-refundable once shoot date is reserved.",
-    "Final high-resolution edited photos and videos will be delivered within 14 business days.",
-    "Balance payment must be cleared prior to final album & RAW file handovers."
+    "Please collect data within 7 days.",
+    "Late payments will not be accepted.",
+    "Package rates are fixed and non-negotiable."
   ]);
 
   // Math calculation
@@ -655,8 +654,8 @@ export default function PaymentsView({
                 </div>
               </div>
 
-              {/* Bottom Section: Left = UPI Scanner | Center = Terms | Right = Authorized Signatory */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-3 border-t-2 border-slate-900 items-end">
+              {/* Bottom Section: Left = UPI Scanner | Right = Terms & Policies */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t-2 border-slate-900 items-start">
                 {/* Left: UPI QR Code & Payment Info */}
                 <div className="flex items-center gap-2.5 bg-slate-50 p-2 rounded-xl border border-slate-200">
                   <img
@@ -671,7 +670,7 @@ export default function PaymentsView({
                   </div>
                 </div>
 
-                {/* Center: Terms & Policies */}
+                {/* Right: Terms & Policies */}
                 <div className="flex flex-col gap-0.5 text-[9px] text-slate-600 leading-normal font-sans">
                   <strong className="text-slate-900 font-bold font-mono uppercase tracking-wider text-[10px]">
                     Terms & Policies:
@@ -681,19 +680,6 @@ export default function PaymentsView({
                       <li key={i}>{t}</li>
                     ))}
                   </ul>
-                </div>
-
-                {/* Right: Authorized Signatory */}
-                <div className="flex flex-col items-end text-right justify-end font-mono">
-                  <div className="w-32 h-10 border-b-2 border-slate-900 flex items-center justify-center text-[#b08d4b] font-serif font-extrabold text-sm italic select-none">
-                    Ganesh SK
-                  </div>
-                  <span className="text-[10px] font-black text-slate-900 uppercase mt-0.5">
-                    For SK PHOTO STUDIO PUNE
-                  </span>
-                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">
-                    Authorized Signatory
-                  </span>
                 </div>
               </div>
 

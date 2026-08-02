@@ -31,7 +31,7 @@ export default function WeddingSegmentPage() {
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] selection:bg-[var(--accent)] selection:text-black font-sans">
       <Navbar />
 
-      <main className="pt-28 md:pt-32 pb-20 px-4 md:px-12 max-w-7xl mx-auto flex flex-col gap-8 md:gap-12">
+      <main className="pt-20 md:pt-24 pb-16 px-4 md:px-12 max-w-7xl mx-auto flex flex-col gap-6 md:gap-8">
         {/* Back Link */}
         <Link
           href="/#portfolio"
@@ -59,13 +59,13 @@ export default function WeddingSegmentPage() {
             <Link
               key={segment.href}
               href={segment.href}
-              className="group relative aspect-[4/5] overflow-hidden rounded-3xl bg-neutral-900 border border-[var(--card-border)] shadow-md flex flex-col justify-end transition-transform hover:-translate-y-2 select-none"
+              className="group relative aspect-[16/11] overflow-hidden rounded-3xl bg-neutral-950 border border-[var(--card-border)] shadow-md flex flex-col justify-end transition-transform hover:-translate-y-1.5 select-none"
             >
               <Image
                 src={segment.image}
                 alt={segment.title}
                 fill
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                className="object-cover object-center transition-transform duration-700 group-hover:scale-102"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent pointer-events-none" />
               

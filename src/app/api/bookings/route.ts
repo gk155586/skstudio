@@ -134,6 +134,10 @@ export async function POST(request: Request) {
       );
     }
 
+    const priceVal = Number(body.price) || 0;
+    const advanceVal = Number(body.advancePaid) || 0;
+    const balanceVal = Math.max(0, priceVal - advanceVal);
+
     // Create booking
     const bookings = getBookings();
     const booking = {
@@ -145,6 +149,9 @@ export async function POST(request: Request) {
       service,
       date,
       message: message || "",
+      price: priceVal,
+      advancePaid: advanceVal,
+      balanceDue: balanceVal,
       createdAt: new Date().toISOString(),
       status: "pending",
     };

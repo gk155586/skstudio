@@ -7,15 +7,5 @@
     "name": "Ganesh Kalapad (Admin)",
     "phone": "+91 93071 12119",
     "isActive": true
-  },
-  "user_default": {
-    "id": "user_default",
-    "name": "Ganesh Kalapad",
-    "email": "ganeshk@gmail.com",
-    "phone": "+91 93071 12119",
-    "mobile": "+91 93071 12119",
-    "role": "user",
-    "isActive": true,
-    "createdAt": "2026-07-26T21:29:33.321Z"
   }
 }

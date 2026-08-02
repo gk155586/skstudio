@@ -147,7 +147,7 @@ export default function PhotoFramesPage() {
       <Navbar />
 
       {/* Hero Banner Header */}
-      <div className="relative py-10 md:py-20 px-4 md:px-6 text-center overflow-hidden border-b border-[var(--card-border)] bg-[var(--card-bg)] transition-colors duration-500">
+      <div className="relative pt-24 md:pt-28 pb-8 md:pb-12 px-4 md:px-6 text-center overflow-hidden border-b border-[var(--card-border)] bg-[var(--card-bg)] transition-colors duration-500">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-[#d1b06c]/5 blur-[120px] pointer-events-none" />
         <div className="max-w-3xl mx-auto flex flex-col gap-2.5 md:gap-4 relative z-10">
           <span className="text-[9px] md:text-[10px] tracking-[0.3em] font-mono text-[#d1b06c] uppercase font-bold flex items-center justify-center gap-1.5">

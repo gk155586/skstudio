@@ -89,8 +89,8 @@ export default function DedicatedPortfolioPage() {
     <div className="relative min-h-screen bg-[var(--background)] text-[var(--foreground)] selection:bg-[var(--accent)] selection:text-black">
       <Navbar />
 
-      <main className="pt-28 pb-20">
-        <section className="py-12 px-6 max-w-7xl mx-auto">
+      <main className="pt-20 pb-12">
+        <section className="pt-2 pb-8 px-6 max-w-7xl mx-auto">
           <Reveal style="blur" className="text-center mb-12">
             <span className="inline-block text-xs font-mono tracking-widest text-[var(--accent)] uppercase font-semibold mb-4 px-4 py-1.5 rounded-full border border-[var(--accent)]/30 bg-[var(--accent)]/10">
               SK Studio Shoot Vault & Portfolio

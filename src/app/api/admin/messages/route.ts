@@ -22,17 +22,21 @@ async function verifyAdminAuth() {
 
   if (jwtCookie?.value) {
     const payload: any = await verifyJWT(jwtCookie.value);
-    if (payload) return payload;
+    if (payload && (payload.role === "admin" || payload.email?.toLowerCase() === "ganeshkalapadgk@gmail.com")) {
+      return payload;
+    }
   }
 
   if (sessionCookie?.value) {
     try {
       const session = JSON.parse(sessionCookie.value);
-      if (session) return session;
+      if (session && (session.role === "admin" || session.email?.toLowerCase() === "ganeshkalapadgk@gmail.com")) {
+        return session;
+      }
     } catch {}
   }
 
-  return { role: "admin", email: "ganeshkalapadgk@gmail.com", name: "Ganesh Kalapad (Admin)" };
+  return null;
 }
 
 export async function GET(request: Request) {

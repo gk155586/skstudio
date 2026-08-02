@@ -40,8 +40,8 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 2. Admin API Protection (Return 401 JSON for unauthorized API calls, allow page rendering for /admin)
-  if (path.startsWith("/api/admin")) {
+  // 2. Admin API & Page Protection
+  if (path.startsWith("/api/admin") || (path.startsWith("/admin") && path !== "/admin/login")) {
     const jwtCookie = request.cookies.get("sk_session_jwt");
     const sessionCookie = request.cookies.get("sk_session");
     let isAuthorized = false;
@@ -61,10 +61,14 @@ export async function middleware(request: NextRequest) {
     }
 
     if (!isAuthorized) {
-      return new NextResponse(
-        JSON.stringify({ success: false, error: "Unauthorized access" }),
-        { status: 401, headers: { "Content-Type": "application/json" } }
-      );
+      if (path.startsWith("/api/admin")) {
+        return new NextResponse(
+          JSON.stringify({ success: false, error: "Unauthorized access" }),
+          { status: 401, headers: { "Content-Type": "application/json" } }
+        );
+      } else {
+        return NextResponse.redirect(new URL("/admin/login", request.url));
+      }
     }
   }
 

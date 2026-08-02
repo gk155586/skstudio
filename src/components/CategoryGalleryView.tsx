@@ -52,7 +52,7 @@ function GalleryImageCard({ idx, url, title, openLightbox, pad }: GalleryImageCa
 
   return (
     <div
-      className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-neutral-900 border border-[var(--card-border)] shadow-md group cursor-pointer active:scale-95 transition-all duration-300 select-none"
+      className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-neutral-900 border border-[var(--card-border)] shadow-md group cursor-pointer active:scale-95 transition-all duration-300 select-none"
       onClick={(e) => openLightbox(idx, e)}
     >
       {!loaded && (
@@ -119,8 +119,8 @@ function ShootAlbumCard({
       className="relative flex flex-col rounded-2xl overflow-hidden bg-[var(--card-bg)] border border-[var(--card-border)] shadow-md group cursor-pointer transition-all duration-300 hover:shadow-xl hover:border-[var(--accent)] select-none"
       onClick={() => openAlbumLightbox(album, activeIdx)}
     >
-      {/* Top 4:5 Aspect Ratio Smooth Luxury Slider */}
-      <div className="relative aspect-[4/5] w-full overflow-hidden bg-black/20">
+      {/* Top 4:3 Aspect Ratio Smooth Luxury Slider */}
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-black/20">
         
         {/* Absolute Slides with Smooth 1s GPU-Accelerated Crossfade */}
         {images.map((imgUrl, i) => (
@@ -319,7 +319,7 @@ export default function CategoryGalleryView({
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] selection:bg-[var(--accent)] selection:text-black font-sans transition-colors duration-500">
       <Navbar />
 
-      <main className="pt-28 md:pt-32 pb-20 px-4 md:px-12 max-w-7xl mx-auto flex flex-col gap-6 md:gap-10">
+      <main className="pt-20 md:pt-24 pb-14 px-4 md:px-12 max-w-7xl mx-auto flex flex-col gap-4 md:gap-8">
         
         {/* Back Link */}
         <Link

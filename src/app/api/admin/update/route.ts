@@ -37,17 +37,21 @@ async function verifyAdminAuth() {
 
   if (jwtCookie?.value) {
     const payload: any = await verifyJWT(jwtCookie.value);
-    if (payload) return payload;
+    if (payload && (payload.role === "admin" || payload.email?.toLowerCase() === "ganeshkalapadgk@gmail.com")) {
+      return payload;
+    }
   }
 
   if (sessionCookie?.value) {
     try {
       const session = JSON.parse(sessionCookie.value);
-      if (session) return session;
+      if (session && (session.role === "admin" || session.email?.toLowerCase() === "ganeshkalapadgk@gmail.com")) {
+        return session;
+      }
     } catch {}
   }
 
-  return { role: "admin", email: "ganeshkalapadgk@gmail.com", name: "Ganesh Kalapad (Admin)" };
+  return null;
 }
 
 export async function POST(request: Request) {
@@ -77,9 +81,16 @@ export async function POST(request: Request) {
         const bookings = readJsonFile("bookings.json", []);
         const idx = bookings.findIndex((b: any) => b.id === data.id);
         if (idx !== -1) {
+          const price = data.price !== undefined ? Number(data.price) : Number(bookings[idx].price || 0);
+          const advancePaid = data.advancePaid !== undefined ? Number(data.advancePaid) : Number(bookings[idx].advancePaid || 0);
+          const balanceDue = Math.max(0, price - advancePaid);
+
           bookings[idx] = {
             ...bookings[idx],
             ...data,
+            price,
+            advancePaid,
+            balanceDue,
             updatedAt: new Date().toISOString()
           };
           success = await writeJsonFile("bookings.json", bookings);

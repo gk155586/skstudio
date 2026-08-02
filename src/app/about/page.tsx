@@ -67,9 +67,9 @@ export default function AboutPage() {
     <div className="relative min-h-screen bg-[var(--background)] text-[var(--foreground)] selection:bg-[var(--accent)] selection:text-black">
       <Navbar />
 
-      <main className="pt-28 pb-20">
+      <main className="pt-20 pb-12">
         {/* HERO SECTION */}
-        <section className="relative py-16 lg:py-24 px-6 max-w-7xl mx-auto text-center">
+        <section className="relative pt-2 pb-6 lg:pt-3 lg:pb-10 px-6 max-w-7xl mx-auto text-center">
           <Reveal style="blur">
             <span className="inline-block text-xs font-mono tracking-widest text-[var(--accent)] uppercase font-semibold mb-4 px-4 py-1.5 rounded-full border border-[var(--accent)]/30 bg-[var(--accent)]/10">
               Welcome to SK Photo Studio Pune
