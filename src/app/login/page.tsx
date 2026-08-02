@@ -138,7 +138,6 @@ export default function UserLoginPage() {
         <Link href="/" className="inline-flex items-center gap-2 text-xs text-gray-500 hover:text-[var(--accent)] transition-colors mb-6 font-mono uppercase tracking-wider">
           <ArrowLeft size={16} /> Back to Home
         </Link>
-
         <div className="flex flex-col gap-4 text-center mb-8">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-[var(--accent)]/30 bg-[var(--accent)]/10 text-[var(--accent)]">
             <User size={24} />
