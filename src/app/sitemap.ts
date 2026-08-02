@@ -2,42 +2,34 @@ import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://skstudio.store';
-  return [
-    {
-      url: `${baseUrl}/`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 1,
-    },
-    {
-      url: `${baseUrl}/about`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/services`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/portfolio`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/contact`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/bookings`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
+  const routes = [
+    '',
+    '/about',
+    '/portfolio',
+    '/process',
+    '/testimonials',
+    '/contact',
+    '/photo-frames',
+    '/bookings',
+    '/services/wedding-segment',
+    '/services/pre-wedding',
+    '/services/haldi',
+    '/services/wedding',
+    '/services/maternity',
+    '/services/maternity-indoor',
+    '/services/maternity-outdoor',
+    '/services/baby',
+    '/services/baby-indoor',
+    '/services/baby-outdoor',
+    '/services/newborn',
+    '/services/theme',
+    '/services/eyara',
   ];
+
+  return routes.map((route) => ({
+    url: `${baseUrl}${route}`,
+    lastModified: new Date(),
+    changeFrequency: route === '' ? 'daily' : 'weekly',
+    priority: route === '' ? 1.0 : route.startsWith('/services') ? 0.9 : 0.8,
+  }));
 }
