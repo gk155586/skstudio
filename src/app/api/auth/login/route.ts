@@ -114,7 +114,19 @@ export async function POST(request: Request) {
       );
     }
 
+    if (user.isActive === false) {
+      return NextResponse.json(
+        { success: false, message: "Your account is suspended. Please contact studio support." },
+        { status: 403 }
+      );
+    }
+
     const effectiveRole = isAdminAttempt ? "admin" : (user.role || "user");
+
+    // Update last active timestamp
+    user.lastActiveAt = new Date().toISOString();
+    users[userId] = user;
+    await saveUsers(users);
 
     const sessionObj = {
       userId: isAdminAttempt ? "admin" : userId,

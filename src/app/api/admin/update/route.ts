@@ -429,29 +429,76 @@ export async function POST(request: Request) {
         }
 
         const targetId = (data.id || data.email || "").toLowerCase();
-        const userEntry = Object.entries(users).find(
+        const userEntries = Object.entries(users).filter(
           ([key, u]: [string, any]) =>
             key.toLowerCase() === targetId ||
             (u.email || "").toLowerCase() === targetId ||
             (u.id || "").toLowerCase() === targetId
         );
 
-        if (userEntry) {
-          const [matchedKey, existingUser] = userEntry;
-          if (existingUser.role === "admin" || matchedKey === "admin") {
+        if (userEntries.length > 0) {
+          const isAdminDelete = userEntries.some(([key, u]) => u.role === "admin" || key === "admin");
+          if (isAdminDelete) {
             message = "Cannot delete primary administrator account";
           } else {
-            delete users[matchedKey];
+            let targetEmail = "";
+            userEntries.forEach(([key, u]) => {
+              targetEmail = u.email || targetEmail;
+              delete users[key];
+            });
+
             success = await writeJsonFile("users.json", users);
-            updatedPayload = { id: matchedKey, isDeleted: true };
-            message = "User account deleted successfully";
-            logAuditTrail(session.email, "DELETE_USER", { userId: matchedKey });
+
+            // Also clean up any message threads associated with deleted user
+            if (targetEmail) {
+              const messages = readJsonFile("messages.json", []);
+              const cleanedMsgs = messages.filter(
+                (m: any) =>
+                  (m.senderEmail || "").toLowerCase() !== targetEmail.toLowerCase() &&
+                  (m.recipientEmail || "").toLowerCase() !== targetEmail.toLowerCase()
+              );
+              await writeJsonFile("messages.json", cleanedMsgs);
+            }
+
+            updatedPayload = { id: targetId, isDeleted: true };
+            message = "User account and linked records deleted successfully";
+            logAuditTrail(session.email, "DELETE_USER", { userId: targetId });
           }
         } else {
-          // If user already deleted or not in file, consider success
+          // Clean fallback if target email was passed
+          if (targetId && targetId !== "admin") {
+            const messages = readJsonFile("messages.json", []);
+            const cleanedMsgs = messages.filter(
+              (m: any) =>
+                (m.senderEmail || "").toLowerCase() !== targetId &&
+                (m.recipientEmail || "").toLowerCase() !== targetId
+            );
+            await writeJsonFile("messages.json", cleanedMsgs);
+          }
           success = true;
           updatedPayload = { id: targetId, isDeleted: true };
           message = "User account removed";
+        }
+        break;
+      }
+
+      case "delete_message_thread":
+      case "delete_chat": {
+        const targetEmail = (data.email || data.id || "").toLowerCase().trim();
+        if (targetEmail) {
+          const messages = readJsonFile("messages.json", []);
+          const cleanedMsgs = messages.filter(
+            (m: any) =>
+              (m.senderEmail || "").toLowerCase() !== targetEmail &&
+              (m.recipientEmail || "").toLowerCase() !== targetEmail &&
+              m.id !== data.id
+          );
+          success = await writeJsonFile("messages.json", cleanedMsgs);
+          updatedPayload = { email: targetEmail, isDeleted: true };
+          message = "Message thread deleted successfully";
+          logAuditTrail(session.email, "DELETE_MESSAGE_THREAD", { threadEmail: targetEmail });
+        } else {
+          message = "Invalid thread target email";
         }
         break;
       }

@@ -17,32 +17,5 @@
     "role": "user",
     "isActive": true,
     "createdAt": "2026-07-26T21:29:33.321Z"
-  },
-  "user_rahul": {
-    "id": "user_rahul",
-    "name": "Rahul Sharma",
-    "email": "rahul.sharma@example.com",
-    "phone": "9823012345",
-    "role": "user",
-    "isActive": true,
-    "createdAt": "2026-07-27T10:00:00.000Z"
-  },
-  "user_neha": {
-    "id": "user_neha",
-    "name": "Neha Patil",
-    "email": "neha.patil@example.com",
-    "phone": "9764512345",
-    "role": "user",
-    "isActive": true,
-    "createdAt": "2026-07-28T11:00:00.000Z"
-  },
-  "user_amit": {
-    "id": "user_amit",
-    "name": "Amit Deshmukh",
-    "email": "amit.deshmukh@example.com",
-    "phone": "9988776655",
-    "role": "user",
-    "isActive": true,
-    "createdAt": "2026-07-29T12:00:00.000Z"
   }
 }

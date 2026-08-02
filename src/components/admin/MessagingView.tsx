@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { 
   Send, Mail, Phone, MessageSquare, Search, CheckCheck, 
   Sparkles, User, Clock, Check, RefreshCw, MessageCircle, Activity,
-  Filter, UserCheck, Bot
+  Filter, UserCheck, Bot, Trash2
 } from "lucide-react";
 
 interface MessagingViewProps {
@@ -24,6 +24,7 @@ export default function MessagingView({
   messages = [],
   selectedClient,
   setSelectedClient,
+  saveTransaction,
   fetchDashboardData
 }: MessagingViewProps) {
   const [chatInput, setChatInput] = useState<string>("");
@@ -178,6 +179,34 @@ export default function MessagingView({
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
+    }
+  };
+
+  const handleDeleteThread = async (emailToDelete: string) => {
+    if (!emailToDelete) return;
+    const displayName = resolveClientDisplayName(emailToDelete);
+    const confirmDelete = window.confirm(`Are you sure you want to delete the message thread with "${displayName}" (${emailToDelete})?`);
+    if (!confirmDelete) return;
+
+    if (saveTransaction) {
+      const res = await saveTransaction("delete_message_thread", { email: emailToDelete });
+      if (res && res.success) {
+        setSelectedClient("");
+        fetchDashboardData();
+      }
+    } else {
+      try {
+        const res = await fetch("/api/admin/update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "delete_message_thread", data: { email: emailToDelete } }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          setSelectedClient("");
+          fetchDashboardData();
+        }
+      } catch (err) {}
     }
   };
 
@@ -407,6 +436,13 @@ export default function MessagingView({
                   className="px-2.5 py-1 bg-slate-100 hover:bg-[#b08d4b]/10 hover:text-[#b08d4b] text-slate-700 text-[10px] font-bold rounded-lg transition-colors"
                 >
                   Reminder
+                </button>
+                <button
+                  onClick={() => handleDeleteThread(selectedClient)}
+                  className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-[10px] font-bold rounded-lg transition-colors flex items-center gap-1"
+                  title="Delete Entire Chat Thread"
+                >
+                  <Trash2 size={13} />
                 </button>
               </div>
             </div>
