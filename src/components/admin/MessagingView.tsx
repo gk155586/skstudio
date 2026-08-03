@@ -29,7 +29,6 @@ export default function MessagingView({
 }: MessagingViewProps) {
   const [chatInput, setChatInput] = useState<string>("");
   const [clientSearch, setClientSearch] = useState<string>("");
-  const [channelFilter, setChannelFilter] = useState<"all" | "widget" | "platform">("all");
   const [isSending, setIsSending] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -71,7 +70,7 @@ export default function MessagingView({
 
   // Helper: resolve a clean display name
   const resolveClientDisplayName = (email: string): string => {
-    if (!email) return "Guest Client";
+    if (!email) return "Client User";
     const userObj = users.find(u => u.email?.toLowerCase() === email.toLowerCase());
     if (userObj?.name) {
       return userObj.name.replace(/\s*\(Ph:.*\)$/i, "").trim();
@@ -84,21 +83,10 @@ export default function MessagingView({
     if (msgUser?.senderName) {
       return msgUser.senderName.replace(/\s*\(Ph:.*\)$/i, "").trim();
     }
-    if (email.startsWith("guest_")) return "Floating Chat Visitor";
     return email.split("@")[0].replace(/[._-]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
-  // Helper: check if thread is a floating widget chat thread
-  const isWidgetThread = (email: string): boolean => {
-    if (email.startsWith("guest_")) return true;
-    const userMsgs = messages.filter(
-      m => (m.recipientEmail && m.recipientEmail.toLowerCase() === email.toLowerCase()) ||
-           (m.senderEmail && m.senderEmail.toLowerCase() === email.toLowerCase())
-    );
-    return userMsgs.some(m => m.channel === "floating_widget" || m.id?.startsWith("msg-widget") || m.id?.startsWith("msg-bot"));
-  };
-
-  // Filter clients by search term and channel filter
+  // Filter clients by search term
   const filteredClients = allClientEmails.filter((email) => {
     const userObj = users.find(u => u.email?.toLowerCase() === email.toLowerCase());
     const userMsgs = messages.filter(
@@ -111,11 +99,7 @@ export default function MessagingView({
     const phone = (userObj?.phone || userObj?.mobile || msgSender?.recipientPhone || "").toLowerCase();
     const term = clientSearch.toLowerCase();
 
-    const matchesSearch = name.includes(term) || email.toLowerCase().includes(term) || phone.includes(term);
-    const isWidget = isWidgetThread(email);
-    const matchesChannel = channelFilter === "all" || (channelFilter === "widget" ? isWidget : !isWidget);
-
-    return matchesSearch && matchesChannel;
+    return name.includes(term) || email.toLowerCase().includes(term) || phone.includes(term);
   });
 
   // Automatically select first client if none selected
@@ -236,10 +220,6 @@ export default function MessagingView({
 
   const currentGuestMsg = clientMessages.find(m => m.senderName && !m.senderName.includes("Admin") && !m.senderName.includes("Assistant"));
   const headerDisplayName = resolveClientDisplayName(selectedClient);
-  const isCurrentWidgetThread = isWidgetThread(selectedClient);
-
-  const widgetThreadCount = allClientEmails.filter(e => isWidgetThread(e)).length;
-  const platformThreadCount = allClientEmails.length - widgetThreadCount;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[720px] text-slate-900 font-sans">
@@ -252,12 +232,12 @@ export default function MessagingView({
           <div className="flex items-center gap-2">
             <MessageSquare size={16} className="text-[#b08d4b]" />
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
-              Live Messaging Hub
+              Client Communications Hub
             </h3>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-mono font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full">
-              {allClientEmails.length} Threads
+              {allClientEmails.length} Client Threads
             </span>
             <button 
               onClick={() => fetchDashboardData()} 
@@ -267,34 +247,6 @@ export default function MessagingView({
               <RefreshCw size={13} />
             </button>
           </div>
-        </div>
-
-        {/* Channel Filter Tabs */}
-        <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl text-[11px] font-bold">
-          <button
-            onClick={() => setChannelFilter("all")}
-            className={`flex-1 py-1.5 rounded-lg transition-all text-center ${
-              channelFilter === "all" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-900"
-            }`}
-          >
-            All ({allClientEmails.length})
-          </button>
-          <button
-            onClick={() => setChannelFilter("widget")}
-            className={`flex-1 py-1.5 rounded-lg transition-all text-center flex items-center justify-center gap-1 ${
-              channelFilter === "widget" ? "bg-[#c1442d] text-white shadow-sm font-extrabold" : "text-slate-500 hover:text-slate-900"
-            }`}
-          >
-            <MessageCircle size={12} /> Widget ({widgetThreadCount})
-          </button>
-          <button
-            onClick={() => setChannelFilter("platform")}
-            className={`flex-1 py-1.5 rounded-lg transition-all text-center flex items-center justify-center gap-1 ${
-              channelFilter === "platform" ? "bg-[#b08d4b] text-white shadow-sm font-extrabold" : "text-slate-500 hover:text-slate-900"
-            }`}
-          >
-            <Mail size={12} /> Direct ({platformThreadCount})
-          </button>
         </div>
 
         {/* Client Search */}
@@ -312,7 +264,7 @@ export default function MessagingView({
         {/* Client Threads List */}
         <div className="flex-grow overflow-y-auto flex flex-col gap-1.5 pr-1">
           {filteredClients.length === 0 ? (
-            <div className="text-center text-slate-400 text-xs py-12 font-mono">No active chat threads found</div>
+            <div className="text-center text-slate-400 text-xs py-12 font-mono">No active client threads found</div>
           ) : (
             filteredClients.map((email) => {
               const u = users.find(x => x.email?.toLowerCase() === email.toLowerCase());
@@ -324,7 +276,6 @@ export default function MessagingView({
               );
               const lastMsg = userMsgs[userMsgs.length - 1];
               const unreadCount = userMsgs.filter(m => m.sender === "user" && !m.isRead).length;
-              const isWidget = isWidgetThread(email);
 
               const displayName = resolveClientDisplayName(email);
 
@@ -334,14 +285,14 @@ export default function MessagingView({
                   onClick={() => handleSelectClient(email)}
                   className={`w-full text-left p-3 rounded-xl border transition-all flex items-start justify-between gap-2 ${
                     isSelected 
-                      ? isWidget ? "bg-[#c1442d]/10 border-[#c1442d] shadow-sm" : "bg-[#b08d4b]/10 border-[#b08d4b] shadow-sm"
+                      ? "bg-[#b08d4b]/10 border-[#b08d4b] shadow-sm"
                       : "bg-white border-slate-100 hover:bg-slate-50"
                   }`}
                 >
                   <div className="flex items-start gap-2.5 min-w-0">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 font-bold text-xs ${
                       isSelected 
-                        ? isWidget ? "bg-[#c1442d] text-white" : "bg-[#b08d4b] text-white"
+                        ? "bg-[#b08d4b] text-white"
                         : "bg-slate-100 text-slate-600"
                     }`}>
                       {displayName.charAt(0).toUpperCase()}
@@ -351,15 +302,9 @@ export default function MessagingView({
                         <span className="text-xs font-bold text-slate-900 truncate">
                           {displayName}
                         </span>
-                        {isWidget ? (
-                          <span className="text-[8px] font-mono font-extrabold uppercase bg-rose-100 text-rose-800 px-1.5 py-0.2 rounded-full shrink-0">
-                            WIDGET
-                          </span>
-                        ) : (
-                          <span className="text-[8px] font-mono font-bold uppercase bg-slate-100 text-slate-600 px-1.5 py-0.2 rounded-full shrink-0">
-                            CLIENT
-                          </span>
-                        )}
+                        <span className="text-[8px] font-mono font-bold uppercase bg-slate-100 text-slate-600 px-1.5 py-0.2 rounded-full shrink-0">
+                          CLIENT
+                        </span>
                       </div>
                       <p className="text-[11px] text-slate-500 truncate mt-0.5">
                         {lastMsg ? lastMsg.body : "No messages yet"}
@@ -392,25 +337,15 @@ export default function MessagingView({
           <>
             <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
               <div className="flex items-center gap-3">
-                <div className={`w-9 h-9 rounded-full font-extrabold flex items-center justify-center text-sm border ${
-                  isCurrentWidgetThread
-                    ? "bg-[#c1442d]/15 text-[#c1442d] border-[#c1442d]/30"
-                    : "bg-[#b08d4b]/15 text-[#b08d4b] border-[#b08d4b]/30"
-                }`}>
+                <div className="w-9 h-9 rounded-full font-extrabold flex items-center justify-center text-sm border bg-[#b08d4b]/15 text-[#b08d4b] border-[#b08d4b]/30">
                   {headerDisplayName.charAt(0).toUpperCase()}
                 </div>
                 <div>
                   <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                     {headerDisplayName}
-                    {isCurrentWidgetThread ? (
-                      <span className="px-2 py-0.5 bg-rose-100 text-rose-800 text-[9px] font-mono font-bold rounded-full uppercase">
-                        Floating Live Chat
-                      </span>
-                    ) : (
-                      <span className="px-2 py-0.5 bg-purple-100 text-purple-800 text-[9px] font-mono font-bold rounded-full uppercase">
-                        Registered Client
-                      </span>
-                    )}
+                    <span className="px-2 py-0.5 bg-slate-100 text-slate-700 text-[9px] font-mono font-bold rounded-full uppercase">
+                      Direct Client Thread
+                    </span>
                   </h2>
                   <p className="text-[10px] font-mono text-slate-400 flex items-center gap-2">
                     <Mail size={10} /> {selectedClient}
@@ -473,7 +408,7 @@ export default function MessagingView({
                       
                       <div className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed shadow-sm ${
                         isAdmin 
-                          ? isCurrentWidgetThread ? "bg-[#c1442d] text-white rounded-tr-none font-medium" : "bg-[#b08d4b] text-white rounded-tr-none font-medium"
+                          ? "bg-[#b08d4b] text-white rounded-tr-none font-medium"
                           : "bg-white border border-slate-200 text-slate-900 rounded-tl-none font-medium"
                       }`}>
                         {m.body}
@@ -498,9 +433,7 @@ export default function MessagingView({
               <button
                 onClick={handleSendMessage}
                 disabled={isSending || !chatInput.trim()}
-                className={`${
-                  isCurrentWidgetThread ? "bg-[#c1442d] hover:bg-[#a83823]" : "bg-[#b08d4b] hover:bg-[#96753a]"
-                } disabled:opacity-50 text-white px-5 py-2.5 rounded-xl font-bold text-xs transition-all shadow-sm flex items-center gap-1.5 shrink-0`}
+                className="bg-[#b08d4b] hover:bg-[#96753a] disabled:opacity-50 text-white px-5 py-2.5 rounded-xl font-bold text-xs transition-all shadow-sm flex items-center gap-1.5 shrink-0"
               >
                 <span>{isSending ? "Sending..." : "Send Reply"}</span>
                 <Send size={13} />

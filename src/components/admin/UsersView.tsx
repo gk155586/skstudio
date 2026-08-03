@@ -37,11 +37,12 @@ export default function UsersView({
   const rawList = Array.isArray(users) ? users : Object.entries(users).map(([id, u]: [string, any]) => ({ id, ...u }));
   const userList = rawList.filter(u => u.role !== "admin" && u.id !== "admin" && (u.email || "").toLowerCase() !== "ganeshkalapadgk@gmail.com");
 
-  // Helper to determine if a user is currently online (active within last 10 minutes)
+  // Helper to determine if a user is currently online (active within last 5 minutes and not logged out)
   const isUserOnline = (u: any): boolean => {
+    if (u.isOnline === false || u.isLoggedIn === false) return false;
     if (!u.lastActiveAt) return false;
     const diffMs = Date.now() - new Date(u.lastActiveAt).getTime();
-    return diffMs < 10 * 60 * 1000; // 10 minutes
+    return diffMs < 5 * 60 * 1000; // 5 minutes
   };
 
   // Helper to format last seen

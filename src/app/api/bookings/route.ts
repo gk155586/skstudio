@@ -92,46 +92,37 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    // Check authentication
+    // Check authentication or guest fallback
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get("sk_session");
 
-    if (!sessionCookie?.value) {
-      return NextResponse.json(
-        { success: false, message: "Not authenticated" },
-        { status: 401 }
-      );
-    }
+    let userId = "";
+    let userEmail = "";
 
-    let session;
-    try {
-      session = JSON.parse(sessionCookie.value);
-    } catch {
-      return NextResponse.json(
-        { success: false, message: "Invalid session" },
-        { status: 401 }
-      );
-    }
-
-    const userId = session.userId;
-    const userEmail = session.email;
-
-    if (!userId || !userEmail) {
-      return NextResponse.json(
-        { success: false, message: "Invalid session" },
-        { status: 401 }
-      );
+    if (sessionCookie?.value) {
+      try {
+        const session = JSON.parse(sessionCookie.value);
+        userId = session.userId || "";
+        userEmail = session.email || "";
+      } catch {}
     }
 
     const body = await request.json();
-    const { name, phone, service, date, message } = body;
+    const { name, email, phone, service, date, message } = body;
 
     // Validate required fields
     if (!name || !phone || !service || !date) {
       return NextResponse.json(
-        { success: false, message: "Missing required fields" },
+        { success: false, message: "Name, phone number, photoshoot service, and date are required" },
         { status: 400 }
       );
+    }
+
+    if (!userEmail) {
+      userEmail = email ? email.trim().toLowerCase() : `${phone.trim()}@guest.skstudio.store`;
+    }
+    if (!userId) {
+      userId = "guest_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6);
     }
 
     const priceVal = Number(body.price) || 0;

@@ -35,10 +35,16 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { frameId, frameCode, frameName, customerName, customerEmail, customerPhone, details } = body;
+    const customerName = body.customerName || body.name || "Guest Visitor";
+    const customerPhone = body.customerPhone || body.phone || "N/A";
+    const customerEmail = body.customerEmail || body.email || `${customerPhone.replace(/\D/g, "") || Date.now()}@inquiry.skstudio.store`;
+    const frameId = body.frameId || "contact_inquiry";
+    const frameCode = body.frameCode || body.eventType || "General Enquiry";
+    const frameName = body.frameName || body.eventType || "Photoshoot Inquiry";
+    const details = body.details || body.message || `Event Date: ${body.eventDate || "N/A"}`;
 
-    if (!frameId || !customerName || !customerEmail || !customerPhone) {
-      return NextResponse.json({ success: false, message: "Missing customer details or frame code" }, { status: 400 });
+    if (!customerName || !customerPhone) {
+      return NextResponse.json({ success: false, message: "Customer name and phone number are required" }, { status: 400 });
     }
 
     const enquiries = loadEnquiries();
@@ -46,12 +52,12 @@ export async function POST(req: NextRequest) {
     const newEnquiry = {
       id: "enq-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7),
       frameId,
-      frameCode: frameCode || "N/A",
-      frameName: frameName || "Photography Frame",
+      frameCode,
+      frameName,
       customerName,
       customerEmail,
       customerPhone,
-      details: details || "",
+      details,
       createdAt: new Date().toISOString(),
       status: "New"
     };
