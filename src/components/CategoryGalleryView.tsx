@@ -123,23 +123,28 @@ function ShootAlbumCard({
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-black/20">
         
         {/* Absolute Slides with Smooth 1s GPU-Accelerated Crossfade */}
-        {images.map((imgUrl, i) => (
-          <div
-            key={i}
-            className={`absolute inset-0 w-full h-full transition-all duration-1000 ease-in-out ${
-              i === activeIdx ? "opacity-100 scale-100 z-10" : "opacity-0 scale-105 z-0 pointer-events-none"
-            }`}
-          >
-            <img
-              src={imgUrl}
-              alt={`${album.title} Slide ${i + 1}`}
-              className="w-full h-full object-cover object-center block"
-              style={{ imageOrientation: "from-image" }}
-              loading={i === 0 || i === activeIdx ? "eager" : "lazy"}
-              decoding="async"
-            />
-          </div>
-        ))}
+        {images.map((imgUrl, i) => {
+          const isVisible = i === 0 || i === activeIdx;
+          if (!isVisible) return null;
+
+          return (
+            <div
+              key={i}
+              className={`absolute inset-0 w-full h-full transition-all duration-1000 ease-in-out ${
+                i === activeIdx ? "opacity-100 scale-100 z-10" : "opacity-0 scale-105 z-0 pointer-events-none"
+              }`}
+            >
+              <img
+                src={imgUrl}
+                alt={`${album.title} Slide ${i + 1}`}
+                className="w-full h-full object-cover object-center block"
+                style={{ imageOrientation: "from-image" }}
+                loading="eager"
+                decoding="async"
+              />
+            </div>
+          );
+        })}
 
         {/* Floating Photo Count Badge */}
         <div className="absolute top-2.5 right-2.5 px-2.5 py-1 bg-black/60 backdrop-blur-md rounded-full text-[10px] font-bold font-mono text-white border border-white/20 flex items-center gap-1 z-20">
