@@ -105,14 +105,37 @@ export async function POST(request: Request) {
 
       case "delete_booking": {
         const bookings = readJsonFile("bookings.json", []);
-        const idx = bookings.findIndex((b: any) => b.id === data.id);
-        if (idx !== -1) {
-          bookings[idx].isDeleted = true;
-          bookings[idx].deletedAt = new Date().toISOString();
-          success = await writeJsonFile("bookings.json", bookings);
-          updatedPayload = { id: data.id, isDeleted: true };
-          message = "Booking soft deleted successfully";
-          logAuditTrail(session.email, "DELETE_BOOKING", { bookingId: data.id });
+        const enquiries = readJsonFile("enquiries.json", []);
+        const targetId = String(data.id || "").trim();
+        const rawId = targetId.startsWith("enq-") ? targetId.replace(/^enq-/, "") : targetId;
+        const prefixedId = targetId.startsWith("enq-") ? targetId : `enq-${targetId}`;
+
+        let modified = false;
+
+        bookings.forEach((b: any) => {
+          if (b.id === targetId || b.id === rawId) {
+            b.isDeleted = true;
+            b.deletedAt = new Date().toISOString();
+            modified = true;
+          }
+        });
+
+        enquiries.forEach((e: any) => {
+          if (e.bookingId === targetId || e.bookingId === rawId || e.id === targetId || e.id === prefixedId) {
+            e.isDeleted = true;
+            e.deletedAt = new Date().toISOString();
+            modified = true;
+          }
+        });
+
+        if (modified) {
+          const bSuccess = await writeJsonFile("bookings.json", bookings);
+          const eSuccess = await writeJsonFile("enquiries.json", enquiries);
+          success = bSuccess && eSuccess;
+          updatedPayload = { id: targetId, isDeleted: true };
+          message = "Booking deleted successfully";
+          logAuditTrail(session.email, "DELETE_BOOKING", { bookingId: targetId });
+          sseHub.broadcast("data_changed", { type: "delete_booking", data: { id: targetId } });
         } else {
           message = "Booking not found";
         }
@@ -156,14 +179,45 @@ export async function POST(request: Request) {
 
       case "delete_enquiry": {
         const enquiries = readJsonFile("enquiries.json", []);
-        const idx = enquiries.findIndex((e: any) => e.id === data.id);
-        if (idx !== -1) {
-          enquiries[idx].isDeleted = true;
-          enquiries[idx].deletedAt = new Date().toISOString();
-          success = await writeJsonFile("enquiries.json", enquiries);
-          updatedPayload = { id: data.id, isDeleted: true };
-          message = "Enquiry soft deleted successfully";
-          logAuditTrail(session.email, "DELETE_ENQUIRY", { enquiryId: data.id });
+        const bookings = readJsonFile("bookings.json", []);
+        const targetId = String(data.id || "").trim();
+        const rawBookingId = targetId.startsWith("enq-") ? targetId.replace(/^enq-/, "") : targetId;
+        const prefixedId = targetId.startsWith("enq-") ? targetId : `enq-${targetId}`;
+
+        let modified = false;
+
+        // 1. Check and mark in enquiries.json
+        enquiries.forEach((e: any) => {
+          if (
+            e.id === targetId ||
+            e.id === rawBookingId ||
+            e.id === prefixedId ||
+            e.bookingId === targetId ||
+            e.bookingId === rawBookingId
+          ) {
+            e.isDeleted = true;
+            e.deletedAt = new Date().toISOString();
+            modified = true;
+          }
+        });
+
+        // 2. Check and mark in bookings.json (for session bookings appearing in enquiries)
+        bookings.forEach((b: any) => {
+          if (b.id === targetId || b.id === rawBookingId) {
+            b.isDeleted = true;
+            b.deletedAt = new Date().toISOString();
+            modified = true;
+          }
+        });
+
+        if (modified) {
+          const eSuccess = await writeJsonFile("enquiries.json", enquiries);
+          const bSuccess = await writeJsonFile("bookings.json", bookings);
+          success = eSuccess && bSuccess;
+          updatedPayload = { id: targetId, isDeleted: true };
+          message = "Enquiry removed successfully";
+          logAuditTrail(session.email, "DELETE_ENQUIRY", { enquiryId: targetId });
+          sseHub.broadcast("data_changed", { type: "delete_enquiry", data: { id: targetId, bookingId: rawBookingId } });
         } else {
           message = "Enquiry not found";
         }

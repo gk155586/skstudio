@@ -255,6 +255,15 @@ export default function AdminPage() {
         const targetBk = payload.data;
         setBookings(prev => [targetBk, ...prev.filter(b => b.id !== targetBk.id)]);
         setEnquiries(prev => prev.map(e => (e.id === targetBk.enquiryId || e.bookingId === targetBk.id) ? { ...e, status: "Converted" } : e));
+      } else if (payload.type === "delete_enquiry" && payload.data) {
+        const delId = payload.data.id;
+        const bId = payload.data.bookingId;
+        setEnquiries(prev => prev.filter(e => e.id !== delId && e.bookingId !== delId && (!bId || e.bookingId !== bId)));
+        setBookings(prev => prev.filter(b => b.id !== delId && (!bId || b.id !== bId)));
+      } else if (payload.type === "delete_booking" && payload.data) {
+        const delId = payload.data.id;
+        setBookings(prev => prev.filter(b => b.id !== delId));
+        setEnquiries(prev => prev.filter(e => e.bookingId !== delId && e.id !== delId && e.id !== `enq-${delId}`));
       } else if (payload.type === "new_user") {
         setToastAlert(`👤 New User Registered: ${payload.data?.name || "Client"}`);
       }
@@ -401,6 +410,18 @@ export default function AdminPage() {
   };
 
   const saveTransaction = async (action: string, payload: any) => {
+    // Optimistic UI updates for immediate responsiveness
+    if (action === "delete_enquiry") {
+      const delId = payload?.id;
+      const rawBookingId = delId?.startsWith("enq-") ? delId.replace(/^enq-/, "") : delId;
+      setEnquiries(prev => prev.filter(e => e.id !== delId && e.bookingId !== delId && e.bookingId !== rawBookingId));
+      setBookings(prev => prev.filter(b => b.id !== delId && b.id !== rawBookingId));
+    } else if (action === "delete_booking") {
+      const delId = payload?.id;
+      setBookings(prev => prev.filter(b => b.id !== delId));
+      setEnquiries(prev => prev.filter(e => e.bookingId !== delId && e.id !== delId && e.id !== `enq-${delId}`));
+    }
+
     try {
       const res = await fetch("/api/admin/update", {
         method: "POST",
@@ -409,15 +430,17 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (data.success) {
-        fetchDashboardData();
+        fetchDashboardData(true);
         return data;
       } else {
         const errorMsg = data.message || data.error || (typeof data === 'string' ? data : JSON.stringify(data));
         alert("Transaction failed: " + errorMsg);
+        fetchDashboardData(true);
       }
     } catch (e: any) {
       console.error("Failed to commit database update", e);
       alert("Network or Server Error: " + (e.message || "Could not parse response"));
+      fetchDashboardData(true);
     }
     return null;
   };
