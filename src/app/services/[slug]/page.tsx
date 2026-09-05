@@ -196,7 +196,7 @@ function scanGalleryAlbums(slug: string): GalleryAlbum[] {
           return "/" + relativePath.split(path.sep).join("/");
         });
 
-        const chunkSize = (slug === "theme" || slug === "themes" || slug === "eyara") ? 1 : 6;
+        const chunkSize = 1;
         for (let i = 0; i < directUrls.length; i += chunkSize) {
           const chunk = directUrls.slice(i, i + chunkSize);
           const sessionIndex = albums.length + 1;
