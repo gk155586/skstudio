@@ -41,7 +41,12 @@ export async function middleware(request: NextRequest) {
   }
 
   // 2. Admin API & Page Protection
-  if (path.startsWith("/api/admin") || (path.startsWith("/admin") && path !== "/admin/login")) {
+  // Allow public POST inquiries so guests can submit leads from Contact and Frames pages
+  const isPublicAdminRoute =
+    (request.method === "POST" && path === "/api/admin/enquiries") ||
+    path.startsWith("/api/admin/gallery/file");
+
+  if (!isPublicAdminRoute && (path.startsWith("/api/admin") || (path.startsWith("/admin") && path !== "/admin/login"))) {
     const jwtCookie = request.cookies.get("sk_session_jwt");
     const sessionCookie = request.cookies.get("sk_session");
     let isAuthorized = false;
