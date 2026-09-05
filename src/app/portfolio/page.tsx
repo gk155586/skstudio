@@ -64,7 +64,7 @@ export default function DedicatedPortfolioPage() {
       title: "Theme Shoots",
       description: "Bespoke creative theme concepts",
       mainImage: "/img/gallery/Themes/SK_08338.JPG",
-      href: "/services/themes",
+      href: "/services/theme",
       tag: "Exclusive",
       subcategories: [
         { name: "Eyara Album — Exclusive concept portfolio session", href: "/services/eyara" },
@@ -131,6 +131,7 @@ export default function DedicatedPortfolioPage() {
                       src={cat.mainImage}
                       alt={cat.title}
                       fill
+                      priority={i < 3}
                       sizes="(max-width: 768px) 100vw, 33vw"
                       className="object-cover object-center group-hover:scale-110 transition-transform duration-700 ease-out"
                     />

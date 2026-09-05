@@ -365,7 +365,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
     },
     "eyara": {
       desc: "An exquisite, high-concept portfolio session showcasing Eyara in elegant studio and themed environments.",
-      banner: "/img/gallery/Eyara/SK_09102 copy.jpg",
+      banner: "/img/gallery/Eyara/SK_09102_copy.jpg",
       features: [
         "High-fashion portraiture & styling",
         "Studio backdrop & outdoor lighting sets",
