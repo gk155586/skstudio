@@ -177,36 +177,70 @@ export async function POST(request: Request) {
           const enq = enquiries[enqIdx];
           
           const bookings = readJsonFile("bookings.json", []);
-          const newBooking = {
-            id: "bk-" + Date.now(),
-            user_id: enq.user_id || "guest",
-            name: enq.name,
-            email: enq.email,
-            phone: enq.phone,
-            service: data.service || enq.service || "Unspecified Shoot",
-            date: data.date || new Date().toISOString().split("T")[0],
-            message: enq.message || "Converted from lead pipeline",
-            createdAt: new Date().toISOString(),
-            status: "confirmed",
-            photographer: data.photographer || "Unassigned",
-            price: data.price || 0,
-            advancePaid: data.advancePaid || 0,
-            balanceDue: (data.price || 0) - (data.advancePaid || 0)
-          };
-          
-          bookings.push(newBooking);
+          const clientName = enq.name || enq.customerName || "Client";
+          const clientEmail = enq.email || enq.customerEmail || "";
+          const clientPhone = enq.phone || enq.customerPhone || "";
+          const shootService = data.service || enq.service || enq.frameName || "Photography Session";
+          const shootDate = data.date || enq.eventDate || new Date().toISOString().split("T")[0];
+          const shootMessage = enq.message || enq.details || "Converted from lead pipeline";
+          const price = Number(data.price) || Number(enq.budget) || Number(enq.price) || 0;
+          const advance = Number(data.advancePaid) || 0;
+          const balance = Math.max(0, price - advance);
+          const photographer = data.photographer || "Unassigned";
+
+          let targetBooking: any;
+          // Check if there is already a booking tied to this enquiry (e.g. from Book a Session)
+          const existingBookingIdx = enq.bookingId ? bookings.findIndex((b: any) => b.id === enq.bookingId) : -1;
+          if (existingBookingIdx !== -1) {
+            bookings[existingBookingIdx] = {
+              ...bookings[existingBookingIdx],
+              name: clientName,
+              email: clientEmail,
+              phone: clientPhone,
+              service: shootService,
+              date: shootDate,
+              status: "confirmed",
+              photographer,
+              price,
+              advancePaid: advance,
+              balanceDue: balance,
+              updatedAt: new Date().toISOString()
+            };
+            targetBooking = bookings[existingBookingIdx];
+          } else {
+            targetBooking = {
+              id: "bk-" + Date.now(),
+              user_id: enq.user_id || "guest",
+              name: clientName,
+              email: clientEmail,
+              phone: clientPhone,
+              service: shootService,
+              date: shootDate,
+              message: shootMessage,
+              createdAt: new Date().toISOString(),
+              status: "confirmed",
+              photographer,
+              price,
+              advancePaid: advance,
+              balanceDue: balance
+            };
+            bookings.push(targetBooking);
+          }
+
           enquiries[enqIdx].status = "Converted";
-          enquiries[enqIdx].convertedBookingId = newBooking.id;
+          enquiries[enqIdx].convertedBookingId = targetBooking.id;
           enquiries[enqIdx].updatedAt = new Date().toISOString();
 
           const bSuccess = await writeJsonFile("bookings.json", bookings);
           const eSuccess = await writeJsonFile("enquiries.json", enquiries);
           
           success = bSuccess && eSuccess;
-          updatedPayload = newBooking;
+          updatedPayload = targetBooking;
           message = "Enquiry successfully converted to confirmed booking";
-          logAuditTrail(session.email, "CONVERT_ENQUIRY", { enquiryId: data.enquiryId, bookingId: newBooking.id });
+          logAuditTrail(session.email, "CONVERT_ENQUIRY", { enquiryId: data.enquiryId, bookingId: targetBooking.id });
           sseHub.broadcast("data_changed", { type: "convert_enquiry", data: updatedPayload });
+          sseHub.broadcast("data_changed", { type: "update_enquiry", data: enquiries[enqIdx] });
+          sseHub.broadcast("data_changed", { type: "booking_created", data: targetBooking });
         } else {
           message = "Enquiry not found";
         }

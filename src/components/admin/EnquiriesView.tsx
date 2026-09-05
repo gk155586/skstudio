@@ -19,7 +19,38 @@ export default function EnquiriesView({
   crew
 }: EnquiriesViewProps) {
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+
+  const getInitialStatusFilter = (): string => {
+    if (typeof window === "undefined") return "all";
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const param = urlParams.get("status");
+      const valid = ["all", "New", "Contacted", "Converted", "Lost"];
+      if (param && valid.includes(param)) return param;
+      const saved = window.localStorage.getItem("sk_enquiries_status_filter");
+      if (saved && valid.includes(saved)) return saved;
+    } catch (e) {}
+    return "all";
+  };
+
+  const [statusFilter, setStatusFilterState] = useState<string>(getInitialStatusFilter);
+
+  const setStatusFilter = (st: string) => {
+    setStatusFilterState(st);
+    if (typeof window !== "undefined") {
+      try {
+        window.localStorage.setItem("sk_enquiries_status_filter", st);
+        const url = new URL(window.location.href);
+        if (st === "all") {
+          url.searchParams.delete("status");
+        } else {
+          url.searchParams.set("status", st);
+        }
+        window.history.replaceState(null, "", url.toString());
+      } catch (e) {}
+    }
+  };
+
   const [activeEnquiry, setActiveEnquiry] = useState<any | null>(null);
   
   // Add Lead Modal state
@@ -195,7 +226,7 @@ export default function EnquiriesView({
                   const name = enq.name || enq.customerName || "Anonymous";
                   const email = enq.email || enq.customerEmail || "No email";
                   const phone = enq.phone || enq.customerPhone || "No phone";
-                  const service = enq.service || (enq.frameName ? `Frame: ${enq.frameName}` : "General Enquiry");
+                  const service = enq.service || (enq.frameName ? (enq.frameId && enq.frameId !== "contact_inquiry" && !enq.frameName.toLowerCase().includes("shoot") ? `Frame: ${enq.frameName}` : enq.frameName) : "General Enquiry");
                   const budget = enq.budget || enq.price || 0;
                   const status = enq.status || "New";
 
@@ -205,7 +236,19 @@ export default function EnquiriesView({
                       <td className="py-4 px-6 font-semibold text-slate-900">
                         <div className="flex flex-col">
                           <span className="text-sm font-bold text-slate-900">{name}</span>
-                          <span className="text-[10px] font-mono text-slate-400">{enq.id}</span>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className="text-[10px] font-mono text-slate-400">{enq.id}</span>
+                            {enq.source && (
+                              <span className="text-[9px] px-1.5 py-0.2 rounded font-mono bg-slate-100 text-slate-600 border border-slate-200">
+                                {enq.source}
+                              </span>
+                            )}
+                          </div>
+                          {(enq.message || enq.details) && (
+                            <span className="text-[11px] text-slate-500 line-clamp-1 italic mt-1" title={enq.message || enq.details}>
+                              "{enq.message || enq.details}"
+                            </span>
+                          )}
                         </div>
                       </td>
 
@@ -218,6 +261,11 @@ export default function EnquiriesView({
                           <span className="flex items-center gap-1.5 text-slate-500 font-mono text-[11px]">
                             <Phone size={12} className="text-slate-400" /> {phone}
                           </span>
+                          {(enq.date || enq.eventDate) && (
+                            <span className="flex items-center gap-1.5 text-slate-400 font-mono text-[10px] mt-0.5">
+                              <Calendar size={11} /> {enq.date || enq.eventDate}
+                            </span>
+                          )}
                         </div>
                       </td>
 
@@ -436,12 +484,18 @@ export default function EnquiriesView({
                   <span className="text-[10px] uppercase font-bold text-slate-400">Budget:</span>
                   <p className="font-bold text-[#b08d4b]">₹{(activeEnquiry.budget || activeEnquiry.price || 0).toLocaleString()}</p>
                 </div>
+                {(activeEnquiry.date || activeEnquiry.eventDate) && (
+                  <div className="col-span-2">
+                    <span className="text-[10px] uppercase font-bold text-slate-400">Preferred Event Date:</span>
+                    <p className="font-semibold text-slate-800 font-mono">{activeEnquiry.date || activeEnquiry.eventDate}</p>
+                  </div>
+                )}
               </div>
 
-              {activeEnquiry.message && (
+              {(activeEnquiry.message || activeEnquiry.details) && (
                 <div className="bg-amber-50/60 border border-amber-200/60 p-3 rounded-xl">
-                  <span className="text-[10px] font-bold uppercase text-amber-800">Message from Client:</span>
-                  <p className="mt-1 text-slate-700 leading-relaxed">{activeEnquiry.message}</p>
+                  <span className="text-[10px] font-bold uppercase text-amber-800">Message / Request from Client:</span>
+                  <p className="mt-1 text-slate-700 leading-relaxed">{activeEnquiry.message || activeEnquiry.details}</p>
                 </div>
               )}
 

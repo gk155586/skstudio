@@ -89,8 +89,40 @@ export async function GET() {
     enquiries = Array.isArray(enquiries) ? enquiries.filter((e: any) => !e.isDeleted) : [];
     messages = Array.isArray(messages) ? messages.filter((m: any) => !m.isDeleted) : [];
 
-    // Sort bookings by creation date descending
+    // Ensure all session bookings are also represented in enquiries pipeline
+    const existingEnquiryBookingIds = new Set(
+      enquiries.map((e: any) => e.bookingId || e.id).filter(Boolean)
+    );
+
+    bookings.forEach((b: any) => {
+      if (b && b.id && !existingEnquiryBookingIds.has(b.id)) {
+        enquiries.push({
+          id: `enq-${b.id}`,
+          bookingId: b.id,
+          name: b.name || "Client",
+          customerName: b.name || "Client",
+          email: b.email || "",
+          customerEmail: b.email || "",
+          phone: b.phone || "",
+          customerPhone: b.phone || "",
+          service: b.service || "Photoshoot Session",
+          frameName: b.service || "Photoshoot Session",
+          budget: b.price || 0,
+          price: b.price || 0,
+          date: b.date || "",
+          eventDate: b.date || "",
+          message: b.message || "",
+          details: b.message || `Session booked for ${b.date || "scheduled date"}`,
+          status: b.status === "confirmed" || b.status === "completed" ? "Converted" : (b.status === "cancelled" ? "Lost" : "New"),
+          source: "Book a Session",
+          createdAt: b.createdAt || new Date().toISOString()
+        });
+      }
+    });
+
+    // Sort bookings and enquiries by creation date descending (newest first)
     bookings.sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+    enquiries.sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
     
     // Sort audit logs by timestamp descending (newest first)
     if (Array.isArray(auditLogs)) {

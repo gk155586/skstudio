@@ -17,9 +17,74 @@ import EnquiriesView from "@/components/admin/EnquiriesView";
 import PaymentsView from "@/components/admin/PaymentsView";
 import UsersView from "@/components/admin/UsersView";
 
+const VALID_ADMIN_TABS = ["dashboard", "users", "bookings", "enquiries", "messaging", "payments"];
+
 export default function AdminPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<string>("dashboard");
+
+  // Helper to read initial tab from URL or localStorage
+  const getInitialTab = (): string => {
+    if (typeof window === "undefined") return "dashboard";
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tabParam = urlParams.get("tab") || window.location.hash.replace("#", "");
+      if (tabParam && VALID_ADMIN_TABS.includes(tabParam)) {
+        return tabParam;
+      }
+      const savedTab = window.localStorage.getItem("sk_admin_active_tab");
+      if (savedTab && VALID_ADMIN_TABS.includes(savedTab)) {
+        return savedTab;
+      }
+    } catch (e) {}
+    return "dashboard";
+  };
+
+  const [activeTab, setActiveTabState] = useState<string>("dashboard");
+
+  // Persistent tab switcher
+  const setActiveTab = (tab: string) => {
+    if (!VALID_ADMIN_TABS.includes(tab)) return;
+    setActiveTabState(tab);
+    if (typeof window !== "undefined") {
+      try {
+        window.localStorage.setItem("sk_admin_active_tab", tab);
+        const url = new URL(window.location.href);
+        url.searchParams.set("tab", tab);
+        window.history.replaceState({ tab }, "", url.toString());
+      } catch (e) {}
+    }
+  };
+
+  // Synchronize on mount and handle browser back/forward buttons
+  useEffect(() => {
+    const initial = getInitialTab();
+    if (initial) {
+      setActiveTabState(initial);
+      if (typeof window !== "undefined") {
+        try {
+          const url = new URL(window.location.href);
+          if (url.searchParams.get("tab") !== initial) {
+            url.searchParams.set("tab", initial);
+            window.history.replaceState({ tab: initial }, "", url.toString());
+          }
+        } catch (e) {}
+      }
+    }
+
+    const handlePopState = (e: PopStateEvent) => {
+      const tabFromState = e.state?.tab;
+      const urlParams = new URLSearchParams(window.location.search);
+      const tabFromUrl = urlParams.get("tab") || window.location.hash.replace("#", "");
+      const targetTab = tabFromState || tabFromUrl || "dashboard";
+      if (VALID_ADMIN_TABS.includes(targetTab)) {
+        setActiveTabState(targetTab);
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
   const [isDark, setIsDark] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [dataLoading, setDataLoading] = useState<boolean>(false);
@@ -118,60 +183,144 @@ export default function AdminPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 1. Establish SSE Client connection + Hybrid 4-second Polling for 100% Real-Time Delivery
+  // 1. Establish SSE Client connection + Hybrid 5-second Polling for 100% Real-Time Delivery
   useEffect(() => {
     if (!isAuthenticated) return;
     
-    // Polling fallback every 8 seconds (non-blocking background sync)
+    // Polling fallback every 5 seconds (non-blocking background sync)
     const pollTimer = setInterval(() => {
       fetchDashboardData(true);
-    }, 8000);
+    }, 5000);
 
-    // Create EventSource listener for instant push events
-    const eventSource = new EventSource("/api/admin/events");
-    
-    eventSource.addEventListener("data_changed", (e: any) => {
+    let eventSource: EventSource | null = null;
+    let reconnectTimeout: NodeJS.Timeout | null = null;
+
+    const handlePayload = (payload: any) => {
+      if (!payload) return;
+      console.log("[SSE Broadcast] Real-time event received:", payload);
+
+      // Play audio alert
+      playNotificationBeep();
+
+      // Check if message received from client
+      if (payload.type === "message_received" && payload.data) {
+        const msg = payload.data;
+        if (msg.sender === "user") {
+          setNewMessagePopup({
+            id: msg.id,
+            senderName: msg.senderName || msg.senderEmail || "Client",
+            senderEmail: msg.senderEmail || msg.recipientEmail,
+            body: msg.body,
+            timestamp: msg.timestamp || new Date().toISOString()
+          });
+        }
+        setToastAlert(`📩 New Message from ${msg.senderName || "Client"}`);
+      } else if (payload.type === "booking_created" && payload.data) {
+        const bk = payload.data;
+        // Optimistically prepend to bookings
+        setBookings(prev => [bk, ...prev.filter(b => b.id !== bk.id)]);
+
+        // ALSO optimistically prepend to enquiries so Enquiries view displays it immediately
+        const bookingAsEnquiry = {
+          id: bk.id ? (bk.id.startsWith("enq-") ? bk.id : `enq-${bk.id}`) : `enq-${Date.now()}`,
+          bookingId: bk.id,
+          name: bk.name || "Client",
+          customerName: bk.name || "Client",
+          email: bk.email || "",
+          customerEmail: bk.email || "",
+          phone: bk.phone || "",
+          customerPhone: bk.phone || "",
+          service: bk.service || "Photoshoot Session",
+          frameName: bk.service || "Photoshoot Session",
+          budget: bk.price || 0,
+          price: bk.price || 0,
+          date: bk.date || "",
+          eventDate: bk.date || "",
+          message: bk.message || "",
+          details: bk.message || `Session booked for ${bk.date || "scheduled date"}`,
+          source: "Book a Session",
+          status: bk.status === "confirmed" ? "Converted" : "New",
+          createdAt: bk.createdAt || new Date().toISOString()
+        };
+        setEnquiries(prev => [bookingAsEnquiry, ...prev.filter(e => e.id !== bookingAsEnquiry.id && e.bookingId !== bk.id)]);
+        setToastAlert(`📅 New Booking Enquiry from ${bk.name || "Client"} (${bk.service || "Shoot"})`);
+      } else if (payload.type === "enquiry_received" && payload.data) {
+        const enq = payload.data;
+        // Optimistically prepend to enquiries
+        setEnquiries(prev => [enq, ...prev.filter(e => e.id !== enq.id)]);
+        setToastAlert(`📋 New Enquiry from ${enq.name || enq.customerName || "Client"} (${enq.service || enq.frameName || "Shoot"})`);
+      } else if (payload.type === "update_enquiry" && payload.data) {
+        setEnquiries(prev => prev.map(e => e.id === payload.data.id ? { ...e, ...payload.data } : e));
+      } else if (payload.type === "convert_enquiry" && payload.data) {
+        const targetBk = payload.data;
+        setBookings(prev => [targetBk, ...prev.filter(b => b.id !== targetBk.id)]);
+        setEnquiries(prev => prev.map(e => (e.id === targetBk.enquiryId || e.bookingId === targetBk.id) ? { ...e, status: "Converted" } : e));
+      } else if (payload.type === "new_user") {
+        setToastAlert(`👤 New User Registered: ${payload.data?.name || "Client"}`);
+      }
+
+      // Auto dismiss toast after 6 seconds
+      setTimeout(() => setToastAlert(null), 6000);
+
+      // Refresh telemetry data in background
+      fetchDashboardData(true);
+    };
+
+    const connectSSE = () => {
       try {
-        const payload = JSON.parse(e.data);
-        console.log("[SSE Broadcast] Real-time event received:", payload);
-
-        // Play audio alert
-        playNotificationBeep();
-
-        // Check if message received from client
-        if (payload.type === "message_received" && payload.data) {
-          const msg = payload.data;
-          if (msg.sender === "user") {
-            setNewMessagePopup({
-              id: msg.id,
-              senderName: msg.senderName || msg.senderEmail || "Client",
-              senderEmail: msg.senderEmail || msg.recipientEmail,
-              body: msg.body,
-              timestamp: msg.timestamp || new Date().toISOString()
-            });
-          }
-          setToastAlert(`📩 New Message from ${msg.senderName || "Client"}`);
-        } else if (payload.type === "booking_created") {
-          setToastAlert(`📅 New Booking from ${payload.data?.name || "Client"}`);
-        } else if (payload.type === "enquiry_received") {
-          setToastAlert(`🖼️ New Enquiry from ${payload.data?.customerName || "Client"}`);
-        } else if (payload.type === "new_user") {
-          setToastAlert(`👤 New User Registered: ${payload.data?.name || "Client"}`);
+        if (eventSource) {
+          eventSource.close();
         }
 
-        // Auto dismiss toast after 5 seconds
-        setTimeout(() => setToastAlert(null), 5000);
+        eventSource = new EventSource("/api/admin/events");
 
-        // Refresh telemetry data immediately
-        fetchDashboardData();
+        eventSource.addEventListener("data_changed", (e: any) => {
+          try {
+            const payload = JSON.parse(e.data);
+            handlePayload(payload);
+          } catch (err) {
+            console.error("[SSE Broadcast] Failed to parse data_changed payload:", err);
+          }
+        });
+
+        eventSource.addEventListener("enquiry_received", (e: any) => {
+          try {
+            const data = JSON.parse(e.data);
+            handlePayload({ type: "enquiry_received", data });
+          } catch (err) {}
+        });
+
+        eventSource.addEventListener("booking_created", (e: any) => {
+          try {
+            const data = JSON.parse(e.data);
+            handlePayload({ type: "booking_created", data });
+          } catch (err) {}
+        });
+
+        eventSource.onerror = () => {
+          console.warn("[SSE Client] Stream disconnected or error occurred. Retrying in 4s...");
+          if (eventSource) {
+            eventSource.close();
+            eventSource = null;
+          }
+          if (!reconnectTimeout) {
+            reconnectTimeout = setTimeout(() => {
+              reconnectTimeout = null;
+              connectSSE();
+            }, 4000);
+          }
+        };
       } catch (err) {
-        console.error("[SSE Broadcast] Failed to parse payload:", err);
+        console.error("[SSE Client] Setup error:", err);
       }
-    });
+    };
+
+    connectSSE();
 
     return () => {
       clearInterval(pollTimer);
-      eventSource.close();
+      if (reconnectTimeout) clearTimeout(reconnectTimeout);
+      if (eventSource) eventSource.close();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);

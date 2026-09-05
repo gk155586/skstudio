@@ -9,16 +9,41 @@ export const dynamic = "force-dynamic";
 const ENQUIRIES_FILE = path.join(process.cwd(), "data", "enquiries.json");
 
 // Helper to load enquiries
-function loadEnquiries() {
-  if (fs.existsSync(ENQUIRIES_FILE)) {
-    try {
-      const content = fs.readFileSync(ENQUIRIES_FILE, "utf8");
-      return JSON.parse(content || "[]");
-    } catch (err) {
-      console.error("Error reading enquiries file:", err);
+function loadEnquiries(): any[] {
+  const enquiries: any[] = atomicDb.readJson("enquiries.json", []);
+  const bookings: any[] = atomicDb.readJson("bookings.json", []);
+
+  const existingBookingIds = new Set(
+    enquiries.map((e: any) => e.bookingId || e.id).filter(Boolean)
+  );
+
+  bookings.forEach((b: any) => {
+    if (b && b.id && !existingBookingIds.has(b.id)) {
+      enquiries.push({
+        id: `enq-${b.id}`,
+        bookingId: b.id,
+        name: b.name || "Client",
+        customerName: b.name || "Client",
+        email: b.email || "",
+        customerEmail: b.email || "",
+        phone: b.phone || "",
+        customerPhone: b.phone || "",
+        service: b.service || "Photoshoot Session",
+        frameName: b.service || "Photoshoot Session",
+        budget: b.price || 0,
+        price: b.price || 0,
+        date: b.date || "",
+        eventDate: b.date || "",
+        message: b.message || "",
+        details: b.message || `Session booked for ${b.date || "scheduled date"}`,
+        status: b.status === "confirmed" || b.status === "completed" ? "Converted" : (b.status === "cancelled" ? "Lost" : "New"),
+        source: "Book a Session",
+        createdAt: b.createdAt || new Date().toISOString()
+      });
     }
-  }
-  return [];
+  });
+
+  return enquiries;
 }
 
 export async function GET() {
@@ -35,13 +60,17 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const customerName = body.customerName || body.name || "Guest Visitor";
-    const customerPhone = body.customerPhone || body.phone || "N/A";
-    const customerEmail = body.customerEmail || body.email || `${customerPhone.replace(/\D/g, "") || Date.now()}@inquiry.skstudio.store`;
+    const customerName = (body.customerName || body.name || "Guest Visitor").trim();
+    const customerPhone = (body.customerPhone || body.phone || "N/A").trim();
+    const customerEmail = (body.customerEmail || body.email || `${customerPhone.replace(/\D/g, "") || Date.now()}@inquiry.skstudio.store`).trim();
     const frameId = body.frameId || "contact_inquiry";
-    const frameCode = body.frameCode || body.eventType || "General Enquiry";
-    const frameName = body.frameName || body.eventType || "Photoshoot Inquiry";
-    const details = body.details || body.message || `Event Date: ${body.eventDate || "N/A"}`;
+    const serviceName = body.service || body.eventType || body.frameName || body.frameCode || "General Enquiry";
+    const frameCode = body.frameCode || body.eventType || serviceName;
+    const frameName = body.frameName || serviceName;
+    const dateVal = body.eventDate || body.date || "";
+    const messageVal = body.message || body.details || "";
+    const details = messageVal || (dateVal ? `Preferred Date: ${dateVal}` : "Inquiry submitted");
+    const budgetVal = Number(body.budget || body.price) || 0;
 
     if (!customerName || !customerPhone) {
       return NextResponse.json({ success: false, message: "Customer name and phone number are required" }, { status: 400 });
@@ -51,22 +80,33 @@ export async function POST(req: NextRequest) {
 
     const newEnquiry = {
       id: "enq-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7),
-      frameId,
-      frameCode,
-      frameName,
+      name: customerName,
       customerName,
+      email: customerEmail,
       customerEmail,
+      phone: customerPhone,
       customerPhone,
+      service: serviceName,
+      frameName,
+      frameCode,
+      frameId,
+      budget: budgetVal,
+      price: budgetVal,
+      date: dateVal,
+      eventDate: dateVal,
+      message: messageVal,
       details,
-      createdAt: new Date().toISOString(),
-      status: "New"
+      source: frameId === "contact_inquiry" ? "Contact Page" : (body.frameId ? "Photo Frames" : "Direct Enquiry"),
+      status: "New",
+      createdAt: new Date().toISOString()
     };
 
-    enquiries.push(newEnquiry);
+    enquiries.unshift(newEnquiry);
     await atomicDb.writeJson("enquiries.json", enquiries);
 
-    // Broadcast SSE update event (tells the admin dashboard to refresh enquiries list)
+    // Broadcast SSE update events (instant notification for admin dashboard)
     sseHub.broadcast("data_changed", { type: "enquiry_received", data: newEnquiry });
+    sseHub.broadcast("enquiry_received", newEnquiry);
 
     return NextResponse.json({ success: true, message: "Enquiry submitted successfully", enquiry: newEnquiry });
 

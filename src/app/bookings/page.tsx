@@ -24,14 +24,71 @@ interface BookingSummary {
 }
 
 type TabKey = "bookings" | "messages" | "profile";
+const VALID_USER_TABS: TabKey[] = ["bookings", "messages", "profile"];
 
 export default function BookingsPage() {
   const router = useRouter();
+
+  const getInitialUserTab = (): TabKey => {
+    if (typeof window === "undefined") return "bookings";
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tabParam = (urlParams.get("tab") || window.location.hash.replace("#", "")) as TabKey;
+      if (tabParam && VALID_USER_TABS.includes(tabParam)) return tabParam;
+      const savedTab = window.localStorage.getItem("sk_user_active_tab") as TabKey;
+      if (savedTab && VALID_USER_TABS.includes(savedTab)) return savedTab;
+    } catch (e) {}
+    return "bookings";
+  };
+
+  const [activeTab, setActiveTabState] = useState<TabKey>("bookings");
+
+  const setActiveTab = (tab: TabKey) => {
+    if (!VALID_USER_TABS.includes(tab)) return;
+    setActiveTabState(tab);
+    if (typeof window !== "undefined") {
+      try {
+        window.localStorage.setItem("sk_user_active_tab", tab);
+        const url = new URL(window.location.href);
+        url.searchParams.set("tab", tab);
+        window.history.replaceState({ tab }, "", url.toString());
+      } catch (e) {}
+    }
+  };
+
+  useEffect(() => {
+    const initial = getInitialUserTab();
+    if (initial) {
+      setActiveTabState(initial);
+      if (typeof window !== "undefined") {
+        try {
+          const url = new URL(window.location.href);
+          if (url.searchParams.get("tab") !== initial) {
+            url.searchParams.set("tab", initial);
+            window.history.replaceState({ tab: initial }, "", url.toString());
+          }
+        } catch (e) {}
+      }
+    }
+
+    const handlePopState = (e: PopStateEvent) => {
+      const tabFromState = e.state?.tab;
+      const urlParams = new URLSearchParams(window.location.search);
+      const tabFromUrl = (urlParams.get("tab") || window.location.hash.replace("#", "")) as TabKey;
+      const targetTab = tabFromState || tabFromUrl || "bookings";
+      if (VALID_USER_TABS.includes(targetTab)) {
+        setActiveTabState(targetTab);
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
   const [session, setSession] = useState<any | null>(null);
   const [bookings, setBookings] = useState<BookingSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState<TabKey>("bookings");
 
   // Messaging & Notification state
   const [unreadCount, setUnreadCount] = useState<number>(0);

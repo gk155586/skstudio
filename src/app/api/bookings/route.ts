@@ -152,12 +152,42 @@ export async function POST(request: Request) {
     // Save bookings
     await atomicDb.writeJson("bookings.json", bookings);
 
-    // Broadcast SSE to update admin dashboard in real-time
+    // Also record lead enquiry in enquiries.json so it appears in Admin Enquiries pipeline
+    const enquiries = getEnquiries();
+    const newEnquiry = {
+      id: "enq-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7),
+      bookingId: booking.id,
+      name: booking.name,
+      customerName: booking.name,
+      email: booking.email,
+      customerEmail: booking.email,
+      phone: booking.phone,
+      customerPhone: booking.phone,
+      service: booking.service,
+      frameName: booking.service,
+      budget: priceVal,
+      price: priceVal,
+      date: booking.date,
+      eventDate: booking.date,
+      message: booking.message || "",
+      details: booking.message ? `${booking.message} (Preferred Date: ${booking.date})` : `Preferred Date: ${booking.date}`,
+      source: "Book a Session",
+      status: "New",
+      createdAt: booking.createdAt,
+    };
+    enquiries.unshift(newEnquiry);
+    await atomicDb.writeJson("enquiries.json", enquiries);
+
+    // Broadcast SSE to update admin dashboard in real-time across both views
     sseHub.broadcast("data_changed", { type: "booking_created", data: booking });
+    sseHub.broadcast("data_changed", { type: "enquiry_received", data: newEnquiry });
+    sseHub.broadcast("booking_created", booking);
+    sseHub.broadcast("enquiry_received", newEnquiry);
 
     return NextResponse.json({
       success: true,
       booking,
+      enquiry: newEnquiry,
       message: "Booking created successfully",
     });
   } catch (error: unknown) {
