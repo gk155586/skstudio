@@ -27,10 +27,10 @@ const teko = Teko({
 export const metadata: Metadata = {
   metadataBase: new URL("https://skstudio.store"),
   title: {
-    default: "SK Studio Pune | Best Photo Studio Near Me | #1 Premium Photography",
+    default: "SK Photo Studio | Professional Photography Studio in Pune",
     template: "%s | SK Photo Studio Pune"
   },
-  description: "Best Photo Studio near me in Pune. SK Photo Studio Pune specializes in cinematic wedding photography, maternity portraits (indoor & outdoor), newborn & baby shoots, and luxury handcrafted photo frames.",
+  description: "SK Photo Studio is Pune's premier professional photography studio specializing in cinematic wedding photography, maternity portraits (indoor & outdoor), newborn & baby shoots, and luxury handcrafted photo frames.",
   keywords: [
     "best photo studio",
     "photo studio near me",
@@ -65,8 +65,8 @@ export const metadata: Metadata = {
     shortcut: "/icon.png",
   },
   openGraph: {
-    title: "SK Studio Pune | Best Photo Studio Near Me | #1 Premium Photography",
-    description: "Best photo studio near me in Pune. Premium photography for weddings, maternity, baby shoots, and custom frames.",
+    title: "SK Photo Studio | Professional Photography Studio in Pune",
+    description: "Best photo studio near me in Pune. Premium professional photography for weddings, maternity, baby shoots, and custom frames.",
     type: "website",
     url: "https://skstudio.store",
     siteName: "SK Photo Studio Pune",
@@ -75,7 +75,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "SK Studio Pune | Best Photo Studio Near Me",
+    title: "SK Photo Studio | Professional Photography Studio in Pune",
     description: "Best photo studio near me in Pune for weddings, maternity, and baby shoots.",
     images: ["/icon.png"],
   },

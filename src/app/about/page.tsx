@@ -7,8 +7,8 @@ import Link from "next/link";
 import { Camera, Heart, Award, Sparkles, ShieldCheck, Clock, Users, ArrowRight, CheckCircle2 } from "lucide-react";
 
 export const metadata = {
-  title: "About Us | SK Photo Studio Pune",
-  description: "Learn about SK Photo Studio Pune - Pune's premier photography studio specializing in cinematic weddings, maternity, baby, and luxury portraiture.",
+  title: "About Us",
+  description: "Learn about SK Photo Studio Pune - Pune's premier professional photography studio specializing in cinematic weddings, maternity, baby, and luxury portraiture.",
 };
 
 export default function AboutPage() {
