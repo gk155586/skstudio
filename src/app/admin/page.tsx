@@ -39,7 +39,7 @@ export default function AdminPage() {
     return "dashboard";
   };
 
-  const [activeTab, setActiveTabState] = useState<string>("dashboard");
+  const [activeTab, setActiveTabState] = useState<string>(getInitialTab);
 
   // Persistent tab switcher
   const setActiveTab = (tab: string) => {
@@ -50,7 +50,7 @@ export default function AdminPage() {
         window.localStorage.setItem("sk_admin_active_tab", tab);
         const url = new URL(window.location.href);
         url.searchParams.set("tab", tab);
-        window.history.replaceState({ tab }, "", url.toString());
+        window.history.pushState({ tab }, "", url.toString());
       } catch (e) {}
     }
   };

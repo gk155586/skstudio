@@ -10,15 +10,24 @@ const ENQUIRIES_FILE = path.join(process.cwd(), "data", "enquiries.json");
 
 // Helper to load enquiries
 function loadEnquiries(): any[] {
-  const enquiries: any[] = atomicDb.readJson("enquiries.json", []);
-  const bookings: any[] = atomicDb.readJson("bookings.json", []);
+  let enquiries: any[] = atomicDb.readJson("enquiries.json", []);
+  let bookings: any[] = atomicDb.readJson("bookings.json", []);
 
-  const existingBookingIds = new Set(
-    enquiries.map((e: any) => e.bookingId || e.id).filter(Boolean)
-  );
+  enquiries = Array.isArray(enquiries) ? enquiries.filter((e: any) => !e.isDeleted) : [];
+  bookings = Array.isArray(bookings) ? bookings.filter((b: any) => !b.isDeleted) : [];
+
+  const existingBookingIds = new Set();
+  enquiries.forEach((e: any) => {
+    if (e.bookingId) existingBookingIds.add(e.bookingId);
+    if (e.id) {
+      existingBookingIds.add(e.id);
+      existingBookingIds.add(String(e.id).replace(/^enq-/, ""));
+    }
+    if (e.convertedBookingId) existingBookingIds.add(e.convertedBookingId);
+  });
 
   bookings.forEach((b: any) => {
-    if (b && b.id && !existingBookingIds.has(b.id)) {
+    if (b && b.id && !existingBookingIds.has(b.id) && !existingBookingIds.has(`enq-${b.id}`)) {
       enquiries.push({
         id: `enq-${b.id}`,
         bookingId: b.id,

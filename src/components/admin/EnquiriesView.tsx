@@ -27,8 +27,6 @@ export default function EnquiriesView({
       const param = urlParams.get("status");
       const valid = ["all", "New", "Contacted", "Converted", "Lost"];
       if (param && valid.includes(param)) return param;
-      const saved = window.localStorage.getItem("sk_enquiries_status_filter");
-      if (saved && valid.includes(saved)) return saved;
     } catch (e) {}
     return "all";
   };
@@ -39,7 +37,6 @@ export default function EnquiriesView({
     setStatusFilterState(st);
     if (typeof window !== "undefined") {
       try {
-        window.localStorage.setItem("sk_enquiries_status_filter", st);
         const url = new URL(window.location.href);
         if (st === "all") {
           url.searchParams.delete("status");

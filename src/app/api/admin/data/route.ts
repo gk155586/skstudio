@@ -90,12 +90,18 @@ export async function GET() {
     messages = Array.isArray(messages) ? messages.filter((m: any) => !m.isDeleted) : [];
 
     // Ensure all session bookings are also represented in enquiries pipeline
-    const existingEnquiryBookingIds = new Set(
-      enquiries.map((e: any) => e.bookingId || e.id).filter(Boolean)
-    );
+    const existingEnquiryBookingIds = new Set();
+    enquiries.forEach((e: any) => {
+      if (e.bookingId) existingEnquiryBookingIds.add(e.bookingId);
+      if (e.id) {
+        existingEnquiryBookingIds.add(e.id);
+        existingEnquiryBookingIds.add(String(e.id).replace(/^enq-/, ""));
+      }
+      if (e.convertedBookingId) existingEnquiryBookingIds.add(e.convertedBookingId);
+    });
 
     bookings.forEach((b: any) => {
-      if (b && b.id && !existingEnquiryBookingIds.has(b.id)) {
+      if (b && b.id && !existingEnquiryBookingIds.has(b.id) && !existingEnquiryBookingIds.has(`enq-${b.id}`)) {
         enquiries.push({
           id: `enq-${b.id}`,
           bookingId: b.id,
