@@ -49,8 +49,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [theme, setTheme] = useState<Theme>("light");
   const [content, setContent] = useState<any>(null);
-  const [contentLoading, setContentLoading] = useState(true);
-  const [loaderActive, setLoaderActive] = useState(true);
+  const [contentLoading, setContentLoading] = useState(false);
+  const [loaderActive, setLoaderActive] = useState(false);
 
   // Visual editor inline state
   const [isVisualEditor, setIsVisualEditor] = useState(false);
@@ -520,17 +520,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   };
 
   const playLoader = () => {
-    setLoaderActive(true);
-    setTimeout(() => {
-      setLoaderActive(false);
-    }, 1300);
+    // Instantaneous transition
   };
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoaderActive(false);
-    }, 1300);
-    return () => clearTimeout(timer);
+    setLoaderActive(false);
   }, []);
 
   useEffect(() => {

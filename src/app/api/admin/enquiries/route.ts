@@ -60,19 +60,21 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const customerName = (body.customerName || body.name || "Guest Visitor").trim();
-    const customerPhone = (body.customerPhone || body.phone || "N/A").trim();
+    const isWhatsApp = body.source?.toLowerCase().includes("whatsapp") || body.service?.toLowerCase().includes("whatsapp");
+    const customerName = (body.customerName || body.name || (isWhatsApp ? "WhatsApp Visitor" : "Guest Visitor")).trim();
+    const customerPhone = (body.customerPhone || body.phone || (isWhatsApp ? "+91 9307112119 (WhatsApp Click)" : "N/A")).trim();
     const customerEmail = (body.customerEmail || body.email || `${customerPhone.replace(/\D/g, "") || Date.now()}@inquiry.skstudio.store`).trim();
-    const frameId = body.frameId || "contact_inquiry";
-    const serviceName = body.service || body.eventType || body.frameName || body.frameCode || "General Enquiry";
+    const frameId = body.frameId || (isWhatsApp ? "whatsapp_click" : "contact_inquiry");
+    const serviceName = body.service || body.eventType || body.frameName || body.frameCode || (isWhatsApp ? "WhatsApp Direct Chat" : "General Enquiry");
     const frameCode = body.frameCode || body.eventType || serviceName;
     const frameName = body.frameName || serviceName;
     const dateVal = body.eventDate || body.date || "";
-    const messageVal = body.message || body.details || "";
+    const messageVal = body.message || body.details || (isWhatsApp ? "Visitor initiated WhatsApp conversation" : "");
     const details = messageVal || (dateVal ? `Preferred Date: ${dateVal}` : "Inquiry submitted");
     const budgetVal = Number(body.budget || body.price) || 0;
+    const sourceVal = body.source || (frameId === "contact_inquiry" ? "Contact Page" : (body.frameId ? "Photo Frames" : "Direct Enquiry"));
 
-    if (!customerName || !customerPhone) {
+    if (!isWhatsApp && (!body.customerName && !body.name) && (!body.customerPhone && !body.phone)) {
       return NextResponse.json({ success: false, message: "Customer name and phone number are required" }, { status: 400 });
     }
 
@@ -96,7 +98,7 @@ export async function POST(req: NextRequest) {
       eventDate: dateVal,
       message: messageVal,
       details,
-      source: frameId === "contact_inquiry" ? "Contact Page" : (body.frameId ? "Photo Frames" : "Direct Enquiry"),
+      source: sourceVal,
       status: "New",
       createdAt: new Date().toISOString()
     };

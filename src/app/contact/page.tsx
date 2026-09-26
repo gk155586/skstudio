@@ -94,6 +94,21 @@ export default function DedicatedContactPage() {
                         href="https://wa.me/919307112119"
                         target="_blank"
                         rel="noreferrer"
+                        onClick={() => {
+                          try {
+                            fetch("/api/admin/enquiries", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                name: "WhatsApp Visitor",
+                                phone: "+91 9307112119 (WhatsApp)",
+                                source: "Contact Page WhatsApp",
+                                service: "WhatsApp Consultation",
+                                message: "Visitor clicked WhatsApp link on Contact Page"
+                              })
+                            }).catch(() => {});
+                          } catch {}
+                        }}
                         className="inline-block text-xs text-emerald-400 font-semibold underline mt-1 hover:opacity-80"
                       >
                         Chat Instantly on WhatsApp &rarr;

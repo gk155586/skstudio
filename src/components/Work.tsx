@@ -141,7 +141,7 @@ export default function Work() {
                     src={item.image}
                     alt={item.title}
                     fill
-                    loading="eager"
+                    loading={idx < 2 ? "eager" : "lazy"}
                     decoding="async"
                     className="object-cover object-center transition-transform duration-700 group-hover:scale-110"
                     sizes="(max-width: 768px) 45vw, 33vw"

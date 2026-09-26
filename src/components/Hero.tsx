@@ -28,6 +28,9 @@ export default function Hero() {
   };
 
   useEffect(() => {
+    // Only run expensive canvas loop on desktop screens to save mobile CPU & battery
+    if (typeof window === "undefined" || window.innerWidth < 768) return;
+
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -38,6 +41,7 @@ export default function Hero() {
     let height = (canvas.height = window.innerHeight);
 
     const handleResize = () => {
+      if (window.innerWidth < 768) return;
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
     };
@@ -106,7 +110,7 @@ export default function Hero() {
       id="home"
       className="relative w-full bg-[#0a0a0a] text-white overflow-hidden select-none"
     >
-      <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none z-0" />
+      <canvas ref={canvasRef} className="hidden md:block absolute inset-0 pointer-events-none z-0" />
 
       {/* ═══════════════════════════════════════════════════ */}
       {/* MOBILE VIEW — Image only, NO text, pushed below top bar */}
@@ -119,6 +123,7 @@ export default function Hero() {
             alt="SK Studio Pune Mobile Hero"
             className="w-full h-full object-cover object-center"
             loading="eager"
+            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none" />
 

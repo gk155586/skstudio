@@ -135,6 +135,21 @@ export default function Footer() {
                 href="https://wa.me/919307112119"
                 target="_blank"
                 rel="noreferrer"
+                onClick={() => {
+                  try {
+                    fetch("/api/admin/enquiries", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        name: "WhatsApp Visitor",
+                        phone: "+91 9307112119 (WhatsApp)",
+                        source: "Footer WhatsApp",
+                        service: "WhatsApp Consultation",
+                        message: "Visitor clicked WhatsApp link in Website Footer"
+                      })
+                    }).catch(() => {});
+                  } catch {}
+                }}
                 className="flex flex-col items-center gap-1 group cursor-pointer"
               >
                 <div className="w-10 h-10 rounded-xl bg-emerald-600/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 shadow-sm">

@@ -17,6 +17,22 @@ export default function FloatingChatWidget() {
   );
   const whatsappUrl = `https://wa.me/${whatsappPhone}?text=${defaultText}`;
 
+  const handleWhatsAppClick = () => {
+    try {
+      fetch("/api/admin/enquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: "WhatsApp Visitor",
+          phone: "+91 9307112119 (WhatsApp)",
+          source: "WhatsApp Floating Button",
+          service: "WhatsApp Consultation",
+          message: `Visitor initiated WhatsApp chat from page: ${pathname || "home"}`
+        })
+      }).catch(() => {});
+    } catch {}
+  };
+
   return (
     <>
       <style jsx global>{`
@@ -79,6 +95,7 @@ export default function FloatingChatWidget() {
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={handleWhatsAppClick}
         className="wa-floating-container"
         aria-label="Chat with SK Photo Studio Pune on WhatsApp"
       >

@@ -95,6 +95,28 @@ export async function POST(request: Request) {
           };
           success = await writeJsonFile("bookings.json", bookings);
           updatedPayload = bookings[idx];
+
+          // Synchronize linked enquiry in real-time
+          const enquiries = readJsonFile("enquiries.json", []);
+          let enqModified = false;
+          enquiries.forEach((e: any) => {
+            if (e.bookingId === data.id || e.id === data.id || e.id === `enq-${data.id}` || e.convertedBookingId === data.id) {
+              if (data.status) {
+                if (data.status === "confirmed" || data.status === "completed") {
+                  e.status = "Converted";
+                } else if (data.status === "cancelled") {
+                  e.status = "Lost";
+                }
+              }
+              if (data.price !== undefined) e.budget = price;
+              e.updatedAt = new Date().toISOString();
+              enqModified = true;
+            }
+          });
+          if (enqModified) {
+            await writeJsonFile("enquiries.json", enquiries);
+          }
+
           message = "Booking updated successfully";
           logAuditTrail(session.email, "UPDATE_BOOKING", { bookingId: data.id, fields: Object.keys(data) });
         } else {
@@ -153,6 +175,27 @@ export async function POST(request: Request) {
           };
           success = await writeJsonFile("enquiries.json", enquiries);
           updatedPayload = enquiries[idx];
+
+          // Synchronize linked booking in real-time
+          if (data.status) {
+            const bookings = readJsonFile("bookings.json", []);
+            let bookingModified = false;
+            bookings.forEach((b: any) => {
+              if (b.id === data.id || b.id === enquiries[idx].bookingId || b.id === enquiries[idx].convertedBookingId || `enq-${b.id}` === data.id) {
+                if (data.status === "Converted") {
+                  b.status = "confirmed";
+                } else if (data.status === "Lost") {
+                  b.status = "cancelled";
+                }
+                b.updatedAt = new Date().toISOString();
+                bookingModified = true;
+              }
+            });
+            if (bookingModified) {
+              await writeJsonFile("bookings.json", bookings);
+            }
+          }
+
           message = "Enquiry updated successfully";
           logAuditTrail(session.email, "UPDATE_ENQUIRY", { enquiryId: data.id, status: data.status });
           sseHub.broadcast("data_changed", { type: "update_enquiry", data: updatedPayload });

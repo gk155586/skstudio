@@ -63,7 +63,7 @@ function GalleryImageCard({ idx, url, title, openLightbox, pad }: GalleryImageCa
       <img
         ref={imgRef}
         src={url}
-        loading="eager"
+        loading={idx < 4 ? "eager" : "lazy"}
         decoding="async"
         onLoad={() => setLoaded(true)}
         onError={() => setLoaded(true)}
@@ -139,7 +139,7 @@ function ShootAlbumCard({
                 alt={`${album.title} Slide ${i + 1}`}
                 className="w-full h-full object-cover object-center block"
                 style={{ imageOrientation: "from-image" }}
-                loading="eager"
+                loading={albumIdx < 2 && i === 0 ? "eager" : "lazy"}
                 decoding="async"
               />
             </div>
