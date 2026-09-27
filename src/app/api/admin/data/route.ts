@@ -155,6 +155,7 @@ export async function GET() {
     });
 
     const users = Array.from(deduplicatedMap.values());
+    users.sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
 
     // Extract settings from content.json
     const settings = {

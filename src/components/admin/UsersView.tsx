@@ -53,6 +53,29 @@ export default function UsersView({
     return date.toLocaleDateString("en-IN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
   };
 
+  // Helper to format exact date and time
+  const formatDateTime = (timestamp?: string | number) => {
+    if (!timestamp) return { date: "Not recorded", time: "" };
+    try {
+      const d = new Date(timestamp);
+      if (isNaN(d.getTime())) return { date: String(timestamp), time: "" };
+      const dateStr = d.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+      });
+      const timeStr = d.toLocaleTimeString("en-IN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true
+      });
+      return { date: dateStr, time: timeStr };
+    } catch {
+      return { date: String(timestamp), time: "" };
+    }
+  };
+
   const [localUsers, setLocalUsers] = useState<any[]>(userList);
 
   // Keep localUsers synced when props update
@@ -256,6 +279,7 @@ export default function UsersView({
               <tr className="border-b border-slate-200 text-slate-400 font-mono text-[10px] uppercase tracking-wider">
                 <th className="py-3 px-3">User Profile</th>
                 <th className="py-3 px-3">Contact Details</th>
+                <th className="py-3 px-3">Registered At</th>
                 <th className="py-3 px-3">Live Presence</th>
                 <th className="py-3 px-3">Role</th>
                 <th className="py-3 px-3">Account Status</th>
@@ -269,6 +293,7 @@ export default function UsersView({
                 const userBookings = bookings.filter(b => (b.email || "").toLowerCase() === userEmail);
                 const userMsgs = messages.filter(m => (m.senderEmail || m.recipientEmail || "").toLowerCase() === userEmail);
                 const onlineState = isUserOnline(u);
+                const reg = formatDateTime(u.createdAt);
 
                 return (
                   <tr key={u.id || idx} className="hover:bg-slate-50 transition-colors">
@@ -293,6 +318,21 @@ export default function UsersView({
                       <div className="flex flex-col gap-0.5 font-mono text-[11px]">
                         <span className="text-slate-800 font-semibold">{u.email}</span>
                         <span className="text-slate-500">{u.phone || u.mobile || "No phone listed"}</span>
+                      </div>
+                    </td>
+
+                    <td className="py-3.5 px-3 font-mono text-[11px] text-slate-700">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-bold flex items-center gap-1.5 text-slate-800">
+                          <Calendar size={12} className="text-[#b08d4b]" />
+                          {reg.date}
+                        </span>
+                        {reg.time && (
+                          <span className="text-[10px] text-slate-500 flex items-center gap-1.5">
+                            <Clock size={11} className="text-slate-400" />
+                            {reg.time}
+                          </span>
+                        )}
                       </div>
                     </td>
 
@@ -448,6 +488,15 @@ export default function UsersView({
               <div>
                 <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">Live Presence</span>
                 <span className="font-mono font-bold text-emerald-700">{formatLastSeen(selectedUserDetail)}</span>
+              </div>
+              <div className="col-span-2 md:col-span-3 pt-2 border-t border-slate-200">
+                <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">Registration Date & Time</span>
+                <span className="font-mono font-bold text-slate-900 flex items-center gap-2 mt-0.5">
+                  <Calendar size={13} className="text-[#b08d4b]" />
+                  {formatDateTime(selectedUserDetail.createdAt).date}
+                  <Clock size={13} className="text-slate-400 ml-2" />
+                  {formatDateTime(selectedUserDetail.createdAt).time}
+                </span>
               </div>
             </div>
 

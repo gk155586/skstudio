@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { 
-  Plus, Search, Phone, Mail, Calendar, DollarSign, CheckCircle2, 
+  Plus, Search, Phone, Mail, Calendar, Clock, DollarSign, CheckCircle2, 
   Trash2, ArrowRight, User, Filter, X, MessageSquare, ExternalLink
 } from "lucide-react";
 
@@ -19,6 +19,28 @@ export default function EnquiriesView({
   crew
 }: EnquiriesViewProps) {
   const [searchTerm, setSearchTerm] = useState<string>("");
+
+  const formatDateTime = (timestamp?: string | number) => {
+    if (!timestamp) return { date: "Not recorded", time: "" };
+    try {
+      const d = new Date(timestamp);
+      if (isNaN(d.getTime())) return { date: String(timestamp), time: "" };
+      const dateStr = d.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+      });
+      const timeStr = d.toLocaleTimeString("en-IN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true
+      });
+      return { date: dateStr, time: timeStr };
+    } catch {
+      return { date: String(timestamp), time: "" };
+    }
+  };
 
   const getInitialStatusFilter = (): string => {
     if (typeof window === "undefined") return "all";
@@ -205,6 +227,7 @@ export default function EnquiriesView({
               <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500 font-mono">
                 <th className="py-4 px-6">Client Name</th>
                 <th className="py-4 px-4">Contact Info</th>
+                <th className="py-4 px-4">Inquiry Date & Time</th>
                 <th className="py-4 px-4">Service</th>
                 <th className="py-4 px-4">Budget</th>
                 <th className="py-4 px-4">Status</th>
@@ -214,7 +237,7 @@ export default function EnquiriesView({
             <tbody className="divide-y divide-slate-100 text-xs text-slate-700 font-sans">
               {filteredEnquiries.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-12 text-slate-400 font-mono text-xs">
+                  <td colSpan={7} className="text-center py-12 text-slate-400 font-mono text-xs">
                     No enquiries found. Click "+ Add Lead" to create one.
                   </td>
                 </tr>
@@ -226,6 +249,7 @@ export default function EnquiriesView({
                   const service = enq.service || (enq.frameName ? (enq.frameId && enq.frameId !== "contact_inquiry" && !enq.frameName.toLowerCase().includes("shoot") ? `Frame: ${enq.frameName}` : enq.frameName) : "General Enquiry");
                   const budget = enq.budget || enq.price || 0;
                   const status = enq.status || "New";
+                  const enqDate = formatDateTime(enq.createdAt);
 
                   return (
                     <tr key={enq.id} className="hover:bg-slate-50/80 transition-colors">
@@ -258,9 +282,25 @@ export default function EnquiriesView({
                           <span className="flex items-center gap-1.5 text-slate-500 font-mono text-[11px]">
                             <Phone size={12} className="text-slate-400" /> {phone}
                           </span>
+                        </div>
+                      </td>
+
+                      {/* Inquiry Date & Time */}
+                      <td className="py-4 px-4 font-mono text-xs">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-bold flex items-center gap-1.5 text-slate-800">
+                            <Calendar size={12} className="text-[#b08d4b]" />
+                            {enqDate.date}
+                          </span>
+                          {enqDate.time && (
+                            <span className="text-[10px] text-slate-500 flex items-center gap-1.5">
+                              <Clock size={11} className="text-slate-400" />
+                              {enqDate.time}
+                            </span>
+                          )}
                           {(enq.date || enq.eventDate) && (
-                            <span className="flex items-center gap-1.5 text-slate-400 font-mono text-[10px] mt-0.5">
-                              <Calendar size={11} /> {enq.date || enq.eventDate}
+                            <span className="text-[9px] text-[#b08d4b] font-semibold mt-0.5">
+                              Shoot: {enq.date || enq.eventDate}
                             </span>
                           )}
                         </div>
@@ -480,6 +520,15 @@ export default function EnquiriesView({
                 <div>
                   <span className="text-[10px] uppercase font-bold text-slate-400">Budget:</span>
                   <p className="font-bold text-[#b08d4b]">₹{(activeEnquiry.budget || activeEnquiry.price || 0).toLocaleString()}</p>
+                </div>
+                <div className="col-span-2">
+                  <span className="text-[10px] uppercase font-bold text-slate-400">Inquiry Received Date & Time:</span>
+                  <p className="font-semibold text-slate-800 font-mono flex items-center gap-2 mt-0.5">
+                    <Calendar size={13} className="text-[#b08d4b]" />
+                    {formatDateTime(activeEnquiry.createdAt).date}
+                    <Clock size={13} className="text-slate-400 ml-2" />
+                    {formatDateTime(activeEnquiry.createdAt).time}
+                  </p>
                 </div>
                 {(activeEnquiry.date || activeEnquiry.eventDate) && (
                   <div className="col-span-2">
