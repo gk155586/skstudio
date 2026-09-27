@@ -8,6 +8,32 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+export async function generateStaticParams() {
+  return [
+    { slug: "wedding-segment" },
+    { slug: "wedding" },
+    { slug: "pre-wedding" },
+    { slug: "haldi" },
+    { slug: "maternity-indoor" },
+    { slug: "maternity-outdoor" },
+    { slug: "baby-indoor" },
+    { slug: "baby-outdoor" },
+    { slug: "newborn" },
+    { slug: "new-born" },
+    { slug: "theme" },
+    { slug: "themes" },
+    { slug: "eyara" },
+    { slug: "baby" },
+    { slug: "maternity" },
+    { slug: "family-photoshoot" },
+    { slug: "engagement-photoshoot" },
+    { slug: "toddler-photoshot" }
+  ];
+}
+
+export const dynamicParams = true;
+export const revalidate = 60;
+
 interface GalleryImage {
   id: string;
   url: string;

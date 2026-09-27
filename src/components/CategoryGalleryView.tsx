@@ -76,7 +76,7 @@ function GalleryImageCard({ idx, url, title, openLightbox, pad }: GalleryImageCa
   );
 }
 
-// Subfolder Shoot Session Card (60fps Right-to-Left Slide Carousel Engine with Progress Dots)
+// Subfolder Shoot Session Card (Instant 60fps Rendering & Uniform Grid Alignment)
 function ShootAlbumCard({
   album,
   albumIdx,
@@ -86,101 +86,44 @@ function ShootAlbumCard({
   albumIdx: number;
   openAlbumLightbox: (album: GalleryAlbum, initialIdx: number) => void;
 }) {
-  // Deduplicate images to guarantee no repeating slides
-  const images = useMemo(() => {
-    const raw = album.images && album.images.length > 0 ? album.images : [album.coverImage];
-    const unique = Array.from(new Set(raw.filter(Boolean)));
-    return unique.length > 0 ? unique : [album.coverImage];
-  }, [album.images, album.coverImage]);
-
-  const [activeIdx, setActiveIdx] = useState(0);
-  const activeIdxRef = useRef(0);
-  activeIdxRef.current = activeIdx;
-
-  // Auto-slide every 5 seconds using smooth translateX approach
-  useEffect(() => {
-    if (images.length <= 1) return;
-
-    const staggerDelay = (albumIdx % 4) * 1000;
-
-    const startTimer = setTimeout(() => {
-      const interval = setInterval(() => {
-        setActiveIdx(prev => (prev + 1) % images.length);
-      }, 5000);
-
-      return () => clearInterval(interval);
-    }, staggerDelay);
-
-    return () => clearTimeout(startTimer);
-  }, [images.length, albumIdx]);
+  const cover = album.coverImage || (album.images && album.images[0]) || "";
+  const photoCount = album.photoCount || (album.images ? album.images.length : 1);
 
   return (
     <div
-      className="relative flex flex-col rounded-2xl overflow-hidden bg-[var(--card-bg)] border border-[var(--card-border)] shadow-md group cursor-pointer transition-all duration-300 hover:shadow-xl hover:border-[var(--accent)] select-none"
-      onClick={() => openAlbumLightbox(album, activeIdx)}
+      className="relative flex flex-col rounded-2xl overflow-hidden bg-[var(--card-bg)] border border-[var(--card-border)] shadow-md group cursor-pointer active:scale-[0.98] transition-all duration-300 hover:shadow-xl hover:border-[var(--accent)] select-none"
+      onClick={() => openAlbumLightbox(album, 0)}
     >
-      {/* Top 4:3 Aspect Ratio Smooth Luxury Slider */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-black/20">
-        
-        {/* Absolute Slides with Smooth 1s GPU-Accelerated Crossfade */}
-        {images.map((imgUrl, i) => {
-          const isVisible = i === 0 || i === activeIdx;
-          if (!isVisible) return null;
-
-          return (
-            <div
-              key={i}
-              className={`absolute inset-0 w-full h-full transition-all duration-1000 ease-in-out ${
-                i === activeIdx ? "opacity-100 scale-100 z-10" : "opacity-0 scale-105 z-0 pointer-events-none"
-              }`}
-            >
-              <img
-                src={imgUrl}
-                alt={`${album.title} Slide ${i + 1}`}
-                className="w-full h-full object-cover object-center block"
-                style={{ imageOrientation: "from-image" }}
-                loading={albumIdx < 2 && i === 0 ? "eager" : "lazy"}
-                decoding="async"
-              />
-            </div>
-          );
-        })}
+      {/* Top 4:3 Aspect Ratio Container */}
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-neutral-900">
+        <img
+          src={cover}
+          alt={album.title}
+          className="w-full h-full object-cover object-center block transition-transform duration-700 group-hover:scale-105"
+          style={{ imageOrientation: "from-image" }}
+          loading={albumIdx < 4 ? "eager" : "lazy"}
+          decoding="async"
+        />
 
         {/* Floating Photo Count Badge */}
-        <div className="absolute top-2.5 right-2.5 px-2.5 py-1 bg-black/60 backdrop-blur-md rounded-full text-[10px] font-bold font-mono text-white border border-white/20 flex items-center gap-1 z-20">
-          <Layers size={10} className="text-[var(--accent)]" /> {album.photoCount || images.length} Photos
+        <div className="absolute top-2 right-2 px-2 py-0.5 bg-black/75 backdrop-blur-md rounded-full text-[9px] sm:text-[10px] font-bold font-mono text-white border border-white/20 flex items-center gap-1 z-20">
+          <Layers size={10} className="text-[var(--accent)]" /> {photoCount} Photos
         </div>
 
         {/* Hover Overlay */}
-        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
-          <span className="px-3.5 py-1.5 bg-[var(--accent)] text-black font-extrabold text-[11px] uppercase tracking-wider rounded-full shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
+        <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
+          <span className="px-3 py-1 bg-[var(--accent)] text-black font-extrabold text-[10px] sm:text-[11px] uppercase tracking-wider rounded-full shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
             View Shoot
           </span>
         </div>
-
-        {/* Bottom Dots Indicator */}
-        {images.length > 1 && (
-          <div className="absolute bottom-[14px] left-1/2 -translate-x-1/2 flex justify-center items-center gap-2 z-30 pointer-events-none">
-            {images.map((_, i) => (
-              <span
-                key={i}
-                className={`rounded-full transition-all duration-500 ${
-                  i === activeIdx
-                    ? "w-4 h-1.5 bg-[var(--accent)] shadow-md"
-                    : "w-1.5 h-1.5 bg-white/50"
-                }`}
-              />
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Bottom Title & Shoot Details Footer */}
-      <div className="p-2 sm:p-3 flex flex-col gap-0.5 bg-[var(--card-bg)] border-t border-[var(--card-border)]">
+      <div className="p-2.5 sm:p-3 flex flex-col justify-center min-h-[50px] sm:min-h-[56px] bg-[var(--card-bg)] border-t border-[var(--card-border)]">
         <h3 className="text-[11px] sm:text-xs md:text-sm font-extrabold text-[var(--foreground)] truncate font-display group-hover:text-[var(--accent)] transition-colors">
           {album.title}
         </h3>
-        <span className="text-[9px] sm:text-[10px] font-mono font-medium text-[var(--foreground)]/50 truncate">
+        <span className="text-[9px] sm:text-[10px] font-mono font-medium text-[var(--foreground)]/50 truncate mt-0.5">
           SK Studio Pune Shoot Session
         </span>
       </div>

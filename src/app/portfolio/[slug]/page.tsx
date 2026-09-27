@@ -9,6 +9,19 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+export async function generateStaticParams() {
+  return [
+    { slug: "eyara" },
+    { slug: "veena-aniket" },
+    { slug: "kunal-niddhi" },
+    { slug: "ruchi-pranav" },
+    { slug: "laveena-yash" }
+  ];
+}
+
+export const dynamicParams = true;
+export const revalidate = 60;
+
 export default async function PortfolioDetailPage({ params }: PageProps) {
   const { slug } = await params;
 

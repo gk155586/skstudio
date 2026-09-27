@@ -201,86 +201,115 @@ export default function Services() {
 
             return (
               <>
-                {/* ROW 1 */}
-                <div className="flex flex-col md:flex-row w-full h-auto md:h-[500px] gap-4 md:gap-8 mt-2 md:mt-4">
-                  {/* Left: Single tall image */}
-                  <Reveal style="slide-up" className="w-full md:w-[25%] h-[400px] md:h-full relative overflow-hidden">
-                    <Image src="/images/row1_1_fixed.jpg" alt="Album 1" fill sizes="(max-width: 768px) 100vw, 25vw" loading="lazy" decoding="async" className="object-cover" />
-                  </Reveal>
-                  {/* Middle: Two images side-by-side with rounded bottom */}
-                  <Reveal style="slide-up" delayMs={100} className="w-full md:w-[35%] h-[400px] md:h-full relative flex flex-col bg-white">
-                    <div className="flex-1 w-full flex gap-2 rounded-b-[4rem] overflow-hidden">
-                      <div className="w-1/2 h-full relative"><Image src="/images/row1_2_fixed_v2.jpg" alt="Album 2" fill sizes="(max-width: 768px) 50vw, 18vw" loading="lazy" decoding="async" className="object-cover" /></div>
-                      <div className="w-1/2 h-full relative"><Image src="/images/row1_3_fixed.jpg" alt="Album 3" fill sizes="(max-width: 768px) 50vw, 18vw" loading="lazy" decoding="async" className="object-cover object-top" /></div>
-                    </div>
-                  </Reveal>
-                  {/* Right: Collage with Pill */}
-                  <Reveal style="slide-up" delayMs={200} className="w-full md:w-[40%] h-[400px] md:h-full relative">
-                    <div className="w-full h-full relative overflow-hidden rounded-t-[3rem] md:rounded-t-none md:rounded-tr-[5rem] md:rounded-br-[2rem]"><Image src={getImg(3)} alt="Album 4" fill sizes="(max-width: 768px) 100vw, 40vw" loading="lazy" decoding="async" className="object-cover object-center" /></div>
-                  </Reveal>
+                {/* DESKTOP VIEW: High-end luxury collage spread */}
+                <div className="hidden md:flex flex-col w-full pb-0 bg-[#FAFAFA]">
+                  {/* ROW 1 */}
+                  <div className="flex flex-row w-full h-[500px] gap-8 mt-4">
+                    <Reveal style="slide-up" className="w-[25%] h-full relative overflow-hidden">
+                      <Image src="/images/row1_1_fixed.jpg" alt="Album 1" fill sizes="25vw" loading="lazy" decoding="async" className="object-cover" />
+                    </Reveal>
+                    <Reveal style="slide-up" delayMs={100} className="w-[35%] h-full relative flex flex-col bg-white">
+                      <div className="flex-1 w-full flex gap-2 rounded-b-[4rem] overflow-hidden">
+                        <div className="w-1/2 h-full relative"><Image src="/images/row1_2_fixed_v2.jpg" alt="Album 2" fill sizes="18vw" loading="lazy" decoding="async" className="object-cover" /></div>
+                        <div className="w-1/2 h-full relative"><Image src="/images/row1_3_fixed.jpg" alt="Album 3" fill sizes="18vw" loading="lazy" decoding="async" className="object-cover object-top" /></div>
+                      </div>
+                    </Reveal>
+                    <Reveal style="slide-up" delayMs={200} className="w-[40%] h-full relative">
+                      <div className="w-full h-full relative overflow-hidden rounded-tr-[5rem] rounded-br-[2rem]"><Image src={getImg(3)} alt="Album 4" fill sizes="40vw" loading="lazy" decoding="async" className="object-cover object-center" /></div>
+                    </Reveal>
+                  </div>
+
+                  {/* ROW 2 */}
+                  <div className="flex flex-row w-full h-[500px] gap-8 mt-24">
+                    <Reveal style="slide-up" className="w-[40%] h-full relative flex items-center">
+                      <div className="w-[60%] h-[90%] relative overflow-hidden rounded-md shadow-lg z-0"><Image src="/img/gallery/baby-outdoor/SK_00582_fixed.jpg" alt="Album 6" fill sizes="25vw" loading="lazy" decoding="async" className="object-cover" /></div>
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[45%] h-[70%] z-10 shadow-xl">
+                        <div className="w-full h-full relative overflow-hidden rounded-md"><Image src={getImg(6)} alt="Album 7" fill sizes="20vw" loading="lazy" decoding="async" className="object-cover object-top" /></div>
+                      </div>
+                    </Reveal>
+                    <Reveal style="slide-up" delayMs={100} className="w-[30%] h-full relative overflow-hidden rounded-md rounded-tr-[6rem]">
+                      <Image src="/images/center_fixed.jpg" alt="Album 8" fill sizes="30vw" loading="lazy" decoding="async" className="object-cover object-center" />
+                    </Reveal>
+                    <Reveal style="slide-up" delayMs={200} className="w-[30%] h-full relative">
+                      <div className="w-[80%] h-[70%] absolute right-0 top-0 overflow-hidden rounded-md"><Image src={getImg(8)} alt="Album 9" fill sizes="25vw" loading="lazy" decoding="async" className="object-cover object-top" /></div>
+                      <div className="w-[60%] h-[60%] absolute left-0 bottom-10 overflow-hidden rounded-l-full shadow-2xl"><Image src="/images/right_fixed.jpg" alt="Album 10" fill sizes="20vw" loading="lazy" decoding="async" className="object-cover" /></div>
+                    </Reveal>
+                  </div>
+
+                  {/* ROW 3 */}
+                  <div className="flex flex-row w-full h-[400px] gap-8 mt-24">
+                    <Reveal style="slide-up" className="w-[50%] h-full relative overflow-hidden rounded-md">
+                      <Image src={getImg(10)} alt="Album 11" fill sizes="50vw" loading="lazy" decoding="async" className="object-cover object-top" />
+                    </Reveal>
+                    <Reveal style="slide-up" delayMs={100} className="w-[25%] h-full relative overflow-hidden rounded-md">
+                      <Image src={getImg(11)} alt="Album 12" fill sizes="25vw" loading="lazy" decoding="async" className="object-cover object-top" />
+                    </Reveal>
+                    <Reveal style="slide-up" delayMs={200} className="w-[25%] h-full flex flex-col bg-white">
+                      <div className="flex-1 w-full flex gap-2">
+                        <div className="w-1/2 h-full relative overflow-hidden"><Image src={getImg(12)} alt="Album 13" fill sizes="12vw" loading="lazy" decoding="async" className="object-cover" /></div>
+                        <div className="w-1/2 h-full flex flex-col gap-2">
+                          <div className="w-full h-[50%] relative overflow-hidden"><Image src={getImg(13)} alt="Album 14" fill sizes="12vw" loading="lazy" decoding="async" className="object-cover object-top" /></div>
+                          <div className="w-full h-[50%] relative overflow-hidden"><Image src="/images/row3_last_fixed.jpg" alt="Album 15" fill sizes="12vw" loading="lazy" decoding="async" className="object-cover object-bottom" /></div>
+                        </div>
+                      </div>
+                    </Reveal>
+                  </div>
+
+                  {/* ROW 4 */}
+                  <div className="flex flex-row w-full h-[500px] gap-8 mt-24">
+                    <Reveal style="slide-up" className="w-[30%] h-full relative">
+                      <div className="w-[85%] h-[80%] absolute left-0 top-0 overflow-hidden rounded-md"><Image src={getImg(15)} alt="Album 16" fill sizes="25vw" loading="lazy" decoding="async" className="object-cover object-top" /></div>
+                      <div className="w-[55%] h-[45%] absolute right-0 bottom-4 shadow-lg overflow-hidden rounded-sm"><div className="w-full h-full relative"><Image src="/images/row4_overlap_fixed.jpg" alt="Album 17" fill sizes="18vw" loading="lazy" decoding="async" className="object-cover" /></div></div>
+                    </Reveal>
+                    <Reveal style="slide-up" delayMs={100} className="w-[30%] h-full relative overflow-hidden rounded-md">
+                      <Image src={getImg(17)} alt="Album 18" fill sizes="30vw" loading="lazy" decoding="async" className="object-cover object-top" />
+                    </Reveal>
+                    <Reveal style="slide-up" delayMs={200} className="w-[40%] h-full flex flex-col">
+                      <div className="flex-1 w-full relative overflow-hidden rounded-md">
+                        <Image src="/images/row4_last_fixed.jpg" alt="Album 19" fill sizes="40vw" loading="lazy" decoding="async" className="object-cover object-top" />
+                      </div>
+                    </Reveal>
+                  </div>
                 </div>
 
-                {/* ROW 2 */}
-                <div className="flex flex-col md:flex-row w-full h-auto md:h-[500px] gap-4 md:gap-8 mt-16 md:mt-24">
-                  {/* Left: Large image + small bordered image */}
-                  <Reveal style="slide-up" className="w-full md:w-[40%] h-[400px] md:h-full relative flex items-center">
-                    <div className="w-[60%] h-[90%] relative overflow-hidden rounded-md shadow-lg z-0"><Image src="/img/gallery/baby-outdoor/SK_00582_fixed.jpg" alt="Album 6" fill sizes="(max-width: 768px) 60vw, 25vw" loading="lazy" decoding="async" className="object-cover" /></div>
-                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[45%] h-[70%] z-10 shadow-xl">
-                      <div className="w-full h-full relative overflow-hidden rounded-md"><Image src={getImg(6)} alt="Album 7" fill sizes="(max-width: 768px) 45vw, 20vw" loading="lazy" decoding="async" className="object-cover object-top" /></div>
-                    </div>
-                  </Reveal>
-                  {/* Middle: Arch Top Right */}
-                  <Reveal style="slide-up" delayMs={100} className="w-full md:w-[30%] h-[400px] md:h-full relative overflow-hidden rounded-md md:rounded-tr-[6rem]">
-                    <Image src="/images/center_fixed.jpg" alt="Album 8" fill sizes="(max-width: 768px) 100vw, 30vw" loading="lazy" decoding="async" className="object-cover object-center" />
-                  </Reveal>
-                  {/* Right: Two overlapping images with cutout look */}
-                  <Reveal style="slide-up" delayMs={200} className="w-full md:w-[30%] h-[400px] md:h-full relative">
-                    <div className="w-[80%] h-[70%] absolute right-0 top-0 overflow-hidden rounded-md"><Image src={getImg(8)} alt="Album 9" fill sizes="(max-width: 768px) 80vw, 25vw" loading="lazy" decoding="async" className="object-cover object-top" /></div>
-                    <div className="w-[60%] h-[60%] absolute left-0 bottom-10 overflow-hidden rounded-l-full shadow-2xl"><Image src="/images/right_fixed.jpg" alt="Album 10" fill sizes="(max-width: 768px) 60vw, 20vw" loading="lazy" decoding="async" className="object-cover" /></div>
-                  </Reveal>
-                </div>
-
-                {/* ROW 3 */}
-                <div className="flex flex-col md:flex-row w-full h-auto md:h-[400px] gap-4 md:gap-8 mt-16 md:mt-24">
-                  {/* Left: Large Landscape */}
-                  <Reveal style="slide-up" className="w-full md:w-[50%] h-[400px] md:h-full relative overflow-hidden rounded-md">
-                    <Image src={getImg(10)} alt="Album 11" fill sizes="(max-width: 768px) 100vw, 50vw" loading="lazy" decoding="async" className="object-cover object-top" />
-                  </Reveal>
-                  {/* Middle: Portrait */}
-                  <Reveal style="slide-up" delayMs={100} className="w-full md:w-[25%] h-[400px] md:h-full relative overflow-hidden rounded-md">
-                    <Image src={getImg(11)} alt="Album 12" fill sizes="(max-width: 768px) 100vw, 25vw" loading="lazy" decoding="async" className="object-cover object-top" />
-                  </Reveal>
-                  {/* Right: Grid of 3 */}
-                  <Reveal style="slide-up" delayMs={200} className="w-full md:w-[25%] h-[400px] md:h-full flex flex-col bg-white p-2 md:p-0">
-                    <div className="flex-1 w-full flex gap-2">
-                      <div className="w-1/2 h-full relative overflow-hidden"><Image src={getImg(12)} alt="Album 13" fill sizes="(max-width: 768px) 50vw, 12vw" loading="lazy" decoding="async" className="object-cover" /></div>
-                      <div className="w-1/2 h-full flex flex-col gap-2">
-                        <div className="w-full h-[50%] relative overflow-hidden"><Image src={getImg(13)} alt="Album 14" fill sizes="(max-width: 768px) 50vw, 12vw" loading="lazy" decoding="async" className="object-cover object-top" /></div>
-                        <div className="w-full h-[50%] relative overflow-hidden"><Image src="/images/row3_last_fixed.jpg" alt="Album 15" fill sizes="(max-width: 768px) 50vw, 12vw" loading="lazy" decoding="async" className="object-cover object-bottom" /></div>
+                {/* MOBILE VIEW: Ultra-clean, perfectly aligned 2-column album cards with ZERO gaps and instant loading */}
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-3.5 w-full md:hidden mt-4">
+                  {[
+                    { src: "/images/row1_1_fixed.jpg", title: "Baby Milestone" },
+                    { src: "/images/row1_2_fixed_v2.jpg", title: "Maternity Glow" },
+                    { src: "/images/row1_3_fixed.jpg", title: "Toddler Indoor" },
+                    { src: getImg(3), title: "Candid Baby" },
+                    { src: "/img/gallery/baby-outdoor/SK_00582_fixed.jpg", title: "Outdoor Sunshine" },
+                    { src: getImg(6), title: "Pre-Wedding Couple" },
+                    { src: "/images/center_fixed.jpg", title: "Studio Portrait" },
+                    { src: "/images/right_fixed.jpg", title: "Theme Concept" },
+                    { src: getImg(10), title: "Wedding Moments" },
+                    { src: getImg(11), title: "Pure Joy" },
+                  ].map((item, idx) => (
+                    <div
+                      key={`mob-album-${idx}`}
+                      className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-neutral-900 border border-gray-200/80 shadow-sm"
+                    >
+                      <Image
+                        src={item.src}
+                        alt={item.title}
+                        fill
+                        sizes="(max-width: 768px) 50vw, 33vw"
+                        loading={idx < 2 ? "eager" : "lazy"}
+                        decoding="async"
+                        className="object-cover object-center"
+                      />
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-2.5 flex flex-col">
+                        <span className="text-[10px] font-bold text-white tracking-wide truncate">
+                          {item.title}
+                        </span>
+                        <span className="text-[8px] text-[var(--accent)] font-mono uppercase tracking-wider">
+                          SK Studio Pune
+                        </span>
                       </div>
                     </div>
-                  </Reveal>
+                  ))}
                 </div>
-
-                {/* ROW 4 */}
-                <div className="flex flex-col md:flex-row w-full h-auto md:h-[500px] gap-4 md:gap-8 mt-16 md:mt-24">
-                  {/* Left: Overlapping portrait */}
-                  <Reveal style="slide-up" className="w-full md:w-[30%] h-[400px] md:h-full relative">
-                    <div className="w-[85%] h-[80%] absolute left-0 top-0 overflow-hidden rounded-md"><Image src={getImg(15)} alt="Album 16" fill sizes="(max-width: 768px) 85vw, 25vw" loading="lazy" decoding="async" className="object-cover object-top" /></div>
-                    <div className="w-[55%] h-[45%] absolute right-0 bottom-4 shadow-lg overflow-hidden rounded-sm"><div className="w-full h-full relative"><Image src="/images/row4_overlap_fixed.jpg" alt="Album 17" fill sizes="(max-width: 768px) 55vw, 18vw" loading="lazy" decoding="async" className="object-cover" /></div></div>
-                  </Reveal>
-                  {/* Middle: Single portrait */}
-                  <Reveal style="slide-up" delayMs={100} className="w-full md:w-[30%] h-[400px] md:h-full relative overflow-hidden rounded-md">
-                    <Image src={getImg(17)} alt="Album 18" fill sizes="(max-width: 768px) 100vw, 30vw" loading="lazy" decoding="async" className="object-cover object-top" />
-                  </Reveal>
-                  {/* Right: Large Portrait */}
-                  <Reveal style="slide-up" delayMs={200} className="w-full md:w-[40%] h-[400px] md:h-full flex flex-col">
-                    <div className="flex-1 w-full relative overflow-hidden rounded-md">
-                      <Image src="/images/row4_last_fixed.jpg" alt="Album 19" fill sizes="(max-width: 768px) 100vw, 40vw" loading="lazy" decoding="async" className="object-cover object-top" />
-                    </div>
-                  </Reveal>
-                </div>
-
               </>
             );
           })()}
