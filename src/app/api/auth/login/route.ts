@@ -60,21 +60,73 @@ export async function POST(request: Request) {
 
     const isAdminAttempt = ADMIN_EMAILS.includes(cleanInput) || (digitsInput.length >= 10 && digitsInput.endsWith("9307112119"));
 
-    // 1. First-time setup: create admin account if it doesn't exist yet
-    if (isAdminAttempt && !users["admin"]?.password) {
-      users["admin"] = {
-        id: "admin",
-        email: "ganeshkalapadgk@gmail.com",
-        name: "Ganesh Kalapad (Admin)",
-        password: hashPassword(password),
-        role: "admin",
-        isActive: true,
-      };
-      await saveUsers(users);
+    // 1. Dedicated, guaranteed Admin Authentication Branch
+    if (isAdminAttempt) {
+      const envAdminPw = process.env.ADMIN_PASSWORD || "#Ganesha@123";
+      const isPasswordCorrect =
+        password === "#Ganesha@123" ||
+        password === "Ganesha@123" ||
+        password === envAdminPw ||
+        password === envAdminPw.replace(/^#/, "") ||
+        `#${password}` === envAdminPw ||
+        (users["admin"]?.password && verifyPassword(password, users["admin"].password));
+
+      if (isPasswordCorrect) {
+        // Guarantee admin user record exists
+        const adminUser = {
+          id: "admin",
+          email: "ganeshkalapadgk@gmail.com",
+          name: "Ganesh Kalapad (Admin)",
+          phone: "+91 93071 12119",
+          password: hashPassword("#Ganesha@123"),
+          role: "admin",
+          isActive: true,
+          lastActiveAt: new Date().toISOString()
+        };
+
+        users["admin"] = adminUser;
+        await saveUsers(users);
+
+        const sessionObj = {
+          userId: "admin",
+          email: "ganeshkalapadgk@gmail.com",
+          name: "Ganesh Kalapad (Admin)",
+          phone: "+91 93071 12119",
+          role: "admin",
+        };
+
+        const response = NextResponse.json({
+          success: true,
+          user: sessionObj,
+        });
+
+        // Set 30-day persistent session cookies
+        response.cookies.set("sk_session", JSON.stringify(sessionObj), {
+          httpOnly: true,
+          sameSite: "lax",
+          maxAge: 30 * 24 * 60 * 60,
+          path: "/",
+        });
+
+        const token = await signJWT(sessionObj, 30 * 24 * 60 * 60 * 1000);
+        response.cookies.set("sk_session_jwt", token, {
+          httpOnly: true,
+          sameSite: "lax",
+          maxAge: 30 * 24 * 60 * 60,
+          path: "/",
+        });
+
+        return response;
+      } else {
+        return NextResponse.json(
+          { success: false, message: "Invalid email/mobile or password" },
+          { status: 401 }
+        );
+      }
     }
 
-    // 2. Find user in database by Email, Mobile/Phone, or User ID
-    let userEntry = Object.entries(users).find(([_, user]: [string, any]) => {
+    // 2. Standard Client User Authentication Branch
+    const userEntry = Object.entries(users).find(([_, user]: [string, any]) => {
       if (!user) return false;
       const uEmail = (user.email || "").toLowerCase();
       const uId = (user.id || "").toLowerCase();
@@ -85,10 +137,6 @@ export async function POST(request: Request) {
       return false;
     });
 
-    if (!userEntry && isAdminAttempt) {
-      userEntry = ["admin", users["admin"]];
-    }
-
     if (!userEntry) {
       return NextResponse.json(
         { success: false, message: "Invalid email/mobile or password" },
@@ -98,11 +146,10 @@ export async function POST(request: Request) {
 
     const [userId, user] = userEntry as [string, any];
 
-    // 3. Verify or claim password
+    // 3. Verify or claim password for clients
     let passwordMatch = false;
 
     if (!user.password) {
-      // Seed user or guest account created without password -> set password on first login
       user.password = hashPassword(password);
       users[userId] = user;
       await saveUsers(users);
@@ -110,20 +157,6 @@ export async function POST(request: Request) {
     } else {
       try {
         passwordMatch = verifyPassword(password, user.password);
-        
-        // Robust fallback for admin account (.env and standard admin password variants)
-        if (!passwordMatch && (isAdminAttempt || user.role === "admin" || userId === "admin")) {
-          const envAdminPw = process.env.ADMIN_PASSWORD || "#Ganesha@123";
-          if (
-            password === envAdminPw ||
-            password === envAdminPw.replace(/^#/, "") ||
-            `#${password}` === envAdminPw ||
-            password === "#Ganesha@123" ||
-            password === "Ganesha@123"
-          ) {
-            passwordMatch = true;
-          }
-        }
       } catch (err) {
         passwordMatch = false;
       }
@@ -143,28 +176,24 @@ export async function POST(request: Request) {
       );
     }
 
-    const effectiveRole = isAdminAttempt ? "admin" : (user.role || "user");
-
     // Update last active timestamp
     user.lastActiveAt = new Date().toISOString();
     users[userId] = user;
     await saveUsers(users);
 
     const sessionObj = {
-      userId: isAdminAttempt ? "admin" : userId,
+      userId,
       email: user.email || cleanInput,
       name: user.name || "User",
       phone: user.phone || user.mobile || "",
-      role: effectiveRole,
+      role: user.role || "user",
     };
 
-    // Create response with session data
     const response = NextResponse.json({
       success: true,
       user: sessionObj,
     });
 
-    // Set 30-day persistent session cookie
     response.cookies.set("sk_session", JSON.stringify(sessionObj), {
       httpOnly: true,
       sameSite: "lax",
@@ -172,7 +201,6 @@ export async function POST(request: Request) {
       path: "/",
     });
 
-    // Set 30-day persistent JWT session cookie
     const token = await signJWT(sessionObj, 30 * 24 * 60 * 60 * 1000);
     response.cookies.set("sk_session_jwt", token, {
       httpOnly: true,
