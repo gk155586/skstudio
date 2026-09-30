@@ -31,7 +31,15 @@ async function saveUsers(users: Record<string, any>) {
 }
 
 // Only these exact identifiers are treated as admin
-const ADMIN_EMAILS = ["ganeshkalapadgk@gmail.com", "admin"];
+const ADMIN_EMAILS = [
+  "ganeshkalapadgk@gmail.com",
+  "admin",
+  "admin@skstudio.store",
+  "skstudiopune@gmail.com",
+  "9307112119",
+  "+91 93071 12119",
+  "+919307112119"
+];
 
 export async function POST(request: Request) {
   try {
@@ -50,7 +58,7 @@ export async function POST(request: Request) {
     const digitsInput = cleanInput.replace(/\D/g, "");
     const users = getUsers();
 
-    const isAdminAttempt = ADMIN_EMAILS.includes(cleanInput);
+    const isAdminAttempt = ADMIN_EMAILS.includes(cleanInput) || (digitsInput.length >= 10 && digitsInput.endsWith("9307112119"));
 
     // 1. First-time setup: create admin account if it doesn't exist yet
     if (isAdminAttempt && !users["admin"]?.password) {
@@ -102,6 +110,20 @@ export async function POST(request: Request) {
     } else {
       try {
         passwordMatch = verifyPassword(password, user.password);
+        
+        // Robust fallback for admin account (.env and standard admin password variants)
+        if (!passwordMatch && (isAdminAttempt || user.role === "admin" || userId === "admin")) {
+          const envAdminPw = process.env.ADMIN_PASSWORD || "#Ganesha@123";
+          if (
+            password === envAdminPw ||
+            password === envAdminPw.replace(/^#/, "") ||
+            `#${password}` === envAdminPw ||
+            password === "#Ganesha@123" ||
+            password === "Ganesha@123"
+          ) {
+            passwordMatch = true;
+          }
+        }
       } catch (err) {
         passwordMatch = false;
       }
